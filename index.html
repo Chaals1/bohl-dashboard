@@ -1,0 +1,962 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin=""/>
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+<style>
+  :root {
+    color-scheme: light;
+    --brown-dark:#241A13; --brown:#3A2A1D; --brown-mid:#4A3423; --gold:#EFA736; --gold-dark:#C6821E;
+    --cream:#FBF3E4; --card:#FFFFFF; --ink:#201A13; --ink-soft:#6B6152; --border:#EAE2D2;
+    --terracotta:#C1503A; --olive:#5B7A3D; --tan:#B9AE9A;
+    --surface-2:#faf7f0; --row-hover:#f5f1e6; --hairline:#f2ede3; --note-ink:#5b5147;
+  }
+  :root[data-theme="dark"] {
+    color-scheme: dark;
+    /* Bohl black surround (like the backlit sign wall), clean white modules, warm tan writing. */
+    --cream:#0D0B08; --card:#FFFFFF; --ink:#6B4A25; --ink-soft:#A9835A; --border:#E7D9BC;
+    --surface-2:#F8F2E4; --row-hover:#F5EDDC; --hairline:#EDE1C7; --note-ink:#7A5C36;
+  }
+  :root[data-theme="dark"] .card,
+  :root[data-theme="dark"] .stat-card,
+  :root[data-theme="dark"] .profile-panel {
+    box-shadow: 0 0 26px rgba(239,167,54,0.16), 0 2px 10px rgba(0,0,0,0.5);
+  }
+  /* Backlight glow: a blurred duplicate of the word sits BEHIND the crisp letters (z-index -1),
+     like light escaping from behind the sign — the letters themselves stay solid/matte, not glowing. */
+  .wordmark::before, .wordmark::after {
+    content: attr(data-text);
+    position: absolute; left:0; top:0; right:0;
+    z-index: -1; opacity: 0; pointer-events: none;
+  }
+  :root[data-theme="dark"] .wordmark::before {
+    color: #F5C066; filter: blur(7px); opacity: 0.7;
+  }
+  :root[data-theme="dark"] .wordmark::after {
+    color: #EFA736; filter: blur(20px); opacity: 0.45;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; padding: 0; background: var(--cream); color: var(--ink);
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
+    transition: background 0.25s ease, color 0.25s ease;
+  }
+  .card, .stat-card, .profile-panel { transition: background 0.25s ease, border-color 0.25s ease, box-shadow 0.25s ease; }
+  .wrap { max-width: 1360px; margin: 0 auto; padding: 0 0 34px; }
+  .hero {
+    background: linear-gradient(120deg, var(--brown-dark), var(--brown-mid));
+    color: #fff; padding: 28px 32px; display:flex; align-items:center; justify-content:space-between;
+    flex-wrap: wrap; gap: 14px; border-radius: 0 0 20px 20px; margin-bottom: 18px;
+  }
+  .hero-left { display:flex; align-items:center; gap:22px; }
+  .wordmark {
+    position: relative; font-size: 52px; font-weight: 800; letter-spacing: 1px; color:#FBF3E4; line-height:1;
+    text-shadow:
+      0px 0.5px 0 #E4D3B1, 0px 1px 0 #D7C3A0, 0px 1.5px 0 #C9B491, 0px 2px 0 #BCA582,
+      0px 2.5px 0 #AE9673, 0px 3px 0 #A08765, 0px 3.5px 0 #927857,
+      0px 4px 1px rgba(0,0,0,0.2), 0px 5px 5px rgba(0,0,0,0.35), 0px 8px 11px rgba(0,0,0,0.3);
+  }
+  .hero-sub { font-size: 13px; color: #D9C6A8; margin-top: 3px; }
+  .hero-right { display:flex; align-items:center; gap:10px; flex-wrap: wrap; }
+  .pill { display:inline-flex; align-items:center; gap:6px; font-size:12.5px; padding:7px 14px; border-radius:999px; }
+  .pill.status { background: rgba(255,255,255,0.12); color:#F3E6CE; }
+  .pill.status .dot { width:7px; height:7px; border-radius:50%; background: var(--gold); display:inline-block; }
+  .pill.action { background: var(--gold); color:#2B1A10; font-weight:700; cursor:pointer; user-select:none; border: none; }
+  .pill.action:hover { background:#FFC15C; }
+
+  .content { padding: 0 20px; }
+
+  .profile-panel { display:none; background:var(--card); border:1px solid var(--border); border-radius:14px; padding:16px 18px; margin-bottom:16px; font-size:13px; line-height:1.6; box-shadow: 0 2px 10px rgba(31,61,43,0.06); }
+  .profile-panel.show { display:block; }
+  .profile-panel h3 { margin:0 0 8px; font-size:14px; color:var(--ink); }
+  .profile-grid { display:grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+  .profile-grid ul { margin:4px 0 0; padding-left:18px; }
+  .profile-grid b { color: var(--gold-dark); }
+
+  .err { background:#fdecea; border:1px solid #f3c1bb; color:#8f3025; padding:10px 14px; border-radius:10px; font-size:12.5px; margin-bottom:14px; }
+
+  .stats { display:grid; grid-template-columns: repeat(4,1fr); gap:12px; margin-bottom:18px; }
+  @media (max-width:820px){ .stats { grid-template-columns: repeat(2,1fr); } }
+  .stat-card { background:var(--card); border:1px solid var(--border); border-radius:14px; padding:14px 16px; box-shadow: 0 2px 10px rgba(31,61,43,0.05); }
+  .stat-card .n { font-size:26px; font-weight:800; line-height:1; }
+  .stat-card .l { font-size:11.5px; color:var(--ink-soft); text-transform:uppercase; letter-spacing:.4px; margin-top:5px; }
+  .stat-card.strong .n { color: var(--gold-dark); }
+  .stat-card.possible .n { color: var(--gold); }
+  .stat-card.needsdata .n { color: var(--tan); }
+  .stat-card.total .n { color: var(--gold-dark); }
+
+  .legend { display:flex; gap:16px; flex-wrap:wrap; font-size:12px; color:var(--ink-soft); margin: 0 0 16px; }
+  .legend span.b { display:inline-flex; align-items:center; gap:6px; }
+  .swatch { width:10px; height:10px; border-radius:3px; display:inline-block; }
+
+  .layout { display:grid; grid-template-columns: 1.35fr 1fr; gap: 16px; align-items:start; }
+  @media (max-width: 980px){ .layout { grid-template-columns: 1fr; } }
+  .card { background:var(--card); border:1px solid var(--border); border-radius:16px; padding:16px; box-shadow: 0 2px 14px rgba(31,61,43,0.06); }
+  .card h2 { font-size:14px; margin:0 0 12px; color:var(--ink); font-weight:700; }
+
+  .leaflet-container { border-radius:12px; font-family: 'Inter', -apple-system, sans-serif; }
+  .leaflet-pin { cursor:pointer; transition: transform 0.12s ease; transform-origin: bottom center; }
+  .leaflet-pin:hover, .leaflet-pin.selected { transform: scale(1.15); }
+  .leaflet-pin svg { display:block; }
+  .snapshot-banner { background:#FBF0DA; border:1px solid #EAD3A0; color:#7A5A1E; padding:10px 14px; border-radius:10px; font-size:12.5px; margin-bottom:14px; }
+
+  /* ---- Password gate ---- */
+  #gate { position:fixed; inset:0; background:var(--brown-dark); display:flex; align-items:center; justify-content:center; z-index:1000; }
+  #gate-box { background:var(--card); border-radius:16px; padding:32px 30px; width:320px; max-width:88vw; text-align:center; box-shadow:0 10px 40px rgba(0,0,0,0.4); }
+  #gate-box .wordmark { position:static; font-size:36px; margin-bottom:6px; }
+  #gate-box p { font-size:13px; color:var(--ink-soft); margin:0 0 18px; }
+  #gate-box input { width:100%; padding:10px 12px; border:1px solid var(--border); border-radius:8px; font-size:14px; margin-bottom:10px; box-sizing:border-box; }
+  #gate-box button { width:100%; padding:10px 12px; border:none; border-radius:8px; background:var(--gold); color:#2B1A10; font-weight:700; font-size:14px; cursor:pointer; }
+  #gate-box button:hover { background:#FFC15C; }
+  #gate-error { color:var(--terracotta); font-size:12.5px; margin-top:8px; display:none; }
+  body.locked .wrap { display:none; }
+
+  .list-card { max-height: 620px; overflow-y:auto; }
+  .site-row { display:flex; align-items:center; gap:10px; padding:10px 9px; border-radius:10px; cursor:pointer; border:1px solid transparent; margin-bottom:5px; }
+  .site-row:hover { background:var(--row-hover); }
+  .site-row.selected { background:#FBF0DA; border-color: var(--gold-dark); }
+  .rank { width:20px; font-size:12px; color:var(--tan); font-weight:700; text-align:center; }
+  .score-badge { min-width:44px; text-align:center; font-weight:800; font-size:12.5px; padding:5px 6px; border-radius:8px; color:#fff; }
+  .site-meta { flex:1; min-width:0; }
+  .site-meta .nm { font-size:13.5px; font-weight:700; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+  .site-meta .ad { font-size:11.5px; color:var(--ink-soft); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+  .need-info { color:var(--terracotta); font-weight:800; cursor:help; }
+
+  .detail-card { margin-top: 16px; }
+  .tabs { display:flex; gap:6px; border-bottom:2px solid var(--border); margin-bottom:14px; }
+  .tab { padding:9px 14px; font-size:12.5px; cursor:pointer; color:var(--ink-soft); border-bottom:2px solid transparent; margin-bottom:-2px; font-weight:600; }
+  .tab.active { color:var(--ink); border-color: var(--gold-dark); }
+  .tabpane { display:none; }
+  .tabpane.active { display:block; }
+  .det-header { display:flex; justify-content:space-between; align-items:center; gap:16px; margin-bottom:14px; flex-wrap:wrap; }
+  .det-header h3 { margin:0; font-size:18px; }
+  .det-header .addr { font-size:12.5px; color:var(--ink-soft); margin-top:3px; }
+  .fitring { position:relative; width:74px; height:74px; flex:none; }
+  .fitring svg { transform: rotate(-90deg); }
+  .fitring .num { position:absolute; inset:0; display:flex; align-items:center; justify-content:center; font-size:17px; font-weight:800; }
+  .fitlbl { font-size:10.5px; color:var(--ink-soft); text-align:center; margin-top:3px; }
+  .kv { display:grid; grid-template-columns: 1fr 1fr; gap:10px 16px; font-size:12.5px; margin-bottom:14px; }
+  .kv div { background:var(--surface-2); border-radius:9px; padding:8px 10px; }
+  .kv div b { color:var(--gold-dark); font-weight:700; display:block; font-size:10.5px; text-transform:uppercase; letter-spacing:.3px; margin-bottom:2px; }
+  .crit-row { display:flex; align-items:flex-start; gap:10px; padding:9px 4px; border-bottom:1px solid var(--hairline); }
+  .crit-row:last-child { border-bottom:none; }
+  .crit-icon { width:22px; height:22px; border-radius:50%; flex:none; display:flex; align-items:center; justify-content:center; font-size:12px; font-weight:800; color:#fff; margin-top:1px; }
+  .crit-body b { font-size:13px; }
+  .crit-body .req { font-size:11.5px; color:var(--ink-soft); }
+  .crit-body .note { font-size:12px; color:var(--note-ink); margin-top:3px; line-height:1.5; }
+  .notesbox { font-size:13px; line-height:1.6; white-space:pre-wrap; }
+  .notesbox h4 { font-size:12px; text-transform:uppercase; letter-spacing:.3px; color:var(--ink-soft); margin:14px 0 4px; }
+  .notesbox h4:first-child { margin-top:0; }
+  .empty-hint { color:var(--ink-soft); font-size:13px; padding:26px; text-align:center; }
+  .approx-tag { font-size:10px; background:#FBF0DA; color:var(--gold-dark); border-radius:6px; padding:2px 7px; margin-left:6px; font-weight:700; }
+  a.marketing-link { font-size:12px; color:var(--gold-dark); font-weight:600; text-decoration:none; }
+  a.marketing-link:hover { text-decoration:underline; }
+</style>
+</head>
+<body class="locked">
+<div id="gate">
+  <div id="gate-box">
+    <div class="wordmark" data-text="bohl">bohl</div>
+    <p>Site Selection Dashboard — enter the password to view</p>
+    <input type="password" id="gate-pw" placeholder="Password" autocomplete="off">
+    <button id="gate-submit">View dashboard</button>
+    <div id="gate-error">Incorrect password — try again.</div>
+  </div>
+</div>
+<div class="wrap">
+  <div class="hero">
+    <div class="hero-left">
+      <div class="wordmark" data-text="bohl">bohl</div>
+      <div>
+        <div style="font-size:15px; font-weight:700;">Site Selection Dashboard</div>
+        <div class="hero-sub">Shared with brokers · scored against the Bohl Phoenix Metro tenant profile</div>
+      </div>
+    </div>
+    <div class="hero-right">
+      <div class="pill status"><span class="dot"></span><span id="statusText">Loading live data…</span></div>
+      <button class="pill action" id="themeToggle" style="background:rgba(255,255,255,0.14); color:#F3E6CE;">Dark mode</button>
+      <button class="pill action" id="profileToggle">View Bohl site criteria</button>
+    </div>
+  </div>
+
+  <div class="content">
+    <div class="profile-panel" id="profilePanel">
+      <h3>Bohl Tenant Requirement — Phoenix Metro Retail Site Criteria</h3>
+      <div class="profile-grid">
+        <div>
+          <b>Site requirements</b>
+          <ul>
+            <li>1,800 – 2,800 SF</li>
+            <li>Inline or End Cap</li>
+            <li>Patio required</li>
+            <li>High visibility</li>
+            <li>Easy access</li>
+            <li>Ample parking</li>
+            <li>Newer / renovated centers</li>
+          </ul>
+        </div>
+        <div>
+          <b>Trade area requirements</b>
+          <ul>
+            <li>Population: 100,000+ within 3–5 miles, or 150,000+ within 10 miles (urban)</li>
+            <li>Median household income: $95K+ ($110K+ preferred)</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <div id="errBox"></div>
+
+    <div class="stats" id="statsStrip"></div>
+
+    <div class="legend">
+      <span class="b"><span class="swatch" style="background:#5B7A3D"></span>Strong fit (55%+)</span>
+      <span class="b"><span class="swatch" style="background:#EFA736"></span>Possible fit (35–54%)</span>
+      <span class="b"><span class="swatch" style="background:#B9AE9A"></span>Needs data / weak fit (&lt;35%)</span>
+      <span class="b" style="margin-left:8px;">✓ Met &nbsp; ~ Likely (unverified) &nbsp; — No data yet &nbsp; ✕ Not met</span>
+      <span class="b"><span class="need-info">*</span> More info needed — no brochure reviewed yet</span>
+    </div>
+
+    <div class="layout">
+      <div class="card map-card">
+        <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:12px;">
+          <h2 style="margin:0;">Site map</h2>
+          <button id="showAllBtn" style="font-size:11.5px; padding:5px 11px; border-radius:999px; border:1px solid var(--border); background:var(--surface-2); color:var(--gold-dark); font-weight:700; cursor:pointer;">Show all sites</button>
+        </div>
+        <div id="leafletMap" style="height:460px;border-radius:12px;overflow:hidden;"></div>
+      </div>
+      <div class="card list-card">
+        <h2>Sites, ranked by fit</h2>
+        <div id="siteList"></div>
+      </div>
+    </div>
+
+    <div class="card detail-card" id="detailCard">
+      <div class="empty-hint">Loading sites…</div>
+    </div>
+  </div>
+</div>
+
+<script>
+const FALLBACK_CSV_B64 = "LCwsLCwsLCwsLCwNCiwsLCxTdXJ2ZXkgQ3JpdGVyaWEsLCwsLCwsDQosLCwsTG9jYXRpb246LFdlc3Qgb2YgSS0xNywsLCwsLA0KLCwsLFNpemUgQ3JpdGVyaWE6LCIxLDgwMCAtIDMsMDAwIFNGIiwsLCwsLA0KLCwsLFByb2R1Y3QgVHlwZTosUmV0YWlsLCwsLCwsDQosLCwsTGlzdGluZyBUeXBlOixGb3IgTGVhc2UsLCwsLCwNCiwsLCwsLCwsLCwsDQosLCwsQ29udGFjdCBJbmZvcm1hdGlvbiwsLENvbnRhY3QgSW5mb3JtYXRpb24sLCwsDQosLCwsQ29udGFjdDosRGFuaWVsbGUgRGF2aXMsLENvbnRhY3Q6LEJyYW5kZW4gTW9uZHJhZ29uLCwsDQosLCwsQ2VsbDosNDgwLjMyOS43NzM0LCxDZWxsOiw0ODAuMjg5LjQyMzQsLCwNCiwsLCxFLW1haWw6LGRkYXZpc0BsZXZyb3NlLmNvbSwsRS1tYWlsOixibW9uZHJhZ29uQGxldnJvc2UuY29tLCwsDQosLCwsLCwsLCwsLA0KLEJvaGwgLSBMZWFzZSBTdXJ2ZXkgfCBDaGFybGVzLCwsLCwsLCwsLA0KLCwsLCwsLCwsLCwNCixOYW1lLEFkZHJlc3MsU3BhY2UgVHlwZSxBdmFpbGFibGUgU0YsUHJpY2UgUFNGLE5OTixEZWxpdmVyeSBEYXRlLE1hcmtldGluZyBNYXRlcmlhbCxIaWdobGlnaHRzLFRlbmFudCBOb3RlcyxCcm9rZXIgTm90ZXMNCixHb29keWVhciwsLCwsLCwsLCwNCixQYWxtIFZhbGxleSBDb3JuZXJzdG9uZSwiMTM0MjUgVyBNY0Rvd2VsbCBSZCwgR29vZHllYXIsIEFaIDg1Mzk1IixTaG9wcywiMywwMDAiLCQ1OS4wMCwkMTEuMDAsQXZhaWxhYmxlLFZpZXcgTWF0ZXJpYWwsIjMsMDAwIFNGIGVuZC1jYXAgcmVzdGF1cmFudCB3aXRoIHBpY2stdXAgd2luZG93OyBtb251bWVudCBzaWduYWdlOyBmZW5jZWQgcGF0aW8gYXJlYSBzaG93biBvbiB0aGUgc2l0ZSBwbGFuLiIsLFNwb2tlIHdpdGggRmVzc2luZ2VyLiBTaGFyZWQgcGF0aW8gYW5kIHBpY2stdXAgd2luZG93LiBNb251bWVudCBzaWduIG1heSBiZSBhdmFpbGFibGXigJRjb25maXJtLiBPYnRhaW4gc2l0ZSBwbGFucy4NCixHU1Eg4oCTIEdvb2R5ZWFyIENpdmljIFNxdWFyZSwiTWNEb3dlbGwgUmQgJiAxNTB0aCBEciwgR29vZHllYXIsIEFaIixQYWQgJiBTaG9wcywiMiw0NjIiLCwsQXZhaWxhYmxlLFZpZXcgTWF0ZXJpYWwsIkFkamFjZW50IHRvIEdvb2R5ZWFyIENpdmljIENlbnRlciwgcHVibGljIGxpYnJhcnkgYW5kIGNpdmljIHBhcms7IDEwNCwwMDAgU0YgQ2xhc3MgQSBvZmZpY2U7IDU6MSwwMDAgcGFya2luZyByYXRpby4iLCxDYWxsIHBsYWNlZCB0byBDaHVjayBXZWxsczsgYXdhaXRpbmcgcmVzcG9uc2UuDQosUGFsbSBWYWxsZXkgUGF2aWxpb25zIFdlc3QgUG93ZXIgQ2VudGVyLCIxMzgwLTE0NzQgTiBMaXRjaGZpZWxkIFJkLCBHb29keWVhciwgQVoiLFNob3BzLCIyLDkwMiIsLCxBdmFpbGFibGUsVmlldyBNYXRlcmlhbCxBY2Nlc3MgdG8gdGhlIGZ1bGwtZGlhbW9uZCBMaXRjaGZpZWxkIFJkL0ktMTAgaW50ZXJjaGFuZ2U7IHN0cm9uZyBzdXJyb3VuZGluZyBlbXBsb3ltZW50OyBlc3RhYmxpc2hlZCBuZWlnaGJvcmhvb2RzIHdpdGggc3Ryb25nIGhvdXNlaG9sZCBpbmNvbWVzLiwsQ29udGFjdCBTZWFuIExpZWIgLyBUcmV2b3IgV2hpdGUuIFZpc2liaWxpdHkgaXMgbm90IGlkZWFsLg0KLFBhbG0gVmFsbGV5IFBhdmlsbGlvbnMgTm9ydGgsIjEzNzc4IFcgTWNEb3dlbGwgUmQsIEdvb2R5ZWFyLCBBWiA4NTM5NSIsU2hvcHMsIjIsNjU3IiwsLEF2YWlsYWJsZSxWaWV3IE1hdGVyaWFsLCLCsTI5LDcwMCBTRiBjZW50ZXIgYnVpbHQgaW4gMjAwNzsgYWNyb3NzIGZyb20gdHdvIG1ham9yIHBvd2VyIGNlbnRlcnM7IGhpZ2gtaW5jb21lIHRyYWRlIGFyZWEuIiwsT2xkZXIgY2VudGVyIHdpdGggd2Vha2VyIHRlbmFudCBtaXguDQosUGhvZW5peCwsLCwsLCwsLCwNCixTaGVlbHkgQ2VudGVyLCJTV0MgTG9vcCAxMDEgJiBUaG9tYXMgUmQsIFBob2VuaXgsIEFaIDg1MDM3IixTaG9wcywiMiwxMjIiLCQ1MC4wMCwkMTAuMDAsUTMgMjAyNyAoZXN0LjsgbWF5IGJlIHNvb25lciksVmlldyBNYXRlcmlhbCwiMiwxMjIgU0YgcmVzaXphYmxlIHNob3Agc3BhY2U7IG1peGVkLXVzZSBwcm9qZWN0IHBsYW5uZWQgZm9yIDc1LDAwMCsgU0YgcmV0YWlsIGFuZCA3NTAsMDAwKyBTRiBpbmR1c3RyaWFsOyBhY3Jvc3MgZnJvbSBCYW5uZXIgRXN0cmVsbGEgTWVkaWNhbCBDZW50ZXIuIiwsU3Bva2Ugd2l0aCBBbGJlcnRvLiBBbGwgcGFkcyBhcmUgc3Bva2VuIGZvcjsgU3dpZyBhbmQgUGlua3kncyBoYXZlIGxlYXNlcyBvdXQuIEV2ZXJncmVlbiBpcyB0YWtpbmcgb3ZlciBjb21wbGV0aW9uLiBFbmQtY2FwIHdpdGggcGF0aW8gbmV4dCB0byBQaW5reSdzLg0KLFBlb3JpYSwsLCwsLCwsLCwNCixUaGUgU2hvcHBlcyBhdCBDYW1pbm8gw6EgTGFnbywiTkVDIERlZXIgVmFsbGV5IFJkICYgTGFrZSBQbGVhc2FudCBQa3d5LCBQZW9yaWEsIEFyaXpvbmEiLFBhZCAmIFNob3BzLCwkNDguMDAsJDEwLjAwLExhdGUgMjAyNyAoYW50aWNpcGF0ZWQpLFZpZXcgTWF0ZXJpYWwsIlBhZHMgYW5kIHNob3AgYmF5cyBzaG93biBhdmFpbGFibGUgb24gdGhlIGNvbmNlcHR1YWwgc2l0ZSBwbGFuOyBhZGphY2VudCB0byBhIG5ldyAxMDAtaG9tZSBMZW5uYXIgcmVzaWRlbnRpYWwgZGV2ZWxvcG1lbnQ7IDMsMDAwKyBuZXcgaG9tZXMgYmVpbmcgYWRkZWQgdG8gdGhlIHRyYWRlIGFyZWE7IHN1aXRlIFNGIGlzIG5vdCBzdGF0ZWQuIiwsQXNraW5nIHJlbnQgaXMgaW4gdGhlIG1pZC0kNTBzOyBCcmV0dCBhZHZpc2VkIHN0YXJ0aW5nIGF0ICQ0OC4wMCBQU0YuDQosU3VycHJpc2UsLCwsLCwsLCwsDQosTWFybGV5IFBhcmsgU3F1YXJlLCJTL1NXQyBMaXRjaGZpZWxkIFJkICYgV2FkZGVsbCBSZCwgU3VycHJpc2UsIEFaIDg1Mzc5IixTaG9wcywiMSw4MDAgLSAyLDAwMCIsJDUwLjAwLCQ5LjUwLEF2YWlsYWJsZSAoZXhpc3RpbmcpLFZpZXcgTWF0ZXJpYWwsIkJ1aWxkaW5nIDNDIHJlc3RhdXJhbnQgZW5kY2FwIChTdWl0ZXMgMTEwICYgMTAwKSwgMywyNjkgU0YgZXhpc3RpbmcgcmVzdGF1cmFudCBzcGFjZSB3aXRoIHBhdGlvLCB3aGljaCBMYW5kbG9yZCB3aWxsIGRlbWlzZSB0byB+MSw4MDAtMiwwMDAgU0Y7IGRpcmVjdGx5IG5leHQgdG8gRU9TIEZpdG5lc3M7IGdyZWFzZSB0cmFwIHJlYWR5IHRvIGJlIHRhcHBlZC4gV2FybSBncmV5LXNoZWxsIGRlbGl2ZXJ5OyBUSUEgeWVzLCBUQkQgdXBvbiB0ZW5hbnQgZmluYW5jaWFscyBhbmQgTE9JIHRlcm1zLiBMaXRjaGZpZWxkIFJkICYgV2FkZGVsbCBSZCB3aXRoIDQwLDEzOCsgVlBEOyAkMTEzLDA4MSBhdmcgSEggaW5jb21lIGFuZCAxNSwyODQgcG9wdWxhdGlvbiB3aXRoaW4gMSBtaWxlOyAxOTcsMTg5IGRheXRpbWUgcG9wdWxhdGlvbiB3aXRoaW4gNSBtaWxlcy4iLCwiTGlrZWx5IHRoZSBiZXN0IGZpdCBmb3IgQm9obCAtIGRpcmVjdGx5IG5leHQgdG8gRU9TLCBsYXJnZSBwYXRpbywgYW5kIGdyZWFzZSB0cmFwIHJlYWR5IHRvIGJlIHRhcHBlZCBpbnRvLiBMYW5kbG9yZCB3aWxsIGRlbWlzZSB0aGUgMywyNjkgU0YgZW5kY2FwIHRvIH4xLDgwMC0yLDAwMCBTRi4iDQosU2FmZXdheSBhdCBQZW9yaWEgJiBDb3R0b24gLSBTaG9wcyBCLCJOV0MgUGVvcmlhIEF2ZSAmIENvdHRvbiBMbiwgU3VycHJpc2UsIEFaIixTaG9wcywsJDU1LjAwLCQ4LjAwLENvbnN0cnVjdGlvbiB0byBiZWdpbiAyMDI2OyBkZWxpdmVyeSAyMDI3ICh0ZW50YXRpdmUpLFZpZXcgTWF0ZXJpYWwsIlNob3BzIEIgaXMgYSBuZXcgKy8tIDgsNjAwIFNGIHNob3AgYnVpbGRpbmcgb24gYSArLy0gMS43NCBhY3JlIHBhZDsgaW5kaXZpZHVhbCBzdWl0ZSBTRiBpcyBub3Qgc3RhdGVkLiBTYWZld2F5LWFuY2hvcmVkIGNlbnRlciAtIGpvaW4gU2FmZXdheSwgVGFjbyBCZWxsLCBNY0RvbmFsZCdzLCBTdGFyYnVja3MsIE1vdW50YWluIEFtZXJpY2EgQ3JlZGl0IFVuaW9uLCBHcmV1bGljaCdzIEF1dG9tb3RpdmUgUmVwYWlyLCBUcmFwcGVyJ3MgU3VzaGksIEY0NSBUcmFpbmluZywgQ2x1YiBQaWxhdGVzLCBBcGV4TmV0d29yayBQaHlzaWNhbCBUaGVyYXB5LCBDb3R0b24gTGFuZSBEZW50aXN0cnkgYW5kIFNhZ3Vhcm8gTmFpbHM7IHRoZSAyMCwwMDAgU0YgU2hvcHMgQSBidWlsZGluZyBpcyAxMDAlIGxlYXNlZC4gQWxsIHNpdGUgd29yayBpcyBjb21wbGV0ZSBpbmNsdWRpbmcgc3RvcmFnZSB0YW5rcywgZ3JhZGluZywgcGF2aW5nIGFuZCB1dGlsaXRpZXMgdG8gcGFkczsgNTYgcGFya2luZyBzcGFjZXMgcHJvdmlkZWQ7IG1vbnVtZW50IGFuZCBtdWx0aS10ZW5hbnQgc2lnbmFnZSBzaG93biBvbiB0aGUgbWFzdGVyIHNpdGUgcGxhbi4gTG9jYXRlZCBqdXN0IG9mZiBMb29wIDMwMyBhdCBQZW9yaWEgQXZlIGFuZCBhZGphY2VudCB0byBTdGVybGluZyBHcm92ZSwgYSAyLDIwMC1ob21lIFRvbGwgQnJvdGhlcnMgbWFzdGVyLXBsYW5uZWQgY29tbXVuaXR5LCB3aXRoIDg4MCBmdXR1cmUgbXVsdGlmYW1pbHkgdW5pdHMgcGxhbm5lZCBuZWFyYnkuIiwsQ29uc3RydWN0aW9uIGlzIHRlbnRhdGl2ZWx5IHNjaGVkdWxlZCB0byBiZWdpbiB0aGlzIHllYXIgYW5kIGRlbGl2ZXIgbmV4dCB5ZWFyLiBBc2tpbmcgJDU1LjAwIFBTRiArICQ4LjAwIE5OTi4=";
+
+// Pins below are nudged off the bare street centerline onto the correct side of the road (~150ft),
+// using the Census geocoder's TIGER address-range "side" (L/R) plus the segment's bearing to compute
+// the perpendicular direction — not a guess. For the two pure-intersection sites (GSQ, Marley Park
+// Square) the offset instead moves diagonally into the specific corner the broker/city named
+// (e.g. "NWC" = northwest corner). Sheely Center is still centerline-accurate only — it's a large
+// vacant land parcel without a single building side to offset toward yet.
+const KNOWN_COORDS = {
+  "13425 W MCDOWELL RD, GOODYEAR, AZ 85395": {lat:33.463871, lng:-112.347946},
+  "MCDOWELL RD & 150TH DR, GOODYEAR, AZ": {lat:33.464348, lng:-112.382418},
+  "1380-1474 N LITCHFIELD RD, GOODYEAR, AZ": {lat:33.459580, lng:-112.358718},
+  "13778 W MCDOWELL RD, GOODYEAR, AZ 85395": {lat:33.464845, lng:-112.355645},
+  "SWC LOOP 101 & THOMAS RD, PHOENIX, AZ 85037": {lat:33.4793, lng:-112.2725},
+  "NEC DEER VALLEY RD & LAKE PLEASANT PKWY, PEORIA, ARIZONA": {lat:33.678788, lng:-112.278222},
+  "S/SWC LITCHFIELD RD & WADDELL RD, SURPRISE, AZ 85379": {lat:33.608852, lng:-112.359618},
+  "NWC PEORIA AVE & COTTON LN, SURPRISE, AZ": {lat:33.581168, lng:-112.429734}
+};
+
+const CITY_COORDS = {
+  "GOODYEAR": {lat:33.4356, lng:-112.3576},
+  "AVONDALE": {lat:33.4356, lng:-112.3496},
+  "BUCKEYE": {lat:33.3703, lng:-112.5838},
+  "LITCHFIELD PARK": {lat:33.4998, lng:-112.3585},
+  "PEORIA": {lat:33.5806, lng:-112.2374},
+  "SURPRISE": {lat:33.6292, lng:-112.3679},
+  "EL MIRAGE": {lat:33.6131, lng:-112.3235},
+  "GLENDALE": {lat:33.5387, lng:-112.1860},
+  "PHOENIX": {lat:33.4793, lng:-112.2725},
+  "TOLLESON": {lat:33.4501, lng:-112.2585},
+  "SUN CITY": {lat:33.5981, lng:-112.2718},
+  "SUN CITY WEST": {lat:33.6636, lng:-112.3428}
+};
+
+const CRITERIA_DEFS = [
+  {key:"sf", label:"Size", req:"1,800 – 2,800 SF"},
+  {key:"siteType", label:"Site configuration", req:"Inline or end cap"},
+  {key:"patio", label:"Patio", req:"Required"},
+  {key:"visibility", label:"Visibility", req:"High visibility required"},
+  {key:"access", label:"Access", req:"Easy access required"},
+  {key:"parking", label:"Parking", req:"Ample parking required"},
+  {key:"centerAge", label:"Center age", req:"Newer / renovated centers"},
+  {key:"population", label:"Trade area population", req:"100K+ within 3–5mi, or 150K+ within 10mi (urban)"},
+  {key:"income", label:"Household income", req:"$95K+ median ($110K+ preferred)"}
+];
+
+function b64ToUtf8(b64){
+  const binary = atob(b64.replace(/\s/g,''));
+  const bytes = new Uint8Array(binary.length);
+  for (let i=0;i<binary.length;i++) bytes[i] = binary.charCodeAt(i);
+  return new TextDecoder('utf-8').decode(bytes);
+}
+
+function parseCSV(text){
+  const rows = [];
+  let row = [], field = '', inQuotes = false;
+  for (let i=0;i<text.length;i++){
+    const c = text[i];
+    if (inQuotes){
+      if (c === '"'){
+        if (text[i+1] === '"'){ field += '"'; i++; }
+        else { inQuotes = false; }
+      } else field += c;
+    } else {
+      if (c === '"') inQuotes = true;
+      else if (c === ','){ row.push(field); field=''; }
+      else if (c === '\r'){ /* skip */ }
+      else if (c === '\n'){ row.push(field); rows.push(row); row=[]; field=''; }
+      else field += c;
+    }
+  }
+  if (field.length || row.length){ row.push(field); rows.push(row); }
+  return rows;
+}
+
+const BROCHURE_LINKS = {
+  "13425 W MCDOWELL RD, GOODYEAR, AZ 85395": "https://www.dropbox.com/scl/fi/p1s7tddkf2ensvs8xbvvb/Goodyear-Restaurant-13425-W-McDowell-Rd.pdf?rlkey=4fjj0zuxa5vybwb3knex1x4ja&st=i8y5rcm3&dl=0",
+  "MCDOWELL RD & 150TH DR, GOODYEAR, AZ": "https://www.dropbox.com/scl/fi/933zwoeb3wyz1u41yh4ct/Marketing-Brochure_Flyer-McDowell-Rd-150th-Dr.pdf?rlkey=uxjrbc1ok5te6bp6yeshbwqjb&st=mmyrbfbx&dl=0",
+  "1380-1474 N LITCHFIELD RD, GOODYEAR, AZ": "https://www.dropbox.com/scl/fi/hhqxgopv0rswb4017x36d/Palm-Valley-Pavilions.pdf?rlkey=zvaabxw0whxl9f33xbxlmuefv&st=ssov1lm6&dl=0",
+  "13778 W MCDOWELL RD, GOODYEAR, AZ 85395": "https://www.dropbox.com/scl/fi/dlwuwx6z4vf8m5r39ny0e/Palm-Valley-Pavillions-Brochure-2026-v.2.pdf?rlkey=r9e63mn4iqfjneoshwxntx242&st=bybygn72&dl=0",
+  "SWC LOOP 101 & THOMAS RD, PHOENIX, AZ 85037": "https://www.dropbox.com/scl/fi/6x62rlzp301p5zqw78dud/Marketing-Brochure_Flyer-SWC-Thomas-Rd-Loop-101.pdf?rlkey=g2oq88b0wd2qzx6u9d52q2f1a&st=js19vx2x&dl=0"
+};
+
+function brochureFor(address){
+  return BROCHURE_LINKS[normAddr(address)] || null;
+}
+
+const BROCHURE_DATA = {
+  "13425 W MCDOWELL RD, GOODYEAR, AZ 85395": {
+    source: "Western Retail Advisors brochure (read 2026-07-31)",
+    criteria: {
+      visibility: {status:"met", note:"Brochure states “high-visibility location along McDowell Road” with monument signage; just off I-10 (160,000+ VPD)."},
+      access: {status:"met", note:"Just off Interstate 10, serving 160,000+ vehicles per day."},
+      population: {status:"met", note:"ESRI 2025 data: 102,042 within 3 miles, 239,953 within 5 miles — clears the 100K+ (3–5mi) requirement."},
+      income: {status:"met", note:"ESRI 2025 median HH income: $99,555 within 5 miles (above $95K min). Note: the 3-mile median is $94,715, just under the $95K minimum — slightly below preferred $110K at every radius."},
+      sf: {status:"not_met", note:"Listed suite is 3,000 SF (200 SF over the 2,800 max); the only other space, Jamba Juice's 1,598 SF, is under the 1,800 SF minimum. A drive-thru expansion option runs up to 4,598 SF — also over."}
+    }
+  },
+  "SWC LOOP 101 & THOMAS RD, PHOENIX, AZ 85037": {
+    source: "Western Retail Advisors brochure — Sheely Center (read 2026-07-31)",
+    criteria: {
+      sf: {status:"likely", note:"Shops A/B site plan shows resizable/divisible pad spaces: 5,362 SF (divisible), 3,500 SF (resizable), 2,122 SF (resizable), plus a 1,500 SF space already leased to Swig. The 2,122 SF space fits Bohl's 1,800–2,800 SF range as-is; no fixed suite in that range is being marketed yet, but one is achievable via subdivision."},
+      siteType: {status:"met", note:"Hard-corner inline retail buildings (Shops A + B), not stand-alone pads."},
+      patio: {status:"met", note:"Site plan explicitly labels dedicated patio space along the Shops A/B storefronts."},
+      visibility: {status:"met", note:"AM side of Loop 101 Freeway (139,531 VPD) and Thomas Rd (20,000+ VPD) at a signalized hard corner — high-visibility freeway-adjacent site."},
+      access: {status:"met", note:"Direct frontage on Loop 101 Freeway with signalized access at Thomas Rd; hard-corner location."},
+      centerAge: {status:"met", note:"Brand-new ground-up development (\"Sheely Center\"); national tenants (QuikTrip, Hilton, a national car wash) in escrow/coming soon."},
+      population: {status:"met", note:"Placer.ai/ESRI data: 123,239 residents within 5 miles clears the 100K+ threshold (3-mile figure is only 59,071, well under)."},
+      income: {status:"not_met", note:"Median HH income $76,021 (1mi) / $74,368 (3mi) / $69,645 (5mi) — well below Bohl's $95K minimum at every radius."}
+    }
+  },
+  "13778 W MCDOWELL RD, GOODYEAR, AZ 85395": {
+    source: "Capital Asset Management brochure — Palm Valley Pavillions North (read 2026-07-31)",
+    criteria: {
+      sf: {status:"met", note:"Suite 304-305 (±2,657 SF) fits Bohl's 1,800–2,800 SF range. The other available suite, 302 (±1,288 SF), is below the 1,800 SF minimum."},
+      siteType: {status:"met", note:"Inline shop space within an established strip center (suites 100-108, 300-305) fronting McDowell Rd."},
+      visibility: {status:"likely", note:"Brochure claims \"excellent traffic counts\" at the signalized Litchfield Rd & McDowell Rd corner but gives no specific VPD figures to confirm."},
+      access: {status:"likely", note:"Corner location at two signalized arterials (Litchfield Rd & McDowell Rd); no freeway/interchange proximity noted."},
+      centerAge: {status:"not_met", note:"Built in 2007, Class C — an older center with no renovation noted."},
+      population: {status:"met", note:"ESRI data: 212,991 within 5 miles clears the 100K+ threshold (3-mile current-year figure is 97,699, just under 100K)."},
+      income: {status:"not_met", note:"Median HH income $85,875 (1mi) / $79,566 (3mi) / $84,060 (5mi) — below Bohl's $95K minimum at every radius, despite the brochure's own \"High income trade area\" claim (based on the higher AVERAGE income of $103K–$119K, not median)."}
+    }
+  },
+  "1380-1474 N LITCHFIELD RD, GOODYEAR, AZ": {
+    source: "LevRose brochure — Palm Valley Pavilions / West Power Center (read 2026-07-31)",
+    criteria: {
+      sf: {status:"not_met", note:"Suite 225 is ±2,902 SF — 102 SF over Bohl's 2,800 SF max."},
+      siteType: {status:"met", note:"Inline shop space within the power center (near Ross, Famous Footwear, Best Buy, Barnes & Noble, Ulta, Five Below, Total Wine)."},
+      visibility: {status:"likely", note:"Brochure highlights very high adjacent traffic (I-10 ~189,000 VPD; Litchfield Rd ~27,100 VPD), but Suite 225 sits set back within the power center rather than on freeway frontage, and the broker's own notes flagged visibility as \"not ideal\" — worth an in-person check."},
+      access: {status:"met", note:"Full-diamond interchange access at Litchfield Rd & I-10."},
+      population: {status:"met", note:"Demographics: 205,244 within 5 miles clears the 100K+ threshold (3-mile 2023 figure is 98,799, just under 100K)."},
+      income: {status:"likely", note:"Brochure reports only AVERAGE HH income (not median, as Bohl requires): $100,887 (1mi) / $94,085 (3mi) / $95,427 (5mi). Median typically runs lower than average, so the true median may fall short of the $95K minimum — recommend requesting median figures from the broker."}
+    }
+  },
+  "MCDOWELL RD & 150TH DR, GOODYEAR, AZ": {
+    source: "Kidder Mathews brochure — GSQ Goodyear Civic Square (read 2026-07-31)",
+    criteria: {
+      sf: {status:"met", note:"Phase I available shop space: 2,462 SF — within Bohl's 1,800–2,800 SF range. (Other Phase I/II spaces — ±5,625 SF, ±8,187 SF, ±1,215 SF — fall outside the range.)"},
+      siteType: {status:"met", note:"Inline shop space within a new lifestyle/dining-and-entertainment \"civic square\" development."},
+      patio: {status:"met", note:"Site plan shows dedicated patio space at nearly every shop suite (2,671, 1,899, 1,874, 1,824, 1,501, 959, 929, and 857 SF patios) — a patio-forward center by design."},
+      visibility: {status:"met", note:"Signalized corner of McDowell Rd (146,926 VPD) near I-10/Estrella Pkwy (32,168 VPD); adjacent to Goodyear City Hall/Library and a new AC Hotel — high-visibility civic gateway location."},
+      access: {status:"met", note:"Signalized corner of McDowell Rd & 150th Dr with direct access to Estrella Pkwy and I-10."},
+      parking: {status:"met", note:"Phase I explicitly lists a 5:1,000 SF parking ratio plus dedicated garages (509 and 912 spaces) and surface lots."},
+      centerAge: {status:"met", note:"Brand-new development — Phase I opened Fall 2024, Phase II pads still in planning."},
+      population: {status:"met", note:"130,192 total trade-area population reported; Goodyear citywide ESRI population 101,614 — both clear the 100K+ threshold."},
+      income: {status:"likely", note:"Only AVERAGE HH income reported (not median): $109,976 (trade-area stat) and $101,884 (ESRI Goodyear citywide). Median is typically lower than average, so true median is unconfirmed — likely close to but not guaranteed above $95K; recommend requesting median from broker."}
+    }
+  }
+};
+
+function applyBrochureOverrides(address, results){
+  const data = BROCHURE_DATA[normAddr(address)];
+  if (!data) return results;
+  const merged = {...results};
+  for (const k in data.criteria){
+    merged[k] = {...data.criteria[k], fromBrochure: true};
+  }
+  return merged;
+}
+
+// Competitive proximity — nearest existing fast-casual bowl/salad competitor to each site, researched
+// via web search + Census-geocoded straight-line distance (read 2026-08-01). Cava, Qdoba, and sweetgreen
+// did not turn up confirmed locations near any of these 8 sites in this market — Chipotle is the only
+// confirmed nearby competitor at each of them.
+const COMPETITIVE_DATA = {
+  "13425 W MCDOWELL RD, GOODYEAR, AZ 85395": { distanceMi: 0.59, competitor: "Chipotle — 1560 N Litchfield Rd, Goodyear", tier: "nearby" },
+  "MCDOWELL RD & 150TH DR, GOODYEAR, AZ": { distanceMi: 0.71, competitor: "Chipotle — 15600 W McDowell Rd, Goodyear", tier: "nearby" },
+  "1380-1474 N LITCHFIELD RD, GOODYEAR, AZ": { distanceMi: 0.29, competitor: "Chipotle — 1560 N Litchfield Rd, Goodyear", tier: "overlap" },
+  "13778 W MCDOWELL RD, GOODYEAR, AZ 85395": { distanceMi: 0.15, competitor: "Chipotle — 1560 N Litchfield Rd, Goodyear", tier: "overlap" },
+  "SWC LOOP 101 & THOMAS RD, PHOENIX, AZ 85037": { distanceMi: 5.05, competitor: "Chipotle — 1560 N Litchfield Rd, Goodyear", tier: "whitespace" },
+  "NEC DEER VALLEY RD & LAKE PLEASANT PKWY, PEORIA, ARIZONA": { distanceMi: 5.42, competitor: "Chipotle — 13869 W Bell Rd, Surprise", tier: "whitespace" },
+  "S/SWC LITCHFIELD RD & WADDELL RD, SURPRISE, AZ 85379": { distanceMi: 0.11, competitor: "Chipotle — 13610 N Litchfield Rd, Surprise", tier: "overlap" },
+  "NWC PEORIA AVE & COTTON LN, SURPRISE, AZ": { distanceMi: 2.05, competitor: "Chipotle — 16810 W Waddell Rd, Surprise", tier: "moderate" }
+};
+
+const COMPETITIVE_TIERS = {
+  overlap:    { label: "Direct overlap",    color: "#C1503A" },
+  nearby:     { label: "Nearby",            color: "#D9A441" },
+  moderate:   { label: "Moderate distance", color: "#B9AE9A" },
+  whitespace: { label: "Low overlap / whitespace", color: "#5B7A3D" }
+};
+
+function competitiveFor(address){
+  return COMPETITIVE_DATA[normAddr(address)] || null;
+}
+
+function normAddr(a){ return (a||'').trim().toUpperCase().replace(/\s+/g,' '); }
+
+function hashStr(s){
+  let h = 0;
+  for (let i=0;i<s.length;i++){ h = (h*31 + s.charCodeAt(i)) | 0; }
+  return h;
+}
+
+function coordsFor(address){
+  const norm = normAddr(address);
+  if (KNOWN_COORDS[norm]) return {...KNOWN_COORDS[norm], approx:false};
+  const parts = norm.split(',').map(s=>s.trim());
+  let cityMatch = null;
+  for (const p of parts){
+    for (const city in CITY_COORDS){
+      if (p === city || p.startsWith(city)) { cityMatch = city; break; }
+    }
+    if (cityMatch) break;
+  }
+  const base = cityMatch ? CITY_COORDS[cityMatch] : {lat:33.50, lng:-112.35};
+  const h = hashStr(norm);
+  const jitterLat = ((h % 1000) / 1000 - 0.5) * 0.03;
+  const jitterLng = (((h>>10) % 1000) / 1000 - 0.5) * 0.03;
+  return {lat: base.lat + jitterLat, lng: base.lng + jitterLng, approx:true};
+}
+
+function parseNumbers(str){
+  if (!str) return [];
+  const matches = str.match(/[\d,]+(?:\.\d+)?/g);
+  if (!matches) return [];
+  return matches.map(m => parseFloat(m.replace(/,/g,''))).filter(n=>!isNaN(n));
+}
+
+function scoreSF(sfStr){
+  const nums = parseNumbers(sfStr);
+  if (!nums.length) return {status:"unknown", note:"No SF figure on file yet."};
+  const lo = Math.min(...nums), hi = Math.max(...nums);
+  if (lo >= 1800 && hi <= 2800) return {status:"met", note: hi===lo ? `${hi.toLocaleString()} SF — within the 1,800–2,800 SF range.` : `${lo.toLocaleString()}–${hi.toLocaleString()} SF — within range.`};
+  if (hi > 2800) return {status:"not_met", note:`${hi.toLocaleString()} SF is above the 2,800 SF max (by ${(hi-2800).toLocaleString()} SF).`};
+  if (lo < 1800) return {status:"not_met", note:`${lo.toLocaleString()} SF is below the 1,800 SF minimum.`};
+  return {status:"unknown", note:"SF figure unclear."};
+}
+
+function scoreSiteType(text, spaceType){
+  if (/end.?cap/.test(text)) return {status:"met", note:"Described as an end-cap space."};
+  if (/inline/.test(text)) return {status:"met", note:"Described as inline shop space."};
+  return {status:"unknown", note: spaceType ? `Listed as "${spaceType}" — configuration not confirmed as inline/end-cap.` : "Configuration not stated."};
+}
+
+function scorePatio(text){
+  if (/patio/.test(text)) return {status:"met", note:"Patio mentioned in the listing."};
+  return {status:"unknown", note:"No mention of a patio yet — confirm with broker."};
+}
+
+function scoreVisibility(text){
+  if (/visibility is not ideal|poor visibility|limited visibility|visibility.{0,15}not/.test(text)) return {status:"not_met", note:"Broker flagged visibility as not ideal."};
+  if (/high visibility|excellent visibility|great visibility|strong visibility/.test(text)) return {status:"met", note:"Described as high-visibility."};
+  const vpd = text.match(/([\d,]{4,})\+?\s*vpd/);
+  if (vpd){
+    const n = parseFloat(vpd[1].replace(/,/g,''));
+    if (n >= 30000) return {status:"likely", note:`${n.toLocaleString()}+ VPD reported — strong traffic count suggests good visibility, not explicitly confirmed.`};
+  }
+  return {status:"unknown", note:"No visibility data yet."};
+}
+
+function scoreAccess(text){
+  if (/interchange|full-diamond|freeway|loop 101|loop 303|\bi-10\b|\bi-17\b|easy access/.test(text)) return {status:"met", note:"Near a freeway interchange or major arterial — easy access noted."};
+  return {status:"unknown", note:"No access details yet."};
+}
+
+function scoreParking(text){
+  const ratio = text.match(/(\d)\s*:\s*1,?000/);
+  if (ratio) return {status:"met", note:`${ratio[1]}:1,000 SF parking ratio noted.`};
+  const spaces = text.match(/(\d+)\s*parking spaces/);
+  if (spaces) return {status:"met", note:`${spaces[1]} parking spaces provided.`};
+  if (/ample parking/.test(text)) return {status:"met", note:"Described as ample parking."};
+  return {status:"unknown", note:"Parking details not on file yet."};
+}
+
+function scoreCenterAge(text){
+  if (/older center|weaker tenant mix|dated center/.test(text)) return {status:"not_met", note:"Broker described this as an older center."};
+  const built = text.match(/built in (\d{4})/);
+  if (built){
+    const yr = parseInt(built[1]);
+    if (yr >= 2015) return {status:"met", note:`Built in ${yr} — relatively new.`};
+    return {status:"not_met", note:`Built in ${yr} — older center (no renovation noted).`};
+  }
+  if (/new construction|newly built|ground.?up|conceptual site plan|construction to begin|anticipated \d{4}|under construction/.test(text)) return {status:"met", note:"Ground-up new construction / delivering new."};
+  return {status:"unknown", note:"Center age not stated."};
+}
+
+function scorePopulation(text){
+  const re = /([\d,]{4,})\s*(daytime\s*)?population within (\d+)\s*miles?/gi;
+  let m, best = null, onlyShortRadius = false, daytimeOnly = null;
+  while ((m = re.exec(text))){
+    const num = parseFloat(m[1].replace(/,/g,''));
+    const isDaytime = !!m[2];
+    const radius = parseInt(m[3]);
+    if (isDaytime){
+      daytimeOnly = daytimeOnly || { num, radius };
+      continue;
+    }
+    if (radius >= 3 && radius <= 5 && num >= 100000) return {status:"met", note:`${num.toLocaleString()} population within ${radius} miles — meets the 100K+ (3–5mi) requirement.`};
+    if (radius >= 10 && num >= 150000) return {status:"met", note:`${num.toLocaleString()} population within ${radius} miles — meets the 150K+ (10mi) requirement.`};
+    if (radius <= 1) onlyShortRadius = { num, radius };
+    best = best || {num, radius};
+  }
+  if (onlyShortRadius){
+    let note = `Only a ${onlyShortRadius.radius}-mile population figure on file (${onlyShortRadius.num.toLocaleString()}) — Bohl's requirement is measured at 3–5mi/10mi. Ask broker for the wider radius.`;
+    if (daytimeOnly) note += ` (A ${daytimeOnly.num.toLocaleString()} daytime-population figure within ${daytimeOnly.radius} miles was also reported, but daytime population isn't the same metric as Bohl's residential population requirement.)`;
+    return {status:"unknown", note};
+  }
+  if (best) return {status:"not_met", note:`${best.num.toLocaleString()} population within ${best.radius} miles — below the required threshold.`};
+  if (daytimeOnly) return {status:"unknown", note:`Only a daytime-population figure on file (${daytimeOnly.num.toLocaleString()} within ${daytimeOnly.radius} miles) — not the same metric as Bohl's residential population requirement. Ask broker for residential population within 3–5mi/10mi.`};
+  return {status:"unknown", note:"No population data yet."};
+}
+
+function scoreIncome(text){
+  const re = /\$([\d,]{3,})\s*(?:avg\.?|average|median)?\s*(?:hh|household)?\s*income/gi;
+  let m, best = null;
+  while ((m = re.exec(text))){
+    const num = parseFloat(m[1].replace(/,/g,''));
+    if (!best || num > best) best = num;
+  }
+  if (best){
+    if (best >= 110000) return {status:"met", note:`$${best.toLocaleString()} avg HH income — exceeds the $110K preferred level.`};
+    if (best >= 95000) return {status:"met", note:`$${best.toLocaleString()} avg HH income — meets the $95K minimum.`};
+    return {status:"not_met", note:`$${best.toLocaleString()} avg HH income — below the $95K minimum.`};
+  }
+  if (/high-income|strong household incomes|affluent/.test(text)) return {status:"likely", note:"Described qualitatively as a high-income trade area — no hard figure yet."};
+  return {status:"unknown", note:"No income data yet."};
+}
+
+function scoreSite(site){
+  const text = `${site.spaceType} ${site.highlights} ${site.brokerNotes} ${site.tenantNotes}`.toLowerCase();
+  let results = {
+    sf: scoreSF(site.availableSF),
+    siteType: scoreSiteType(text, site.spaceType),
+    patio: scorePatio(text),
+    visibility: scoreVisibility(text),
+    access: scoreAccess(text),
+    parking: scoreParking(text),
+    centerAge: scoreCenterAge(text),
+    population: scorePopulation(text),
+    income: scoreIncome(text)
+  };
+  results = applyBrochureOverrides(site.address, results);
+  let met=0, likely=0, notMet=0, unknown=0;
+  for (const k in results){
+    const s = results[k].status;
+    if (s==="met") met++; else if (s==="likely") likely++; else if (s==="not_met") notMet++; else unknown++;
+  }
+  const fitScore = Math.round((met*100 + likely*60) / 9);
+  let badge = "Needs data";
+  if (fitScore >= 55) badge = "Strong fit";
+  else if (fitScore >= 35) badge = "Possible fit";
+  return {criteria: results, met, likely, notMet, unknown, fitScore, badge};
+}
+
+function scoreColor(fitScore){
+  if (fitScore >= 55) return "#5B7A3D";
+  if (fitScore >= 35) return "#EFA736";
+  return "#B9AE9A";
+}
+
+function iconFor(status){
+  if (status==="met") return {sym:"✓", color:"#5B7A3D"};
+  if (status==="likely") return {sym:"~", color:"#EFA736"};
+  if (status==="not_met") return {sym:"✕", color:"#C1503A"};
+  return {sym:"—", color:"#B9AE9A"};
+}
+
+function extractSites(csvText){
+  const rows = parseCSV(csvText);
+  const sites = [];
+  let headerFound = false;
+  for (const r of rows){
+    const col1 = (r[1]||'').trim();
+    if (!headerFound){
+      if (col1 === "Name") headerFound = true;
+      continue;
+    }
+    if (!col1) continue;
+    const restEmpty = r.slice(2,12).every(c => !(c||'').trim());
+    if (restEmpty) continue;
+    const address = (r[2]||'').trim();
+    if (!address) continue;
+    sites.push({
+      name: col1,
+      address,
+      spaceType: (r[3]||'').trim(),
+      availableSF: (r[4]||'').trim(),
+      pricePSF: (r[5]||'').trim(),
+      nnn: (r[6]||'').trim(),
+      deliveryDate: (r[7]||'').trim(),
+      marketingLabel: (r[8]||'').trim(),
+      highlights: (r[9]||'').trim(),
+      tenantNotes: (r[10]||'').trim(),
+      brokerNotes: (r[11]||'').trim()
+    });
+  }
+  return sites;
+}
+
+let SITES = [];
+let selectedId = null;
+
+// Central place to change which site is selected — updates all three panels and gently
+// flies the map to the site (rather than each click handler re-fitting the whole map).
+function selectSite(id){
+  selectedId = id;
+  renderList();
+  renderMap();
+  renderDetail();
+  const s = SITES.find(x=>x.id===id);
+  if (s) focusOnSite(s);
+}
+
+function renderAll(){
+  SITES.sort((a,b)=> b.score.fitScore - a.score.fitScore);
+  if (selectedId===null && SITES.length) selectedId = SITES[0].id;
+  renderStats();
+  renderList();
+  renderMap();
+  renderDetail();
+}
+
+// Animates a number from 0 up to `target` over `duration` ms (ease-out), writing into el.textContent.
+function animateNumber(el, target, duration, suffix){
+  if (!el) return;
+  suffix = suffix || '';
+  const start = performance.now();
+  function tick(now){
+    const t = Math.min(1, (now - start) / duration);
+    const eased = 1 - Math.pow(1 - t, 3);
+    el.textContent = Math.round(target * eased) + suffix;
+    if (t < 1) requestAnimationFrame(tick);
+    else el.textContent = target + suffix;
+  }
+  requestAnimationFrame(tick);
+}
+
+function renderStats(){
+  const el = document.getElementById('statsStrip');
+  const strong = SITES.filter(s=>s.score.fitScore>=55).length;
+  const possible = SITES.filter(s=>s.score.fitScore>=35 && s.score.fitScore<55).length;
+  const weak = SITES.length - strong - possible;
+  el.innerHTML = `
+    <div class="stat-card total"><div class="n" data-target="${SITES.length}">0</div><div class="l">Sites surveyed</div></div>
+    <div class="stat-card strong"><div class="n" data-target="${strong}">0</div><div class="l">Strong fit</div></div>
+    <div class="stat-card possible"><div class="n" data-target="${possible}">0</div><div class="l">Possible fit</div></div>
+    <div class="stat-card needsdata"><div class="n" data-target="${weak}">0</div><div class="l">Needs data / weak</div></div>
+  `;
+  el.querySelectorAll('.n').forEach(n=>animateNumber(n, parseInt(n.dataset.target,10), 700));
+}
+
+function renderList(){
+  const el = document.getElementById('siteList');
+  if (!SITES.length){ el.innerHTML = '<div class="empty-hint">No sites found in the survey yet.</div>'; return; }
+  el.innerHTML = SITES.map((s,i)=>`
+    <div class="site-row ${s.id===selectedId?'selected':''}" data-id="${s.id}">
+      <div class="rank">${i+1}</div>
+      <div class="score-badge" style="background:${scoreColor(s.score.fitScore)}">${s.score.fitScore}%</div>
+      <div class="site-meta">
+        <div class="nm">${escapeHtml(s.name)}${s.hasBrochure ? '' : ' <span class="need-info" title="More info needed — no brochure reviewed yet, scored from broker notes only">*</span>'}</div>
+        <div class="ad">${escapeHtml(s.address)}</div>
+      </div>
+    </div>`).join('');
+  el.querySelectorAll('.site-row').forEach(row=>{
+    row.addEventListener('click', ()=>selectSite(row.dataset.id));
+  });
+}
+
+// ---- Real interactive map via Leaflet.js + OpenStreetMap tiles ----
+let leafletMap = null;
+let leafletMarkers = [];
+let mapInitialized = false;
+
+function ensureLeafletMap(){
+  if (leafletMap) return leafletMap;
+  leafletMap = L.map('leafletMap', { scrollWheelZoom: true });
+  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+    maxZoom: 19,
+    attribution: '&copy; <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener">OpenStreetMap</a> contributors'
+  }).addTo(leafletMap);
+  return leafletMap;
+}
+
+// A real teardrop map-pin silhouette (not a rotated square) — classic marker shape, tip at the
+// bottom of a 32x40 viewBox, anchored there so it lines up exactly with the marker's coordinate.
+function pinSvg(fitScore, color){
+  return `<svg width="34" height="42" viewBox="0 0 32 40" xmlns="http://www.w3.org/2000/svg" style="filter: drop-shadow(0 2px 3px rgba(0,0,0,0.35));">
+    <path d="M16 0C7.16 0 0 7.16 0 16c0 11 16 24 16 24s16-13 16-24C32 7.16 24.84 0 16 0z" fill="${color}" stroke="#fff" stroke-width="2"/>
+    <text x="16" y="20" text-anchor="middle" font-size="12" font-weight="800" fill="#fff" font-family="Arial, sans-serif">${fitScore}</text>
+  </svg>`;
+}
+
+function pinDivIcon(fitScore, color, selected){
+  return L.divIcon({
+    className: '',
+    html: `<div class="leaflet-pin ${selected?'selected':''}">${pinSvg(fitScore, color)}</div>`,
+    iconSize: [34,42],
+    iconAnchor: [17,42]
+  });
+}
+
+function renderMap(){
+  if (!SITES.length) return;
+  const map = ensureLeafletMap();
+  leafletMarkers.forEach(m=>map.removeLayer(m));
+  leafletMarkers = [];
+  const bounds = [];
+  SITES.forEach(s=>{
+    const color = scoreColor(s.score.fitScore);
+    const sel = s.id===selectedId;
+    const marker = L.marker([s.coords.lat, s.coords.lng], { icon: pinDivIcon(s.score.fitScore, color, sel) });
+    marker.on('click', ()=>selectSite(s.id));
+    marker.bindTooltip(escapeHtml(s.name));
+    marker.addTo(map);
+    leafletMarkers.push(marker);
+    bounds.push([s.coords.lat, s.coords.lng]);
+  });
+  if (!mapInitialized){
+    if (bounds.length === 1) map.setView(bounds[0], 14);
+    else map.fitBounds(bounds, { padding: [40,40] });
+    mapInitialized = true;
+  }
+}
+
+function focusOnSite(site){
+  const map = ensureLeafletMap();
+  const targetZoom = Math.max(map.getZoom() || 0, 16);
+  map.flyTo([site.coords.lat, site.coords.lng], targetZoom, { duration: 0.6 });
+}
+
+function showAllSites(){
+  if (!SITES.length) return;
+  const map = ensureLeafletMap();
+  const bounds = SITES.map(s=>[s.coords.lat, s.coords.lng]);
+  if (bounds.length === 1) map.flyTo(bounds[0], 14, { duration: 0.6 });
+  else map.flyToBounds(bounds, { padding: [40,40], duration: 0.6 });
+}
+
+function truncate(s,n){ return s.length>n ? s.slice(0,n-1)+'…' : s; }
+function escapeHtml(s){ return (s||'').replace(/[&<>"']/g, c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c])); }
+
+function fitRingSvg(fitScore, color){
+  // Starts fully unfilled (stroke-dashoffset = circumference); renderDetail() animates it to
+  // the target offset right after insertion so the ring visibly fills in.
+  const r = 30, c = 2*Math.PI*r;
+  return `<svg width="74" height="74" viewBox="0 0 74 74">
+    <circle cx="37" cy="37" r="${r}" fill="none" stroke="var(--border)" stroke-width="8"/>
+    <circle class="fit-progress" cx="37" cy="37" r="${r}" fill="none" stroke="${color}" stroke-width="8" stroke-dasharray="${c}" stroke-dashoffset="${c}" stroke-linecap="round" style="transition: stroke-dashoffset 0.9s cubic-bezier(.22,.9,.3,1);"/>
+  </svg>`;
+}
+
+let activeTab = 'overview';
+
+function renderDetail(){
+  const el = document.getElementById('detailCard');
+  const s = SITES.find(x=>x.id===selectedId);
+  if (!s){ el.innerHTML = '<div class="empty-hint">Select a site from the map or list to see its scorecard.</div>'; return; }
+  const color = scoreColor(s.score.fitScore);
+  const critRows = CRITERIA_DEFS.map(def=>{
+    const r = s.score.criteria[def.key];
+    const ic = iconFor(r.status);
+    return `<div class="crit-row">
+      <div class="crit-icon" style="background:${ic.color}">${ic.sym}</div>
+      <div class="crit-body">
+        <b>${def.label}</b> <span class="req">— ${def.req}</span> ${r.fromBrochure ? '<span class="approx-tag">from brochure</span>' : ''}
+        <div class="note">${escapeHtml(r.note)}</div>
+      </div>
+    </div>`;
+  }).join('');
+
+  const comp = s.competitive;
+  const compTier = comp ? COMPETITIVE_TIERS[comp.tier] : null;
+
+  el.innerHTML = `
+    <div class="tabs">
+      <div class="tab ${activeTab==='overview'?'active':''}" data-tab="overview">Overview</div>
+      <div class="tab ${activeTab==='criteria'?'active':''}" data-tab="criteria">Criteria breakdown</div>
+      <div class="tab ${activeTab==='competitive'?'active':''}" data-tab="competitive">Competitive proximity</div>
+      <div class="tab ${activeTab==='notes'?'active':''}" data-tab="notes">Broker &amp; tenant notes</div>
+    </div>
+    <div class="tabpane ${activeTab==='overview'?'active':''}" data-pane="overview">
+      <div class="det-header">
+        <div>
+          <h3>${escapeHtml(s.name)} ${s.coords.approx?'<span class="approx-tag">location approx.</span>':''}</h3>
+          <div class="addr">${escapeHtml(s.address)}</div>
+        </div>
+        <div>
+          <div class="fitring">${fitRingSvg(s.score.fitScore, color)}<div class="num" style="color:${color}">0%</div></div>
+          <div class="fitlbl">${s.score.badge}</div>
+        </div>
+      </div>
+      <div class="kv">
+        <div><b>Space type</b>${escapeHtml(s.spaceType||'—')}</div>
+        <div><b>Available SF</b>${escapeHtml(s.availableSF||'—')}</div>
+        <div><b>Price PSF</b>${escapeHtml(s.pricePSF||'—')}</div>
+        <div><b>NNN</b>${escapeHtml(s.nnn||'—')}</div>
+        <div><b>Delivery</b>${escapeHtml(s.deliveryDate||'—')}</div>
+        <div><b>Marketing material</b>${s.brochureUrl ? `<a class="marketing-link" href="${s.brochureUrl}" target="_blank" rel="noopener">View brochure ↗</a>` : (s.marketingLabel ? 'Not yet captured here — check the broker sheet' : '—')}</div>
+        <div><b>Nearest known competitor</b>${comp ? `${comp.distanceMi} mi <span class="approx-tag" style="background:${compTier.color}22; color:${compTier.color};">${compTier.label}</span>` : 'Not researched yet'}</div>
+      </div>
+      <div class="kv" style="grid-template-columns:1fr;">
+        <div><b>Criteria met so far</b>${s.score.met} met &middot; ${s.score.likely} likely &middot; ${s.score.notMet} not met &middot; ${s.score.unknown} need data</div>
+      </div>
+      <h4 style="font-size:12px;text-transform:uppercase;letter-spacing:.3px;color:var(--ink-soft);margin:10px 0 4px;">Highlights</h4>
+      <div class="notesbox">${escapeHtml(s.highlights || 'No highlights on file yet.')}</div>
+    </div>
+    <div class="tabpane ${activeTab==='criteria'?'active':''}" data-pane="criteria">
+      ${critRows}
+    </div>
+    <div class="tabpane ${activeTab==='competitive'?'active':''}" data-pane="competitive">
+      ${comp ? `
+        <div class="crit-row" style="border-bottom:none;">
+          <div class="crit-icon" style="background:${compTier.color}">●</div>
+          <div class="crit-body">
+            <b>${compTier.label}</b> <span class="req">— nearest confirmed fast-casual bowl/salad competitor</span>
+            <div class="note">${escapeHtml(comp.competitor)} is approximately <b>${comp.distanceMi} miles</b> away (straight-line).</div>
+          </div>
+        </div>
+        <h4 style="font-size:12px;text-transform:uppercase;letter-spacing:.3px;color:var(--ink-soft);margin:14px 0 4px;">Market context</h4>
+        <div class="notesbox">No confirmed Cava, Qdoba, or sweetgreen locations turned up near this site in a web search of the surrounding trade area — Chipotle is currently the only established direct competitor identified nearby. This is a straight-line distance from geocoded addresses, not a drive-time isochrone, and doesn't account for newer openings that may not show up in search yet — worth a quick drive-by to confirm before signing.</div>
+      ` : `<div class="empty-hint">Competitive proximity hasn't been researched for this site yet.</div>`}
+    </div>
+    <div class="tabpane ${activeTab==='notes'?'active':''}" data-pane="notes">
+      <div class="notesbox">
+        <h4>Broker notes</h4>${escapeHtml(s.brokerNotes || 'None yet.')}
+        <h4>Tenant notes</h4>${escapeHtml(s.tenantNotes || 'None yet.')}
+      </div>
+    </div>
+  `;
+  el.querySelectorAll('.tab').forEach(t=>{
+    t.addEventListener('click', ()=>{ activeTab = t.dataset.tab; renderDetail(); });
+  });
+
+  // Animate the fit-score ring filling in and the percentage counting up.
+  const ringCircle = el.querySelector('.fit-progress');
+  const ringNum = el.querySelector('.fitring .num');
+  if (ringCircle){
+    const r = 30, c = 2*Math.PI*r;
+    const targetOffset = c * (1 - s.score.fitScore/100);
+    requestAnimationFrame(()=>requestAnimationFrame(()=>{ ringCircle.style.strokeDashoffset = targetOffset; }));
+  }
+  if (ringNum) animateNumber(ringNum, s.score.fitScore, 900, '%');
+}
+
+const SNAPSHOT_DATE = "Aug 1, 2026";
+
+function loadData(){
+  const statusEl = document.getElementById('statusText');
+  const errBox = document.getElementById('errBox');
+  errBox.innerHTML = `<div class="snapshot-banner">This is a shared snapshot of the Bohl site survey as of ${SNAPSHOT_DATE}. Ask Charles for the latest if it's been a while.</div>`;
+  const csvText = b64ToUtf8(FALLBACK_CSV_B64);
+  const rawSites = extractSites(csvText);
+  SITES = rawSites.map((s,idx)=>({
+    id: 'site-'+idx,
+    ...s,
+    coords: coordsFor(s.address),
+    brochureUrl: brochureFor(s.address),
+    competitive: competitiveFor(s.address),
+    hasBrochure: !!BROCHURE_DATA[normAddr(s.address)],
+    score: scoreSite(s)
+  }));
+  statusEl.textContent = 'Snapshot — ' + SNAPSHOT_DATE;
+  renderAll();
+}
+
+document.getElementById('profileToggle').addEventListener('click', ()=>{
+  const p = document.getElementById('profilePanel');
+  p.classList.toggle('show');
+  document.getElementById('profileToggle').textContent = p.classList.contains('show') ? 'Hide Bohl site criteria' : 'View Bohl site criteria';
+});
+
+function applyTheme(theme){
+  document.documentElement.setAttribute('data-theme', theme);
+  document.getElementById('themeToggle').textContent = theme === 'dark' ? 'Light mode' : 'Dark mode';
+  try { localStorage.setItem('bohl-theme', theme); } catch(e){}
+}
+document.getElementById('themeToggle').addEventListener('click', ()=>{
+  const current = document.documentElement.getAttribute('data-theme') === 'dark' ? 'dark' : 'light';
+  applyTheme(current === 'dark' ? 'light' : 'dark');
+});
+(function initTheme(){
+  let saved = 'light';
+  try { saved = localStorage.getItem('bohl-theme') || 'light'; } catch(e){}
+  applyTheme(saved);
+})();
+
+document.getElementById('showAllBtn').addEventListener('click', showAllSites);
+
+window.addEventListener('resize', ()=>{ if (leafletMap) leafletMap.invalidateSize(); });
+
+// ---- Simple client-side password gate ----
+// NOTE: this is a soft deterrent only, not real security — the password and all page content
+// are visible to anyone who views the page source. It's meant to keep the link off search
+// engines and out of casual hands, not to withstand a determined attacker.
+const GATE_PASSWORD = "BOHLBOYS";
+
+function unlockDashboard(){
+  document.body.classList.remove('locked');
+  document.getElementById('gate').style.display = 'none';
+  try { sessionStorage.setItem('bohl-unlocked', '1'); } catch(e){}
+  loadData();
+}
+
+document.getElementById('gate-submit').addEventListener('click', ()=>{
+  const val = document.getElementById('gate-pw').value.trim();
+  if (val.toUpperCase() === GATE_PASSWORD){
+    unlockDashboard();
+  } else {
+    document.getElementById('gate-error').style.display = 'block';
+    document.getElementById('gate-pw').value = '';
+    document.getElementById('gate-pw').focus();
+  }
+});
+document.getElementById('gate-pw').addEventListener('keydown', (e)=>{
+  if (e.key === 'Enter') document.getElementById('gate-submit').click();
+});
+
+let alreadyUnlocked = false;
+try { alreadyUnlocked = sessionStorage.getItem('bohl-unlocked') === '1'; } catch(e){}
+if (alreadyUnlocked){
+  unlockDashboard();
+} else {
+  document.getElementById('gate-pw').focus();
+}
+</script>
+</body>
+</html>
