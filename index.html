@@ -1121,7 +1121,6 @@ const STAGE_COLORS = {
 // populated live in loadData() from each broker's "Site Status Updates" tab; the FALLBACK
 // copy below (last synced Aug 2, 2026) is only used for an owner if the live fetch fails.
 let STATUS_LOG = {};
-let NON_ACTIVE_BY_OWNER = {}; // live "Non-Active" tab rows per owner, for the archive view (task #33)
 const STATUS_LOG_FALLBACK = {
   charles: [
     { property: "Palm Valley Cornerstone", date: "07/27/2026", status: "Details Received" },
@@ -1461,7 +1460,6 @@ async function loadData(){
 
   SITES = [];
   STATUS_LOG = {};
-  NON_ACTIVE_BY_OWNER = {};
 
   OWNERS.forEach(owner=>{
     const live = liveByOwner[owner.id];
@@ -1469,7 +1467,6 @@ async function loadData(){
     if (live){
       rawSites = extractSitesFromGrid(live.active);
       STATUS_LOG[owner.id] = extractStatusLogFromGrid(live.statusUpdates);
-      NON_ACTIVE_BY_OWNER[owner.id] = extractSitesFromGrid(live.nonActive);
     } else if (owner.csvB64){
       rawSites = extractSites(b64ToUtf8(owner.csvB64));
       STATUS_LOG[owner.id] = STATUS_LOG_FALLBACK[owner.id] || [];
