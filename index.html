@@ -241,9 +241,15 @@
 
     <div class="layout">
       <div class="card map-card">
-        <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:10px;">
+        <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:10px; gap:8px; flex-wrap:wrap;">
           <h2 style="margin:0;">Site map</h2>
-          <button id="showAllBtn" style="font-size:11.5px; padding:5px 11px; border-radius:999px; border:1px solid var(--border); background:var(--surface-2); color:var(--gold-dark); font-weight:700; cursor:pointer;">Show all sites</button>
+          <div style="display:flex; align-items:center; gap:8px;">
+            <label style="display:flex; align-items:center; gap:5px; font-size:11.5px; font-weight:700; color:var(--gold-dark); cursor:pointer; user-select:none; white-space:nowrap;">
+              <input type="checkbox" id="chipotleToggle" style="accent-color:var(--brown-dark); cursor:pointer;">
+              Chipotle sales
+            </label>
+            <button id="showAllBtn" style="font-size:11.5px; padding:5px 11px; border-radius:999px; border:1px solid var(--border); background:var(--surface-2); color:var(--gold-dark); font-weight:700; cursor:pointer;">Show all sites</button>
+          </div>
         </div>
         <div class="owner-filter-tabs" id="ownerFilterTabs"></div>
         <div id="leafletMap" style="border-radius:12px;overflow:hidden;"></div>
@@ -1333,6 +1339,73 @@ function fitMapToFilteredSites(){
   else map.flyToBounds(bounds, { padding: [40,40], duration: 0.6 });
 }
 
+// ---- Chipotle sales-volume overlay ----
+// Toggleable reference layer of existing Chipotle locations across the Phoenix metro, pulled
+// from Charles's "PHX Chipotle Map" (Google My Maps) — each dot is labeled with that location's
+// estimated annual sales volume (in $ millions, from a third-party data scraper). This is a
+// static reference snapshot, not part of the live-fetch pipeline — re-export from My Maps and
+// update CHIPOTLE_DATA if the figures are refreshed.
+const CHIPOTLE_COLOR = "#A81612";
+const CHIPOTLE_DATA = [
+  {lat:33.639934, lng:-112.067468, vol:3.7}, {lat:33.581531, lng:-112.125157, vol:4.7},
+  {lat:33.510375, lng:-112.046220, vol:2.7}, {lat:33.479710, lng:-111.986212, vol:3.9},
+  {lat:33.479676, lng:-112.219834, vol:3.3}, {lat:33.417981, lng:-111.940402, vol:6.4},
+  {lat:33.317420, lng:-111.968828, vol:3.5}, {lat:33.389855, lng:-111.683951, vol:2.9},
+  {lat:33.379668, lng:-111.755813, vol:3.1}, {lat:33.666658, lng:-112.123222, vol:2.9},
+  {lat:33.636268, lng:-112.234111, vol:3.2}, {lat:33.611313, lng:-112.184522, vol:3.6},
+  {lat:33.581531, lng:-112.125157, vol:4.1}, {lat:33.552413, lng:-112.185446, vol:3.3},
+  {lat:33.510375, lng:-112.046220, vol:2.7}, {lat:33.479676, lng:-112.219834, vol:3.3},
+  {lat:33.464390, lng:-112.273176, vol:3.6}, {lat:33.463807, lng:-112.358663, vol:5.7},
+  {lat:33.610440, lng:-112.420593, vol:5.1}, {lat:33.640373, lng:-112.112279, vol:null},
+  {lat:33.676241, lng:-111.924014, vol:3.0}, {lat:33.711451, lng:-112.273128, vol:3.3},
+  {lat:33.742053, lng:-112.322658, vol:1.9}, {lat:33.599497, lng:-111.981744, vol:3.3},
+  {lat:33.638185, lng:-111.977386, vol:2.7}, {lat:33.503371, lng:-111.925695, vol:1.9},
+  {lat:33.479337, lng:-111.925768, vol:3.3}, {lat:33.494961, lng:-112.014634, vol:3.2},
+  {lat:33.674737, lng:-111.976912, vol:3.0}, {lat:33.626388, lng:-111.924558, vol:3.0},
+  {lat:33.622417, lng:-111.873918, vol:3.9}, {lat:33.580751, lng:-111.881851, vol:2.7},
+  {lat:33.377924, lng:-111.807640, vol:3.1}, {lat:33.329880, lng:-111.790896, vol:2.9},
+  {lat:33.307831, lng:-111.742805, vol:3.8}, {lat:33.305495, lng:-111.860118, vol:3.4},
+  {lat:33.305281, lng:-111.899982, vol:2.4}, {lat:33.325507, lng:-111.687598, vol:3.4},
+  {lat:33.281902, lng:-111.788617, vol:3.1}, {lat:33.389893, lng:-111.859059, vol:4.1},
+  {lat:33.376773, lng:-111.943848, vol:4.0}, {lat:33.256189, lng:-111.634569, vol:3.7},
+  {lat:33.175899, lng:-111.580952, vol:3.5}, {lat:33.348607, lng:-111.965384, vol:2.9},
+  {lat:33.349818, lng:-111.901594, vol:2.7}, {lat:33.433499, lng:-111.902039, vol:3.6},
+  {lat:33.510076, lng:-112.071763, vol:2.5}, {lat:33.665886, lng:-112.203519, vol:3.8},
+  {lat:33.536843, lng:-112.261099, vol:4.4}, {lat:33.438089, lng:-112.557133, vol:3.2},
+  {lat:33.713282, lng:-112.125723, vol:3.4}, {lat:33.798921, lng:-111.965314, vol:2.7}
+];
+
+let chipotleLayerGroup = null;
+let showChipotleLayer = false;
+
+function chipotleVolLabel(vol){
+  return (vol===null || vol===undefined || isNaN(vol)) ? '?' : vol.toFixed(1);
+}
+
+function chipotleDivIcon(vol){
+  const label = chipotleVolLabel(vol);
+  return L.divIcon({
+    className: '',
+    html: `<div style="width:28px;height:28px;border-radius:50%;background:${CHIPOTLE_COLOR};color:#fff;display:flex;align-items:center;justify-content:center;font-size:${label.length>3?9:10.5}px;font-weight:800;border:2px solid #fff;box-shadow:0 2px 4px rgba(0,0,0,0.35);font-family:Arial, sans-serif;">${label}</div>`,
+    iconSize: [28,28],
+    iconAnchor: [14,14]
+  });
+}
+
+function renderChipotleLayer(){
+  const map = ensureLeafletMap();
+  if (chipotleLayerGroup){ map.removeLayer(chipotleLayerGroup); chipotleLayerGroup = null; }
+  if (!showChipotleLayer) return;
+  chipotleLayerGroup = L.layerGroup();
+  CHIPOTLE_DATA.forEach(c=>{
+    const marker = L.marker([c.lat, c.lng], { icon: chipotleDivIcon(c.vol) });
+    const volText = (c.vol===null||c.vol===undefined||isNaN(c.vol)) ? 'sales volume not available' : `$${c.vol.toFixed(1)}M est. annual sales`;
+    marker.bindTooltip(`Chipotle — ${volText}`);
+    chipotleLayerGroup.addLayer(marker);
+  });
+  chipotleLayerGroup.addTo(map);
+}
+
 function truncate(s,n){ return s.length>n ? s.slice(0,n-1)+'…' : s; }
 function escapeHtml(s){ return (s||'').replace(/[&<>"']/g, c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c])); }
 
@@ -1525,6 +1598,10 @@ document.getElementById('themeToggle').addEventListener('click', ()=>{
 })();
 
 document.getElementById('showAllBtn').addEventListener('click', showAllSites);
+document.getElementById('chipotleToggle').addEventListener('change', (e)=>{
+  showChipotleLayer = e.target.checked;
+  renderChipotleLayer();
+});
 
 window.addEventListener('resize', ()=>{ if (leafletMap) leafletMap.invalidateSize(); });
 
