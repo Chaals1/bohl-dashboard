@@ -79,24 +79,37 @@
 
   .err { background:#fdecea; border:1px solid #f3c1bb; color:#8f3025; padding:10px 14px; border-radius:10px; font-size:12.5px; margin-bottom:14px; }
 
-  .stats { display:grid; grid-template-columns: repeat(4,1fr); gap:12px; margin-bottom:18px; }
-  @media (max-width:820px){ .stats { grid-template-columns: repeat(2,1fr); } }
-  .stat-card { background:var(--card); border:1px solid var(--border); border-radius:14px; padding:14px 16px; box-shadow: 0 2px 10px rgba(31,61,43,0.05); }
+  .stats { display:grid; grid-template-columns: repeat(5,1fr); gap:12px; margin-bottom:18px; }
+  @media (max-width:980px){ .stats { grid-template-columns: repeat(3,1fr); } }
+  @media (max-width:600px){ .stats { grid-template-columns: repeat(2,1fr); } }
+  .stat-card { background:var(--card); border:1px solid var(--border); border-radius:14px; padding:14px 16px; box-shadow: 0 2px 10px rgba(31,61,43,0.05); border-top: 3px solid transparent; }
   .stat-card .n { font-size:26px; font-weight:800; line-height:1; }
   .stat-card .l { font-size:11.5px; color:var(--ink-soft); text-transform:uppercase; letter-spacing:.4px; margin-top:5px; }
   .stat-card.strong .n { color: var(--gold-dark); }
   .stat-card.possible .n { color: var(--gold); }
   .stat-card.needsdata .n { color: var(--tan); }
   .stat-card.total .n { color: var(--gold-dark); }
+  .stat-card.market { border-top-color: var(--gold-dark); }
+  .stat-card.owner .n { color: var(--olive); }
+  .stat-card.owner .l { display:flex; align-items:center; gap:5px; }
+  .stat-card.owner .owner-swatch { width:8px; height:8px; border-radius:50%; display:inline-block; flex:none; }
+  .stat-card.owner.no-data .n { color: var(--tan); }
 
   .legend { display:flex; gap:16px; flex-wrap:wrap; font-size:12px; color:var(--ink-soft); margin: 0 0 16px; }
   .legend span.b { display:inline-flex; align-items:center; gap:6px; }
   .swatch { width:10px; height:10px; border-radius:3px; display:inline-block; }
 
-  .layout { display:grid; grid-template-columns: 1.35fr 1fr; gap: 16px; align-items:start; }
-  @media (max-width: 980px){ .layout { grid-template-columns: 1fr; } }
-  .card { background:var(--card); border:1px solid var(--border); border-radius:16px; padding:16px; box-shadow: 0 2px 14px rgba(31,61,43,0.06); }
+  .card { background:var(--card); border:1px solid var(--border); border-radius:16px; padding:16px; box-shadow: 0 2px 14px rgba(31,61,43,0.06); margin-bottom:16px; }
   .card h2 { font-size:14px; margin:0 0 12px; color:var(--ink); font-weight:700; }
+
+  .owner-columns { display:grid; grid-template-columns: repeat(4,1fr); gap:14px; align-items:start; margin-bottom:16px; }
+  @media (max-width: 1180px){ .owner-columns { grid-template-columns: repeat(2,1fr); } }
+  @media (max-width: 640px){ .owner-columns { grid-template-columns: 1fr; } }
+  .owner-col { background:var(--card); border:1px solid var(--border); border-radius:16px; padding:14px; box-shadow: 0 2px 14px rgba(31,61,43,0.06); border-top: 3px solid var(--gold-dark); max-height: 520px; overflow-y:auto; }
+  .owner-col h2 { font-size:13px; margin:0 0 3px; color:var(--ink); font-weight:800; display:flex; align-items:center; gap:7px; }
+  .owner-col .owner-role { font-size:10.5px; color:var(--ink-soft); margin-bottom:10px; }
+  .owner-swatch-lg { width:9px; height:9px; border-radius:50%; display:inline-block; flex:none; }
+  .owner-badge { display:inline-flex; align-items:center; gap:5px; font-size:10.5px; font-weight:700; padding:2px 9px; border-radius:999px; color:#fff; margin-left:8px; vertical-align:middle; }
 
   .leaflet-container { border-radius:12px; font-family: 'Inter', -apple-system, sans-serif; }
   .leaflet-pin { cursor:pointer; transition: transform 0.12s ease; transform-origin: bottom center; }
@@ -172,8 +185,8 @@
     <div class="hero-left">
       <div class="wordmark" data-text="bohl">bohl</div>
       <div>
-        <div style="font-size:15px; font-weight:700;">Site Selection Dashboard</div>
-        <div class="hero-sub">Shared with brokers · scored against the Bohl Phoenix Metro tenant profile</div>
+        <div style="font-size:15px; font-weight:700;">Phoenix Market Site Selection Dashboard</div>
+        <div class="hero-sub">Shared by Charles, Sean, Levi &amp; Kyle · scored against the Bohl Phoenix Metro tenant profile</div>
       </div>
     </div>
     <div class="hero-right">
@@ -221,19 +234,15 @@
       <span class="b"><span class="need-info">*</span> More info needed — no brochure reviewed yet</span>
     </div>
 
-    <div class="layout">
-      <div class="card map-card">
-        <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:12px;">
-          <h2 style="margin:0;">Site map</h2>
-          <button id="showAllBtn" style="font-size:11.5px; padding:5px 11px; border-radius:999px; border:1px solid var(--border); background:var(--surface-2); color:var(--gold-dark); font-weight:700; cursor:pointer;">Show all sites</button>
-        </div>
-        <div id="leafletMap" style="height:460px;border-radius:12px;overflow:hidden;"></div>
+    <div class="card map-card">
+      <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:12px;">
+        <h2 style="margin:0;">Market-wide site map</h2>
+        <button id="showAllBtn" style="font-size:11.5px; padding:5px 11px; border-radius:999px; border:1px solid var(--border); background:var(--surface-2); color:var(--gold-dark); font-weight:700; cursor:pointer;">Show all sites</button>
       </div>
-      <div class="card list-card">
-        <h2>Sites, ranked by fit</h2>
-        <div id="siteList"></div>
-      </div>
+      <div id="leafletMap" style="height:460px;border-radius:12px;overflow:hidden;"></div>
     </div>
+
+    <div class="owner-columns" id="ownerColumns"></div>
 
     <div class="card detail-card" id="detailCard">
       <div class="empty-hint">Loading sites…</div>
@@ -243,6 +252,19 @@
 
 <script>
 const FALLBACK_CSV_B64 = "LCwsLCwsLCwsLCwNCiwsLCxTdXJ2ZXkgQ3JpdGVyaWEsLCwsLCwsDQosLCwsTG9jYXRpb246LFdlc3Qgb2YgSS0xNywsLCwsLA0KLCwsLFNpemUgQ3JpdGVyaWE6LCIxLDgwMCAtIDMsMDAwIFNGIiwsLCwsLA0KLCwsLFByb2R1Y3QgVHlwZTosUmV0YWlsLCwsLCwsDQosLCwsTGlzdGluZyBUeXBlOixGb3IgTGVhc2UsLCwsLCwNCiwsLCwsLCwsLCwsDQosLCwsQ29udGFjdCBJbmZvcm1hdGlvbiwsLENvbnRhY3QgSW5mb3JtYXRpb24sLCwsDQosLCwsQ29udGFjdDosRGFuaWVsbGUgRGF2aXMsLENvbnRhY3Q6LEJyYW5kZW4gTW9uZHJhZ29uLCwsDQosLCwsQ2VsbDosNDgwLjMyOS43NzM0LCxDZWxsOiw0ODAuMjg5LjQyMzQsLCwNCiwsLCxFLW1haWw6LGRkYXZpc0BsZXZyb3NlLmNvbSwsRS1tYWlsOixibW9uZHJhZ29uQGxldnJvc2UuY29tLCwsDQosLCwsLCwsLCwsLA0KLEJvaGwgLSBMZWFzZSBTdXJ2ZXkgfCBDaGFybGVzLCwsLCwsLCwsLA0KLCwsLCwsLCwsLCwNCixOYW1lLEFkZHJlc3MsU3BhY2UgVHlwZSxBdmFpbGFibGUgU0YsUHJpY2UgUFNGLE5OTixEZWxpdmVyeSBEYXRlLE1hcmtldGluZyBNYXRlcmlhbCxIaWdobGlnaHRzLFRlbmFudCBOb3RlcyxCcm9rZXIgTm90ZXMNCixHb29keWVhciwsLCwsLCwsLCwNCixQYWxtIFZhbGxleSBDb3JuZXJzdG9uZSwiMTM0MjUgVyBNY0Rvd2VsbCBSZCwgR29vZHllYXIsIEFaIDg1Mzk1IixTaG9wcywiMywwMDAiLCQ1OS4wMCwkMTEuMDAsQXZhaWxhYmxlLFZpZXcgTWF0ZXJpYWwsIjMsMDAwIFNGIGVuZC1jYXAgcmVzdGF1cmFudCB3aXRoIHBpY2stdXAgd2luZG93OyBtb251bWVudCBzaWduYWdlOyBmZW5jZWQgcGF0aW8gYXJlYSBzaG93biBvbiB0aGUgc2l0ZSBwbGFuLiIsLFNwb2tlIHdpdGggRmVzc2luZ2VyLiBTaGFyZWQgcGF0aW8gYW5kIHBpY2stdXAgd2luZG93LiBNb251bWVudCBzaWduIG1heSBiZSBhdmFpbGFibGXigJRjb25maXJtLiBPYnRhaW4gc2l0ZSBwbGFucy4NCixHU1Eg4oCTIEdvb2R5ZWFyIENpdmljIFNxdWFyZSwiTWNEb3dlbGwgUmQgJiAxNTB0aCBEciwgR29vZHllYXIsIEFaIixQYWQgJiBTaG9wcywiMiw0NjIiLCwsQXZhaWxhYmxlLFZpZXcgTWF0ZXJpYWwsIkFkamFjZW50IHRvIEdvb2R5ZWFyIENpdmljIENlbnRlciwgcHVibGljIGxpYnJhcnkgYW5kIGNpdmljIHBhcms7IDEwNCwwMDAgU0YgQ2xhc3MgQSBvZmZpY2U7IDU6MSwwMDAgcGFya2luZyByYXRpby4iLCxDYWxsIHBsYWNlZCB0byBDaHVjayBXZWxsczsgYXdhaXRpbmcgcmVzcG9uc2UuDQosUGFsbSBWYWxsZXkgUGF2aWxpb25zIFdlc3QgUG93ZXIgQ2VudGVyLCIxMzgwLTE0NzQgTiBMaXRjaGZpZWxkIFJkLCBHb29keWVhciwgQVoiLFNob3BzLCIyLDkwMiIsLCxBdmFpbGFibGUsVmlldyBNYXRlcmlhbCxBY2Nlc3MgdG8gdGhlIGZ1bGwtZGlhbW9uZCBMaXRjaGZpZWxkIFJkL0ktMTAgaW50ZXJjaGFuZ2U7IHN0cm9uZyBzdXJyb3VuZGluZyBlbXBsb3ltZW50OyBlc3RhYmxpc2hlZCBuZWlnaGJvcmhvb2RzIHdpdGggc3Ryb25nIGhvdXNlaG9sZCBpbmNvbWVzLiwsQ29udGFjdCBTZWFuIExpZWIgLyBUcmV2b3IgV2hpdGUuIFZpc2liaWxpdHkgaXMgbm90IGlkZWFsLg0KLFBhbG0gVmFsbGV5IFBhdmlsbGlvbnMgTm9ydGgsIjEzNzc4IFcgTWNEb3dlbGwgUmQsIEdvb2R5ZWFyLCBBWiA4NTM5NSIsU2hvcHMsIjIsNjU3IiwsLEF2YWlsYWJsZSxWaWV3IE1hdGVyaWFsLCLCsTI5LDcwMCBTRiBjZW50ZXIgYnVpbHQgaW4gMjAwNzsgYWNyb3NzIGZyb20gdHdvIG1ham9yIHBvd2VyIGNlbnRlcnM7IGhpZ2gtaW5jb21lIHRyYWRlIGFyZWEuIiwsT2xkZXIgY2VudGVyIHdpdGggd2Vha2VyIHRlbmFudCBtaXguDQosUGhvZW5peCwsLCwsLCwsLCwNCixTaGVlbHkgQ2VudGVyLCJTV0MgTG9vcCAxMDEgJiBUaG9tYXMgUmQsIFBob2VuaXgsIEFaIDg1MDM3IixTaG9wcywiMiwxMjIiLCQ1MC4wMCwkMTAuMDAsUTMgMjAyNyAoZXN0LjsgbWF5IGJlIHNvb25lciksVmlldyBNYXRlcmlhbCwiMiwxMjIgU0YgcmVzaXphYmxlIHNob3Agc3BhY2U7IG1peGVkLXVzZSBwcm9qZWN0IHBsYW5uZWQgZm9yIDc1LDAwMCsgU0YgcmV0YWlsIGFuZCA3NTAsMDAwKyBTRiBpbmR1c3RyaWFsOyBhY3Jvc3MgZnJvbSBCYW5uZXIgRXN0cmVsbGEgTWVkaWNhbCBDZW50ZXIuIiwsU3Bva2Ugd2l0aCBBbGJlcnRvLiBBbGwgcGFkcyBhcmUgc3Bva2VuIGZvcjsgU3dpZyBhbmQgUGlua3kncyBoYXZlIGxlYXNlcyBvdXQuIEV2ZXJncmVlbiBpcyB0YWtpbmcgb3ZlciBjb21wbGV0aW9uLiBFbmQtY2FwIHdpdGggcGF0aW8gbmV4dCB0byBQaW5reSdzLg0KLFBlb3JpYSwsLCwsLCwsLCwNCixUaGUgU2hvcHBlcyBhdCBDYW1pbm8gw6EgTGFnbywiTkVDIERlZXIgVmFsbGV5IFJkICYgTGFrZSBQbGVhc2FudCBQa3d5LCBQZW9yaWEsIEFyaXpvbmEiLFBhZCAmIFNob3BzLCwkNDguMDAsJDEwLjAwLExhdGUgMjAyNyAoYW50aWNpcGF0ZWQpLFZpZXcgTWF0ZXJpYWwsIlBhZHMgYW5kIHNob3AgYmF5cyBzaG93biBhdmFpbGFibGUgb24gdGhlIGNvbmNlcHR1YWwgc2l0ZSBwbGFuOyBhZGphY2VudCB0byBhIG5ldyAxMDAtaG9tZSBMZW5uYXIgcmVzaWRlbnRpYWwgZGV2ZWxvcG1lbnQ7IDMsMDAwKyBuZXcgaG9tZXMgYmVpbmcgYWRkZWQgdG8gdGhlIHRyYWRlIGFyZWE7IHN1aXRlIFNGIGlzIG5vdCBzdGF0ZWQuIiwsQXNraW5nIHJlbnQgaXMgaW4gdGhlIG1pZC0kNTBzOyBCcmV0dCBhZHZpc2VkIHN0YXJ0aW5nIGF0ICQ0OC4wMCBQU0YuDQosU3VycHJpc2UsLCwsLCwsLCwsDQosTWFybGV5IFBhcmsgU3F1YXJlLCJTL1NXQyBMaXRjaGZpZWxkIFJkICYgV2FkZGVsbCBSZCwgU3VycHJpc2UsIEFaIDg1Mzc5IixTaG9wcywiMSw4MDAgLSAyLDAwMCIsJDUwLjAwLCQ5LjUwLEF2YWlsYWJsZSAoZXhpc3RpbmcpLFZpZXcgTWF0ZXJpYWwsIkJ1aWxkaW5nIDNDIHJlc3RhdXJhbnQgZW5kY2FwIChTdWl0ZXMgMTEwICYgMTAwKSwgMywyNjkgU0YgZXhpc3RpbmcgcmVzdGF1cmFudCBzcGFjZSB3aXRoIHBhdGlvLCB3aGljaCBMYW5kbG9yZCB3aWxsIGRlbWlzZSB0byB+MSw4MDAtMiwwMDAgU0Y7IGRpcmVjdGx5IG5leHQgdG8gRU9TIEZpdG5lc3M7IGdyZWFzZSB0cmFwIHJlYWR5IHRvIGJlIHRhcHBlZC4gV2FybSBncmV5LXNoZWxsIGRlbGl2ZXJ5OyBUSUEgeWVzLCBUQkQgdXBvbiB0ZW5hbnQgZmluYW5jaWFscyBhbmQgTE9JIHRlcm1zLiBMaXRjaGZpZWxkIFJkICYgV2FkZGVsbCBSZCB3aXRoIDQwLDEzOCsgVlBEOyAkMTEzLDA4MSBhdmcgSEggaW5jb21lIGFuZCAxNSwyODQgcG9wdWxhdGlvbiB3aXRoaW4gMSBtaWxlOyAxOTcsMTg5IGRheXRpbWUgcG9wdWxhdGlvbiB3aXRoaW4gNSBtaWxlcy4iLCwiTGlrZWx5IHRoZSBiZXN0IGZpdCBmb3IgQm9obCAtIGRpcmVjdGx5IG5leHQgdG8gRU9TLCBsYXJnZSBwYXRpbywgYW5kIGdyZWFzZSB0cmFwIHJlYWR5IHRvIGJlIHRhcHBlZCBpbnRvLiBMYW5kbG9yZCB3aWxsIGRlbWlzZSB0aGUgMywyNjkgU0YgZW5kY2FwIHRvIH4xLDgwMC0yLDAwMCBTRi4iDQosU2FmZXdheSBhdCBQZW9yaWEgJiBDb3R0b24gLSBTaG9wcyBCLCJOV0MgUGVvcmlhIEF2ZSAmIENvdHRvbiBMbiwgU3VycHJpc2UsIEFaIixTaG9wcywsJDU1LjAwLCQ4LjAwLENvbnN0cnVjdGlvbiB0byBiZWdpbiAyMDI2OyBkZWxpdmVyeSAyMDI3ICh0ZW50YXRpdmUpLFZpZXcgTWF0ZXJpYWwsIlNob3BzIEIgaXMgYSBuZXcgKy8tIDgsNjAwIFNGIHNob3AgYnVpbGRpbmcgb24gYSArLy0gMS43NCBhY3JlIHBhZDsgaW5kaXZpZHVhbCBzdWl0ZSBTRiBpcyBub3Qgc3RhdGVkLiBTYWZld2F5LWFuY2hvcmVkIGNlbnRlciAtIGpvaW4gU2FmZXdheSwgVGFjbyBCZWxsLCBNY0RvbmFsZCdzLCBTdGFyYnVja3MsIE1vdW50YWluIEFtZXJpY2EgQ3JlZGl0IFVuaW9uLCBHcmV1bGljaCdzIEF1dG9tb3RpdmUgUmVwYWlyLCBUcmFwcGVyJ3MgU3VzaGksIEY0NSBUcmFpbmluZywgQ2x1YiBQaWxhdGVzLCBBcGV4TmV0d29yayBQaHlzaWNhbCBUaGVyYXB5LCBDb3R0b24gTGFuZSBEZW50aXN0cnkgYW5kIFNhZ3Vhcm8gTmFpbHM7IHRoZSAyMCwwMDAgU0YgU2hvcHMgQSBidWlsZGluZyBpcyAxMDAlIGxlYXNlZC4gQWxsIHNpdGUgd29yayBpcyBjb21wbGV0ZSBpbmNsdWRpbmcgc3RvcmFnZSB0YW5rcywgZ3JhZGluZywgcGF2aW5nIGFuZCB1dGlsaXRpZXMgdG8gcGFkczsgNTYgcGFya2luZyBzcGFjZXMgcHJvdmlkZWQ7IG1vbnVtZW50IGFuZCBtdWx0aS10ZW5hbnQgc2lnbmFnZSBzaG93biBvbiB0aGUgbWFzdGVyIHNpdGUgcGxhbi4gTG9jYXRlZCBqdXN0IG9mZiBMb29wIDMwMyBhdCBQZW9yaWEgQXZlIGFuZCBhZGphY2VudCB0byBTdGVybGluZyBHcm92ZSwgYSAyLDIwMC1ob21lIFRvbGwgQnJvdGhlcnMgbWFzdGVyLXBsYW5uZWQgY29tbXVuaXR5LCB3aXRoIDg4MCBmdXR1cmUgbXVsdGlmYW1pbHkgdW5pdHMgcGxhbm5lZCBuZWFyYnkuIiwsQ29uc3RydWN0aW9uIGlzIHRlbnRhdGl2ZWx5IHNjaGVkdWxlZCB0byBiZWdpbiB0aGlzIHllYXIgYW5kIGRlbGl2ZXIgbmV4dCB5ZWFyLiBBc2tpbmcgJDU1LjAwIFBTRiArICQ4LjAwIE5OTi4=";
+
+// --- OWNERS + per-franchisee CSVs (added for the multi-franchisor market rebuild) ---
+const SEAN_CSV_B64 = "LCwsLCwsLCwsDQosLCxTdXJ2ZXkgQ3JpdGVyaWEsLCwsLCwNCiwsLCxMb2NhdGlvbjosIlNjb3R0c2RhbGUsIFBhcmFkaXNlIFZhbGxleSAmIEFyY2FkaWEiLCwsLCwNCiwsLCxTaXplIENyaXRlcmlhOiwiMSw4MDAgLSAzLDAwMCBTRiIsLCwsLA0KLCwsLFByb2R1Y3QgVHlwZTosUmV0YWlsLCwsLCwNCiwsLCxMaXN0aW5nIFR5cGU6LEZvciBMZWFzZSwsLCwsDQosLCwsLCwsLCwsDQosLCwsQ29udGFjdCBJbmZvcm1hdGlvbiwsQ29udGFjdCBJbmZvcm1hdGlvbiwsLA0KLCwsLENvbnRhY3Q6LERhbmllbGxlIERhdmlzLCxDb250YWN0OixCcmFuZGVuIE1vbmRyYWdvbiwsDQosLCwsQ2VsbDosNDgwLjMyOS43NzM0LCxDZWxsOiw0ODAuMjg5LjQyMzQsLA0KLCwsLEUtbWFpbDosZGRhdmlzQGxldnJvc2UuY29tLCxFLW1haWw6LGJtb25kcmFnb25AbGV2cm9zZS5jb20sLA0KLCwsLCwsLCwsLA0KLEJvaGwgLSBMZWFzZSBTdXJ2ZXkgfCBTZWFuIFByb3Zvc3QsLCwsLCwsLCwNCiwsLCwsLCwsLCwNCixOYW1lLEFkZHJlc3MsU3BhY2UgVHlwZSxBdmFpbGFibGUgU0YsUHJpY2UgUFNGLE5OTixEZWxpdmVyeSBEYXRlLE1hcmtldGluZyBNYXRlcmlhbCxIaWdobGlnaHRzLFRlbmFudCBOb3RlcyxCcm9rZXIgTm90ZXMNCixTY290dHNkYWxlLCwsLCwsLCwsDQosU2NvdHRzZGFsZSBTZXZpbGxlLCI3MDAxIE4gU2NvdHRzZGFsZSBSZCwgU2NvdHRzZGFsZSwgQVogODUyNTAiLFNob3BzLCIyLDg5NCAtIDYsMjgwIFNGIiwkNTAuMDAsJDE1LjIzLEF2YWlsYWJsZSxWaWV3IE1hdGVyaWFsLCJUd28gc2Vjb25kLWdlbmVyYXRpb24gcmVzdGF1cmFudCBzcGFjZXM6IDIsODk0IFNGIHdpdGggMSwxMjAgU0YgcGF0aW8gYW5kIDYsMjgwIFNGIHdpdGggwrEyLDAwMCBTRiBwYXRpby4gOTAsMDc0IFNGIHJlY2VudGx5IHJlbm92YXRlZCBjb21tdW5pdHkgbGlmZXN0eWxlIGNlbnRlciBpbiBTY290dHNkYWxlJ3MgUmVzb3J0IENvcnJpZG9yIHdpdGggc2lnbmFnZSBhbmQgc3Ryb25nIHZpc2liaWxpdHkuIFNjb3R0c2RhbGUgUmQ6IDc5LDIwMyBWUEQ7IEluZGlhbiBCZW5kIFJkOiAxOSw0OTcgVlBELiBBZGphY2VudCB0byBUaGUgUml0ei1DYXJsdG9uIFJlc2lkZW5jZXMgYW5kIE1jQ29ybWljay1TdGlsbG1hbiBSYWlscm9hZCBQYXJrLiBUZW5hbnRzIGluY2x1ZGUgUnV0aCdzIENocmlzLCBXaWxkZmxvd2VyLCBUb2FzdGlxdWUsIE1hc3NhZ2UgRW52eSwgUHViYmxpY28sIFBhcGEgSm9obidzIGFuZCBDeWNsZUJhci4iLCwNCixDb3JlIENvbW1vbnMsIjE1NjUwIE4gSGF5ZGVuIFJkLCBTY290dHNkYWxlLCBBWiA4NTI2MCIsU2hvcHMsIjEsODAwIC0gMywwMDAgU0YiLG1pZCA1MCdzLCQxMC4wMCxEZWxpdmVyaW5nIHN1bW1lciAyMDI4LFZpZXcgTWF0ZXJpYWwsIk5ldyAzMCwwMDAgU0YgcmV0YWlsIGNlbnRlciBvbiAyLjgxIGFjcmVzIHdpdGggc3VyZmFjZSBhbmQgdW5kZXJncm91bmQgcGFya2luZy4gSW4gZnJvbnQgb2YgdGhlIDI4Mi11bml0IFRoZSBDb3JlIGFwYXJ0bWVudHMsIGJldHdlZW4gQ29zdGNvIGFuZCBIb21lIERlcG90IG9uIEhheWRlbiBSZCBhdCBhIHNpZ25hbGl6ZWQgaW50ZXJzZWN0aW9uLiBIYXlkZW4gUmQ6IDIzLDk5NCBWUEQ7IEZyYW5rIExsb3lkIFdyaWdodCBCbHZkOiA0Miw5NTQgVlBELiBGaXZlLW1pbGUgcG9wdWxhdGlvbjogMTcyLDA5MjsgZGF5dGltZSBwb3B1bGF0aW9uOiAyNjEsNzI4LiIsLA0KLFNpZXJyYSBCbG9vbSwiTkVDIExvb3AgMTAxICYgTiA5MHRoIFN0LCBTY290dHNkYWxlLCBBWiIsUGFkICYgU2hvcHMsIjIsNTAwIC0gMiw4OTEgU0YiLCQ1MC4wMCwkOS4wMCwxMC0xMiBNb250aHMsVmlldyBNYXRlcmlhbCwiNDMtYWNyZSBtaXhlZC11c2Ugd2VsbG5lc3MgY2FtcHVzIGF0IHRoZSBMb29wIDEwMS85MHRoIFN0IGludGVyY2hhbmdlIHdpdGggYXBwcm94aW1hdGVseSA5MDAsMDAwIFNGIG9mIG1lZGljYWwsIHNlbmlvciBsaXZpbmcsIGhvdGVsIGFuZCByZXRhaWwgZmFjaWxpdGllcy4gUXVhbGlmeWluZyBwbGFubmVkIHNwYWNlcyBpbmNsdWRlIGEgMiw1MDAgU0YgYmFuayBwYWQsIDIsODkxIFNGIGZhc3QtZm9vZCBwYWQgYW5kIDIsNjgwIFNGIHJldGFpbCBzcGFjZTsgZHJpdmUtdGhydSBhbmQgZmFzdC1mb29kIHVzZXMgYXJlIGlkZW50aWZpZWQgYXMgcHJvc3BlY3RzLiBFbnRpcmUgZnJvbnRhZ2UgaXMgcGxhbm5lZCBmb3IgcmV0YWlsIHdpdGggTG9vcCAxMDEgdmlzaWJpbGl0eSBhbmQgYWNjZXNzLiBOZWFyYnkgZGVtYW5kIGdlbmVyYXRvcnMgaW5jbHVkZSBIb25vckhlYWx0aCBTaGVhLCBUYWxraW5nIFN0aWNrIFJlc29ydCwgU2FsdCBSaXZlciBGaWVsZHMsIFRhcmdldCBhbmQgSG9tZSBEZXBvdC4gVHJhZGUgYXJlYTogMjI0LDAwMSBwb3B1bGF0aW9uIGFuZCAkMTE1LDAwOCBtZWRpYW4gaG91c2Vob2xkIGluY29tZS4iLCwNCixUaGUgR3JvdmVzLCI3MzAwIE4gVsOtYSBQYXNlbyBkZWwgU3VyLCBTY290dHNkYWxlLCBBWiA4NTI1OCIsU2hvcHMsLCwsTm8gY3VycmVudCByZXRhaWwgYXZhaWxhYmlsaXR5LFZpZXcgTWF0ZXJpYWwsIlByZW1pdW0gTm9ydGggU2NvdHRzZGFsZSBsb2NhdGlvbiB3aXRoIEhheWRlbiBSb2FkIGZyb250YWdlLCBleGNlbGxlbnQgdmlzaWJpbGl0eSwgYW5kIG5lYXJieSB1cHNjYWxlIGRpbmluZyBhbmQgcmV0YWlsLiBCcm9jaHVyZSB0cmFmZmljIGNvdW50OiA2MCw1ODkgVlBEIHdpdGhpbiAwLjIgbWlsZXMuIFRoZSBjdXJyZW50IGJyb2NodXJlIG1hcmtldHMgc2Vjb25kLWZsb29yIG9mZmljZSBzdWl0ZXMgb25seS4iLCxUaGVyZSBpcyBub3RoaW5nIGF2YWlsYWJsZSBhdCB0aGUgbW9tZW50IGJ1dCB3ZSByZWFsbHkgbGlrZSB0aGUgc2l0ZS4gVGhlIExhbmRsb3JkIGJyb2tlciB0aGlua3MgdGhlcmUgbWlnaHQgYmUgYW4gb3Bwb3J0dW5pdHkgaW4gdGhlIGVuZCBjYXAgcGl6emEgcmVzdGF1cmFudCBhdCBzb21lIHBvaW50Lg0KLFBhcGFnbyBQbGF6YSwiU1dDIFNjb3R0c2RhbGUgUmQgJiBNY0Rvd2VsbCBSZCwgU2NvdHRzZGFsZSwgQVogODUyNTciLFNob3BzLCIxLDgwMCAtIDIsNTc2IFNGIiwkNjUuMDAsJDkuMDAsVW5kZXIgY29uc3RydWN0aW9uLiBNdWx0aXBsZSBsZWFzZXMgc2lnbmVkLiBEZWxpdmVyaW5nIFEyIDIwMjcsVmlldyBNYXRlcmlhbCwiQXZhaWxhYmxlIHNob3BzIGluY2x1ZGUgMiwxMDAgU0YgKyBwYXRpbyBhbmQgYSAxLDAwMOKAkzIsNTc2IFNGICsgcGF0aW8gb2ZmZXJpbmc7IGNvbmZpZ3VyYXRpb25zIGJlbG93IDEsODAwIFNGIGFyZSBleGNsdWRlZC4gUHJlbWllciBncm9jZXJ5LWFuY2hvcmVkIG1peGVkLXVzZSBkZXZlbG9wbWVudCBqb2luaW5nIFNwcm91dHMgRmFybWVycyBNYXJrZXQsIG9wZW5pbmcgT2N0b2JlciAyMDI2LiBTY290dHNkYWxlIFJkOiDCsTMyLDA1OCBWUEQ7IE1jRG93ZWxsIFJkOiDCsTMwLDA5NyBWUEQuIFBhcmtpbmcgaW5jbHVkZXMgODEgc3VyZmFjZSBzdGFsbHMgYW5kIGEgMjc0LXN0YWxsIGdhcmFnZS4iLCxBIGxvdCBvZiBkYXl0aW1lIGFuZCBuaWdodCB0aW1lIHRyYWZmaWMuIERpcmVjbHR5IGFjY3Jvc3MgdGhlIHN0cmVldCBmcm9tIGEgbGFyZ2Ugb2ZmaWNlIHBhcmsgYW5kIGRvd24gdGhlIHN0cmVldCBmcm9tIEVudHJhZGENCixUaGUgRWRnZSwiTkVDIDkwdGggU3QgJiBMb29wIDEwMSwgU2NvdHRzZGFsZSwgQVoiLFBhZCwiMiw1MDAgU0YiLCwsUGhhc2UgSUkgZG9lc250IGhhdmUgZGVsaXZlcnkgZGF0ZSB5ZXQsVmlldyBNYXRlcmlhbCwiQ29uY2VwdHVhbCBQMSBwYWQgc2hvd24gYXQgMiw1MDAgU0Y7IHRoZSBicm9jaHVyZSBzdGF0ZXMgcGFkLCByZXRhaWwgYW5kIHJlc3RhdXJhbnQgYnVpbGRpbmdzIGFyZSBhdmFpbGFibGUsIGJ1dCBQMSBpcyBub3QgaW5kaXZpZHVhbGx5IGxhYmVsZWQgYXZhaWxhYmxlLiBIaWdobHkgdmlzaWJsZSBtaXhlZC11c2UgZGV2ZWxvcG1lbnQgb24gU2NvdHRzZGFsZSdzIExvb3AgMTAxIGNvcnJpZG9yIG5lYXIgVGFsa2luZyBTdGljayBSZXNvcnQsIFRvcCBHb2xmLCBHcmVhdCBXb2xmIExvZGdlLCBTYWx0IFJpdmVyIEZpZWxkcywgTWVkaWV2YWwgVGltZXMsIE9keVNlYSBBcXVhcml1bSBhbmQgQXJpem9uYSBCb2FyZHdhbGsuIFRocmVlLW1pbGUgYXZlcmFnZSBob3VzZWhvbGQgaW5jb21lIGlzIGFwcHJveGltYXRlbHkgJDE4Miw3MTMuIiwsU2FtZSBpbnRlcnNlY3Rpb24gYXMgU2llcnJhIEJsb29tLiBUaGV5IGRvbnQgaGF2ZSBhbnlodGluZyBhdmFpbGFibGUgZm9yIFBoYXNlIEkgYW5kIHRoZXkgYXJlbnQgZG9pbmcgYW55IHByZSBsZWFzaW5nIHlldCBmb3IgUGhhc2UgSUkuDQosS2llcmxhbmQgQ29tbW9ucywiU2NvdHRzZGFsZSBSZCAmIEtpZXJsYW5kIEJsdmQsIFNjb3R0c2RhbGUsIEFaIixTaG9wcywsLCwsVmlldyBNYXRlcmlhbCwiSWNvbmljIG9wZW4tYWlyIGx1eHVyeSBzaG9wcGluZyBhbmQgZGluaW5nIGRlc3RpbmF0aW9uIHdpdGggMy44IG1pbGxpb24gYW5udWFsIHZpc2l0cy4gTG9jYXRlZCB3aXRoaW4gdGhlIFNjb3R0c2RhbGUgQWlycGFyayBidXNpbmVzcyBjb3JyaWRvciwgc3VwcG9ydGVkIGJ5IDIwMCwwMDAgZW1wbG95ZWVzIGFuZCBhIGRheXRpbWUgcG9wdWxhdGlvbiBvZiA0MDMsMDAwLiBUcmFkZS1hcmVhIGF2ZXJhZ2UgaG91c2Vob2xkIGluY29tZSBpcyAkMjEzLDAwMC4gVGhlIGNlbnRlciBpcyBhbmNob3JlZCBieSB0aGUgV2VzdGluIEtpZXJsYW5kIFJlc29ydCAmIFNwYSBhbmQgbmVhciB0aGUgRmFpcm1vbnQgU2NvdHRzZGFsZSBQcmluY2Vzcy4gTm8gc3BlY2lmaWMgcmV0YWlsIGF2YWlsYWJpbGl0eSBpcyBpZGVudGlmaWVkIGluIHRoZSBwcm9maWxlLiIsLFdlJ3JlIHdhaXRpbmcgb24gZmVlZGJhY2sgZnJvbSBNYWNlcmljaCB0byBzZWUgd2hhdHMgYXZhaWxhYmxlLg0KLDcxMDEgRSBJbmRpYW4gU2Nob29sLCI3MTAxIEUgSW5kaWFuIFNjaG9vbCBSZCwgU2NvdHRzZGFsZSwgQVogODUyNTEiLE9mZmljZS9SZXRhaWwsLCwsRm9yIFNhbGUsVmlldyBNYXRlcmlhbCwiRm9yLXNhbGUgb2ZmaWNlL3JldGFpbCBidWlsZGluZyB3aXRoIG5vIHF1YWxpZnlpbmcgbGVhc2UgYXZhaWxhYmlsaXR5IHdpdGhpbiB0aGUgMSw4MDDigJMzLDAwMCBTRiBzdXJ2ZXkgY3JpdGVyaWEuIEMtMiB6b25pbmcgcGVybWl0cyByZXRhaWwsIHJlc3RhdXJhbnQsIG1lZGljYWwsIG9mZmljZSBhbmQgc2hvd3Jvb20gdXNlcy4gRXhjZWxsZW50IHZpc2liaWxpdHkgYW5kIGZyb250YWdlIGFsb25nIEluZGlhbiBTY2hvb2wgUm9hZCBpbiBPbGQgVG93biBTY290dHNkYWxlLCB3aXRoIDE2IHBhcmtpbmcgc3BhY2VzIGFuZCBhcHByb3hpbWF0ZWx5IDE5LDAwMCBWUEQuIiwsDQosTWVyY2FkbyBEZWwgTGFnbywiTldDIFZpYSBkZSBWZW50dXJhICYgSGF5ZGVuIFJkLCBTY290dHNkYWxlLCBBWiIsU2hvcHMsIjEsNTE0IFNGIC8gMyw0OTggU0YiLCQzNi4wMCwkOS4wMCxBdmFpbGFibGUsVmlldyBNYXRlcmlhbCwiVHdvIGJ1aWx0LW91dCByZXN0YXVyYW50IHNwYWNlcyBvZiAxLDUxNCBTRiBhbmQgMyw0OTggU0YgYXQgdGhlIG5vcnRod2VzdCBjb3JuZXIgb2YgVmlhIGRlIFZlbnR1cmEgYW5kIEhheWRlbiBSZCwgb25lIG1pbGUgZnJvbSBMb29wIDEwMS4gVHJhZmZpYyBjb3VudHM6IDMwLDE0OSBDUEQgb24gVmlhIGRlIFZlbnR1cmEsIDMxLDAwOCBDUEQgb24gSGF5ZGVuIFJkIGFuZCA2MSwxNTcgQ1BEIGF0IHRoZSBpbnRlcnNlY3Rpb24uIEFuY2hvcnMgYW5kIGNvLXRlbmFudHMgaW5jbHVkZSBTdGFyZmlzaCwgVmVjaW5hLCBQSFggQmVlciwgQnV0dGVycywgQ3J1c3QsIEdyYXNzcm9vdHMsIFppcHBzLCBTYWludCBVcmJhbiwgQ2FtcG8gYW5kIFhHb2xmLiIsLCIxLDUxNCBTRjogc21hbGwgZ3JlYXNlIHRyYXAgYW5kIG5vIGhvb2Q7IHF1b3RpbmcgJDM2LjAwIFBTRiArICQ5LjAwIE5OTjsgZmFyIGFsb25nIG9uIGFuIExPSS4gQ2FtcG8gKDMsNDk4IFNGKTogbm90IHN1cmUgTEwgd2lsbCBkbyB0aGlzIGNvbmNlcHQgdGhlcmU7IGhlIHdhbnRzIHNvbWV0aGluZyBmYW5jaWVyOyBxdW90aW5nICQzNi4wMCBQU0YgKyAkOS4wMCBOTk4uIg0K";
+
+const LEVI_CSV_B64 = "LCwsLCwsLCwsDQosLCxTdXJ2ZXkgQ3JpdGVyaWEsLCwsLCwNCiwsLCxMb2NhdGlvbjosIlF1ZWVuIENyZWVrLCBNZXNhLCBDaGFuZGxlciAmIEdpbGJlcnQiLCwsLCwNCiwsLCxTaXplIENyaXRlcmlhOiwiMSw4MDAgLSAzLDAwMCBTRiIsLCwsLA0KLCwsLFByb2R1Y3QgVHlwZTosUmV0YWlsLCwsLCwNCiwsLCxMaXN0aW5nIFR5cGU6LEZvciBMZWFzZSwsLCwsDQosLCwsLCwsLCwsDQosLCwsQ29udGFjdCBJbmZvcm1hdGlvbiwsQ29udGFjdCBJbmZvcm1hdGlvbiwsLA0KLCwsLENvbnRhY3Q6LERhbmllbGxlIERhdmlzLCxDb250YWN0OixCcmFuZGVuIE1vbmRyYWdvbiwsDQosLCwsQ2VsbDosNDgwLjMyOS43NzM0LCxDZWxsOiw0ODAuMjg5LjQyMzQsLA0KLCwsLEUtbWFpbDosZGRhdmlzQGxldnJvc2UuY29tLCxFLW1haWw6LGJtb25kcmFnb25AbGV2cm9zZS5jb20sLA0KLCwsLCwsLCwsLA0KLEJvaGwgLSBMZWFzZSBTdXJ2ZXkgfCBMZXZpLCwsLCwsLCwsDQosLCwsLCwsLCwsDQosTmFtZSxBZGRyZXNzLFNwYWNlIFR5cGUsQXZhaWxhYmxlIFNGLFByaWNlIFBTRixOTk4sRGVsaXZlcnkgRGF0ZSxNYXJrZXRpbmcgTWF0ZXJpYWwsSGlnaGxpZ2h0cyxUZW5hbnQgTm90ZXMsQnJva2VyIE5vdGVzDQosUXVlZW4gQ3JlZWssLCwsLCwsLCwNCixQZWdhc3VzIFZpbGxhZ2UsIk5FQyBFbXBpcmUgQmx2ZCAmIEVsbHN3b3J0aCBSZCwgUXVlZW4gQ3JlZWssIEFaIDg1MTQyIixQYWQsIjIsNDUwIiwkNTAuMDAsJDkuMDAsMuKAkzIuNSB5ZWFycyxWaWV3IE1hdGVyaWFsLCJQYWQgc2l0ZSBzaG93biBhdCAyLDQ1MCBTRiB3aXRoaW4gYSBicm9hZGVyIGFuY2hvciwgcmV0YWlsIHNob3BzIGFuZCBwYWRzIG9mZmVyaW5nLiDCsTUwLDAwMCBWUEQgYXQgdGhlIGludGVyc2VjdGlvbiAoRWxsc3dvcnRoIFJkIDM4LDYwMiBWUEQ7IEVtcGlyZSBCbHZkIDExLDE1OSBWUEQpOyBnYXRld2F5IHRvIFF1ZWVuIENyZWVrIGFuZCBIdW50IEhpZ2h3YXk7IGFwcHJveGltYXRlbHkgb25lIG1pbGUgc291dGggb2YgRnJ5J3MsIEVPUyBGaXRuZXNzIGFuZCBGYXQgQ2F0cy4gMS1taWxlIGF2ZXJhZ2UgaG91c2Vob2xkIGluY29tZSBpcyAkMTcxLDAwMy4gVElBOiAxOjEgcmF0aW8gd2l0aCByZW50LiIsSW5jcmVkaWJseSBzdHJvbmcgdHJhZmZpYy4gVGhpcyB0cnVseSBpcyBhIG1haW4gdmVpbiBmcm9tIFNhbiBUYW4gdG8gUUMuIEkgaGF2ZSBhIGZlZWxpbmcgdGhlIFBlY2FucyBuZWlnaGJvcmhvb2QgaXMgaW5mbGF0aW5nIHRoYXQgaG91c2Vob2xkIGluY29tZS4gRG8gd2Uga25vdyB3aGljaCBzcGFjZXMgYXJlYSBhdmFpbGFibGU/LE5vIGxlYXNlcyBzaWduZWQgeWV0IHNvIGV2ZXJ5dGhpbmcgaXMgYXZhaWxhYmxlLiBEZXZlbG9wZXIgaXMgbW92aW5nIHNsb3dseSB1bnRpbCB0aGVpciBhZ3JlZW1lbnQgd2l0aCB0aGUgY2l0eSBpcyBjb21wbGV0ZWQuIE5hdGlvbmFsIENyZWRpdCBhbmNob3IgaW4gbmVnb3RpYXRpb24uDQosU2FuIFRhbiBWYWxsZXksLCwsLCwsLCwNCixUaGUgWm9uZSBhdCBTa3lsaW5lIFJhbmNoIE1hcmtldHBsYWNlLCJORUMgSHVudCBId3kgJiBHYXJ5IFJkLCBTYW4gVGFuIFZhbGxleSwgQVogODUxNDMiLFBhZCwiMSw5NTAgLSAyLDQwMCIsJDUwLjAwLCQ3LjUwLEp1bmUvSnVseSAyMDI3LFZpZXcgTWF0ZXJpYWwsIk5ldyA1MC1hY3JlIHBvd2VyIGNlbnRlciB3aXRoIGZyZWVzdGFuZGluZyByZXN0YXVyYW50cywgcGFkcyBhbmQgc2hvcHMgYXQgYSBzaWduYWxpemVkIGludGVyc2VjdGlvbi4gSG9tZSBEZXBvdCBhbmQgV2luQ28gRm9vZHMgYXJlIG9wZW47IGp1bmlvciBhbmNob3JzIGFuZCBFb1MgRml0bmVzcyBhcmUgdW5kZXIgY29uc3RydWN0aW9uLiBUaGUgYnJvY2h1cmUgcmVwb3J0cyA2OCwwMDArIFZQRCBhbmQgJDEyMCwwMDArIGF2ZXJhZ2UgaG91c2Vob2xkIGluY29tZSB3aXRoaW4gMyBtaWxlcy4gUXVhbGlmeWluZyBhdmFpbGFiaWxpdHkgaXMgb24gdGhlIGVhc3QgZW5kIGNhcHMgb2YgUGFkcyBGMWIgYW5kIEYyYiwgYm90aCB3aXRoIHBhdGlvcy4iLExldmkgaW5xdWlyZWQgYWJvdXQgdGhlIHByb3BlcnR5IG92ZXIgdGhlIHdlZWtlbmQuLCJMaXN0aW5nIGJyb2tlciBvcHRpb25zOiBQYWQgRjFiIGVhc3QgZW5kIGNhcCB3aXRoIHBhdGlvIOKAlCB0aGUgUFQgZ3JvdXAgaXMgbm93IDIsNDAwIFNGIHNvIDEsOTUwIFNGIGNhbiBiZSBhY2NvbW1vZGF0ZWQ7IG9yIFBhZCBGMmIsIGFsc28gYW4gZWFzdCBlbmQgY2FwIHdpdGggcGF0aW8sIHVwIHRvIDIsNDAwIFNGLiBFYXN0IGVsZXZhdGlvbiBpcyBiZXN0IGZvciBwYXRpb3MgZ2l2ZW4gdGhlIHdlc3Rlcmx5IHN1bi4gR3JheSBzaGVsbCBkZWxpdmVyeSBleGhpYml0IGFuZCB0ZW5hbnQgYXBwbGljYXRpb24gcHJvdmlkZWQuIFByb2plY3RlZCBkZWxpdmVyeSBKdW5lL0p1bHkgJzI3LiBBc2tpbmcgJDUwLjAwIFBTRiBiYXNlIHBsdXMgJDcuNTAgUFNGIE5OTjsgVEkgZG9sbGFycyBhdmFpbGFibGUgYmFzZWQgb24gdGVybSBhbmQgY3JlZGl0LiINCixNZXNhLCwsLCwsLCwsDQosRWxsc3dvcnRoIFJkICYgV2FybmVyIFJkLCJTV0MgRWxsc3dvcnRoIFJkICYgV2FybmVyIFJkLCBNZXNhLCBBWiIsUGFkLCIyLDI1NSAtIDIsNjAwIixDYWxsIGZvciBSYXRlcywsLFZpZXcgTWF0ZXJpYWwsIkFjcm9zcyBmcm9tIEVhc3RtYXJrLCBCcm9va2ZpZWxkJ3MgMywyMDAtYWNyZSBtYXN0ZXItcGxhbm5lZCBjb21tdW5pdHkgZW50aXRsZWQgZm9yIG92ZXIgMTUsMDAwIGhvbWVzOyBDaGljay1maWwtQSBhbmQgU3RhcmJ1Y2tzIGFyZSBvcGVuLiIsLA0KLEVhc3QgR2F0ZSBQbGF6YSwiTkVDIEVsbHN3b3J0aCBSZCAmIEVsbGlvdCBSZCwgTWVzYSwgQVoiLFNob3BzLCIxLDU2MyAtIDEsODAwIiwkNDYuMDAgLSAkNTQuMDAsJDguMDAgLyBUQkQsSW1tZWRpYXRlIC8gVEJELFZpZXcgTWF0ZXJpYWwsIsKxMTctYWNyZSBtaXhlZC11c2UgZGV2ZWxvcG1lbnQgb24gdGhlIEVsbGlvdCBUZWNoIENvcnJpZG9yIHdpdGggYWNjZXNzIHRvIExvb3AgMjAyLCBTUiAyNCBhbmQgVVMgNjAuIEJyb2NodXJlIHNob3dzIDM4LDM5MSBWUEQgb24gRWxsaW90IFJkIGFuZCAzMiw4NTEgVlBEIG9uIEVsbHN3b3J0aCBSZC4gQWRqYWNlbnQgdG8gRWFzdG1hcmsgYW5kIGRpcmVjdGx5IG5vcnRoIG9mIFBob2VuaXgtTWVzYSBHYXRld2F5IEFpcnBvcnQuIENvLXRlbmFudHMgc2hvd24gaW5jbHVkZSBTZcOxb3IgVGFjbywgRmFybWVyIEJveXMsIEVpbnN0ZWluIEJyb3MuIEJhZ2VscyBhbmQgU3RhcmJ1Y2tzOyBjdXJyZW50IGxlYXNlL29wZW4gc3RhdHVzIGlzIG5vdCBjb25maXJtZWQuIiwsIjEsNTYzIFNGIGVuZCBjYXAgbmV4dCB0byBTZcOxb3IgVGFjbzogYXZhaWxhYmxlIGltbWVkaWF0ZWx5LCAyMDAgU0YgcGF0aW8sIGxpbWl0ZWQgdG8gMjAwIGFtcHMsIGFza2luZyAkNDYuMDAgUFNGIHBsdXMgJDguMDAgTk5OLiBTZXBhcmF0ZSAxLDgwMCBTRiBlbmQtY2FwIGRyaXZlLXRocnU6IGFza2luZyAkNTQuMDAgUFNGOyBOTk4gYW5kIGF2YWlsYWJpbGl0eSB0aW1pbmcgd2VyZSBub3QgcHJvdmlkZWQuIg0KLEdhdGV3YXkgQ3Jvc3NpbmcsIlNXQyBTUi0yNCAmIFdpbGxpYW1zIEZpZWxkIFJkLCBNZXNhLCBBWiIsUGFkICYgU2hvcHMsMTgwMC0yODAwLCQ2MC4wMCwkMTAuMjAsRGVsaXZlcmluZyBRMyAyMDI3LFZpZXcgTWF0ZXJpYWwsIlNhbSdzIENsdWItYW5jaG9yZWQgbmV3LWNvbnN0cnVjdGlvbiBkZXZlbG9wbWVudCBhdCB0aGUgZ2F0ZXdheSB0byBFYXN0bWFyayBhbmQgQ2FkZW5jZSwgYWRqYWNlbnQgdG8gQXJpem9uYSBBdGhsZXRpYyBHcm91bmRzLiBUaGUgYnJvY2h1cmUgcmVwb3J0cyBtb3JlIHRoYW4gNCBtaWxsaW9uIGFubnVhbCB2aXNpdG9ycyBhdCB0aGUgMjgwLWFjcmUgc3BvcnRzIGNvbXBsZXguIFNob3BzIEEgYW5kIEIgYXJlIHNob3duLCBidXQgaW5kaXZpZHVhbCBzdWl0ZSBTRiBpcyBub3Qgc3RhdGVkLiIsIk15IGRhdWdodGVyIHBsYXlzIHZvbGxleWJhbGwgaGVyZSwgdGhlIGFtb3VudCBvZiB0cmFmZmljIGFuZCBldmVudHMgaXMgaW5zYW5lLiBUaGUgZ3JvdW5kcyBoYXMgcmVzdGFyYXVudHMsIGJ1dCBub3RoaW5nIGxpa2Ugd2Ugb2ZmZXIuIFdhbGtpbmcgZGlzdGFuY2UgKGl0J3MgMUsgZnQpIGlzIGFuIGFkdmFudGFnZSBiZWNhdXNlIG9uY2UgeW91IHBhcmsgYXQgdGhlIGdyb3VuZHMsIHlvdSBkb24ndCB3YW50IHRvIGdpdmUgdXAgeW91ciBzcG90LiIsRW5kIENhcHMgYXZhaWxhYmxlLg0KLE1jS2VsbGlwcyBNYXJrZXRwbGFjZSwiMTg1NSBOIFBvd2VyIFJkLCBNZXNhLCBBWiA4NTIwNSIsU2hvcHMsIjEsODIwIiwsLEF2YWlsYWJsZSxWaWV3IE1hdGVyaWFsLCJTaG9wcyBCLCBTdWl0ZSAxMDEgLSAxLDgyMCBTRiBidWlsdC1vdXQgcmVzdGF1cmFudCBhdCBQb3dlciBSZCAmIE1jS2VsbGlwcyBSZCBpbiBub3J0aGVhc3QgTWVzYSwgd2l0aGluIHdhbGtpbmcgZGlzdGFuY2Ugb2YgTWVzYSBDb21tdW5pdHkgQ29sbGVnZSBSZWQgTW91bnRhaW4gQ2FtcHVzLiBDZW50ZXIgdGVuYW50cyBpbmNsdWRlIFBsYW5ldCBGaXRuZXNzLCBGaXJlaG91c2UgU3VicywgUGFwYSBKb2huJ3MsIENvbGQgU3RvbmUgQ3JlYW1lcnksIEd5cm8gVGltZSwgQVQmVCBhbmQgRXVyb3BlYW4gV2F4LCB3aXRoIFNhZmV3YXksIFdhbGdyZWVucyBhbmQgRGlnbml0eSBIZWFsdGggc2hvd24gb24gdGhlIHNpdGUgcGxhbi4gUG93ZXIgUmQgMjcsMDAwIGFuZCBNY0tlbGxpcHMgUmQgMjMsMDAwIHZlaGljbGVzIHBlciBkYXk7IDEzLDI3MSBwb3B1bGF0aW9uIGFuZCAkMTcxLDY0NSBhdmVyYWdlIGhvdXNlaG9sZCBpbmNvbWUgd2l0aGluIDEgbWlsZS4gQnJvY2h1cmUgZG9lcyBub3Qgc3RhdGUgcmVudCwgTk5OLCBwYXRpbywgY2FmZSBvciAybmQgZ2VuZXJhdGlvbiB1c2UuIiwsIjEsODIwIFNGIGVuZCBjYXAgd2l0aCBwYXRpbzsgMm5kIGdlbmVyYXRpb24gY2FmZS4iDQosR2lsYmVydCwsLCwsLCwsLA0KLEJlbGxhIFN0b3JpYSwiTldDIFBvd2VyIFJkICYgV2lsbGlhbXMgRmllbGQgUmQsIEdpbGJlcnQsIEFaIixQYWQgJiBTaG9wcywsLCxGdXR1cmUgZGV2ZWxvcG1lbnQsVmlldyBNYXRlcmlhbCwiRnV0dXJlIGRldmVsb3BtZW50IHdpdGggcGFkcyBhbmQgc2hvcHMgYXZhaWxhYmxlOyBTRiBpcyBub3Qgc3RhdGVkLiBQQUQgem9uaW5nOyBhcHByb3hpbWF0ZWx5IDMsNTAwIG11bHRpZmFtaWx5IHVuaXRzIGFyZSB1bmRlciBjb25zdHJ1Y3Rpb24sIHBsYW5uZWQgb3IgcHJvcG9zZWQgYWxvbmcgV2lsbGlhbXMgRmllbGQ7IHByb3Bvc2VkIHRyYWZmaWMgbGlnaHQ7IG5vIG9uLXNpdGUgYW5jaG9yIGlkZW50aWZpZWQuIiwsDQosR2lsYmVydCBTb3V0aCBBbmNob3IsIk5XQyBHaWxiZXJ0IFJkICYgRWxsaW90IFJkLCBHaWxiZXJ0LCBBWiIsU2hvcHMsIjIsMDAwIC0gMiw0MDAiLCQ1MC4wMCwkMTIuMDAsRGVsaXZlcmluZyBpbiAxNiBtb250aHMsVmlldyBNYXRlcmlhbCwiRG93bnRvd24gR2lsYmVydCBtaXhlZC11c2UgcHJvamVjdCB3aXRoIGdyb3VuZC1mbG9vciByZXRhaWwvcmVzdGF1cmFudCBzcGFjZSwgwrExNzUgQ2xhc3MgQSB1bml0cywgODYgcmV0YWlsL3Jlc3RhdXJhbnQgcGFya2luZyBzcGFjZXMgcGx1cyA0NSBwdWJsaWMgc3BhY2VzLCBhbmQgYW4gZXhjbHVzaXZlIHBhdGlvLiBObyBvbi1zaXRlIGFuY2hvciBvciBjby10ZW5hbnRzIGlkZW50aWZpZWQuIixWZXJ5IGludGVyZXN0ZWQgaW4gdGhpcyBsb2NhdGlvbi4gQ29zdHMgYW5kIHRpbWluZyBhcyB3ZWxsIGFzIHRoYXQgY29tZXMgaW4sDQosSGFydmVzdCBHcm92ZSwiU0VDIEdlcm1hbm4gUmQgJiBWYWwgVmlzdGEgRHIsIEdpbGJlcnQsIEFaIixQYWQgJiBTaG9wcywiMSw4MDAgLSAyLDEwMCIsTWlkLSQ1MHMsJDkuMDAsRGVsaXZlcnlpbmcgTm92ZW1iZXIgJzI3LFZpZXcgTWF0ZXJpYWwsIlBsYW5uZWQgZ3JvY2VyeS1hbmNob3JlZCBjZW50ZXIgd2l0aCBwYWQgYW5kIHNob3Agb3B0aW9ucy4gRnJ5J3MgTWFya2V0cGxhY2UgYW5kIG5hbWVkIGNvLXRlbmFudHMgaW5jbHVkZSBRZG9iYSwgQm9hcmQgJiBCcmV3LCBZb2d1cnRsYW5kIGFuZCBNb3VudGFpbiBBbWVyaWNhOyB0aGUgYnJvY2h1cmUgZG9lcyBub3QgZXN0YWJsaXNoIHRoZXkgYXJlIG9wZW4uIFRyYWZmaWMgZXhjZWVkcyA3OCwwMDAgVlBEOyAyLDMwMCsgaG9tZXMgYXJlIHBsYW5uZWQgb3IgYWN0aXZlLiBTaG9wcyBEIGlzIGNvbmNlcHR1YWwuIiwiSSBrbm93IHRoaXMgYXJlYSB3ZWxsLCB3b3VsZCBsaWtlIHRvIGtub3cgbW9yZSBhYm91dCB0aGUgMTgyMHNxZnQgbG9jYXRpb24gbmV4dCB0byB0aGUgdmV0LiBBbHNvIGN1cmlvdXMgaWYgUWRvYmEgaGFzIGV4Y2x1c2l2aXR5IHRoYXQgd291bGQgaW1wZWRlIHVzLiIsIklubGluZSBzcGFjZSBpbiBTaG9wcyBCIGFuZCBhbiBlbmQgY2FwIGluIFNob3BzIEMuIENvbnN0cnVjdGlvbiBzdGFydHMgaW4gYXBwcm94aW1hdGVseSA14oCTNiBtb250aHMuIFRoZXkgY2FuIHNwbGl0IHRoZSAzNTAwIHNmIHZhY2FuY3kgaW4gU2hvcHMgQyBpZiBuZWVkZWQuIFRoZSAzLDUwMCBTRiBpbiBTaG9wcyBDIGhhcyBhIGdyZWF0IHBhdGlvIHNvIGNvdWxkIGNhcnZlIG9mZiBzcGFjZSB3aXRoIHBhdGlvLiBUaGUgbGFyZ2VyIHNwYWNlIG9uIHRoZSBzb3V0aGVybiBlbmQgcmVjZWl2ZXMgdmlzaWJpbGl0eSBmcm9tIEZyeSdzIGFuZCB0aGUgbXVsdGlmYW1pbHkgZGV2ZWxvcG1lbnQgdW5kZXIgY29uc3RydWN0aW9uLiBMT0kgaXMgYmVpbmcgZHJhZnRlZCBmb3IgdGhlIDMsNTAwIFNGIHNwYWNlLCBwZW5kaW5nIEt5bGUgYW5kIExldmkgYXBwcm92YWwuIg0KLEhpZ2xleSBDb21tb25zLCJTV0MgSGlnbGV5IFJkICYgUmF5IFJkLCBHaWxiZXJ0LCBBWiIsU2hvcHMsIjIsOTgzIiwkNTAuMDAsJDEwLjAwLE5vdyB1bmRlciBjb25zdHJ1Y3Rpb24sVmlldyBNYXRlcmlhbCwiTGFzdCAyLDk4MyBTRiBzdWl0ZSBpbiBhIG1peGVkLXVzZSBwcm9qZWN0IHVuZGVyIGNvbnN0cnVjdGlvbiB3aXRoIDI3NiBtdWx0aWZhbWlseSB1bml0cywgwrEyODAgZGVkaWNhdGVkIHJldGFpbCBwYXJraW5nIHNwYWNlcyBhbmQgYW4gYWN0aXZlIGNvdXJ0eWFyZC4gQ28tdGVuYW50cyBzaG93biBpbmNsdWRlIEdvb2RWZXRzLCBDYWxpZm9ybmlhIENsb3NldHMsIFB2b2x2ZSwgWmFyYSBOYWlsIEJhciwgUGxheWEgQm93bHMgYW5kIEJvZHlCYXIgUGlsYXRlczsgbm8gYW5jaG9yIGlzIGlkZW50aWZpZWQuIEVhc3kgTG9vcCAyMDIgYWNjZXNzOyAyMDIxIHBvcHVsYXRpb24gb2YgNzI3LDM1NSB3aXRoaW4gYSAxNS1taW51dGUgZHJpdmUuIiwiVmVyeSBpbnRlcmVzdGVkIGluIHRoaXMgb25lLCBmYW50YXN0aWMgYXJlYSB3aXRoIG5vdCBhIGxvdCBvZiBmYXN0IGNhc3VhbC4gQW55IHdheSB0byBmaW5kIG91dCB0aGUgbGF5b3V0IGFuZCBpZiB0aGVyZSBpcyBhIGxvY2F0aW9uIGF2YWlsYWJsZSB3aXRoIGdyZWF0IHZpc2liaWxpdHkgUmF5IFJkPyIsTE9JIHN1Ym1pdHRlZDsgYXdhaXRpbmcgQ291cnRuZXkncyByZXNwb25zZS4NCixHaWxiZXJ0IFJldGFpbCBPcHBvcnR1bml0eSwiU1dDIFdpbGxpYW1zIEZpZWxkIFJkICYgU2FuIFRhbiBWaWxsYWdlIFBrd3ksIEdpbGJlcnQsIEFaIDg1Mjk1IixQYWQsIjEsODAwIC0gMywwMDAiLCQ1NS4wMCwkOC4wMCxBYm91dCAxMiBtb250aHMsVmlldyBNYXRlcmlhbCwiUGFkIGF2YWlsYWJsZSBuZXh0IHRvIFRyYWRlciBKb2UncyBhbmQgYSBtYWpvciBMb29wIDIwMiBpbnRlcmNoYW5nZSwgd2l0aCBmbGV4aWJsZSBzaG9wIHNpemVzIHN1YmplY3QgdG8gZmluYWwgcGxhbnMuIENvdmVyIHNob3dzIMKxMjUsNjYxIFZQRDsgMjAyNCBwb3B1bGF0aW9uIGlzIDExMywxOTMgYW5kIGF2ZXJhZ2UgaW5jb21lIGlzICQxNTIsMzI1IHdpdGhpbiAzIG1pbGVzLiIsSSBsaWtlIHRoaXMgYXJlYSBhbHNvLiBUaGlzIHNwZWNpZmljIGxvY2F0aW9uIGlzIDIuNCBtaWxlcyBmcm9tIHRoZSBIaWdsZXkgbG9jYXRpb24uIE5lZWQgdG8gdGhpbmsgYWJvdXQgcHJlbWF0dXJlIHNhdHVyYXRpb24gYW5kIGNvbnNpZGVyIHdoaWNoIGlzIHRoZSBzdXBlcmlyb3Igc2l0ZS4sDQosQ2hhbmRsZXIsLCwsLCwsLCwNCixEZXNlcnQgUGFsbXMsIjIwNzUgTiBBbG1hIFNjaG9vbCBSZCwgQ2hhbmRsZXIsIEFaIDg1MjI0IixQYWQgJiBTaG9wcywiMSw5MDAgKHNob3ApIC8gMiw1MTMgLSAzLDQzMCAocGFkKSIsJDMyLjAwIChzaG9wKSAvICQ0OC4wMCAocGFkKSwkNS41MCxTaG9wOiBBdmFpbGFibGU7IFBhZDogbm90IHN0YXRlZCxWaWV3IE1hdGVyaWFsLCIxLDkwMCBTRiBpbmxpbmUgc2hvcCBmYWNpbmcgQWxtYSBTY2hvb2wgUmQsIGZvcm1lciBjb2ZmZWUgc2hvcCAoZmx5ZXIgc2hvd3MgU3VpdGUgMjA5NS01IGF0IDEsOTA4IFNGKS4gUGFkIGFsdGVybmF0aXZlIHBlciB0aGUgV2FybmVyIFBBRHMgcHJlbGltaW5hcnkgZGV2ZWxvcG1lbnQgcGxhbjogUVNSIDIgYXQgMyw0MzAgU0Ygb24gMS41OCBncm9zcyBhY3JlcyB3aXRoIGRyaXZlLXRocnUgc3RhY2tpbmcsIG9yZGVyIGJvYXJkIGFuZCBwaWNrLXVwIHdpbmRvdywgYW5kIFFTUiAzIGF0IDIsNTEzIFNGOyBRU1IgMSAoNSwxNzMgU0YpIGlzIGF0IGdyb3VuZCBsZWFzZSB3aXRoIENoaWNrLWZpbC1BIGFuZCBKZXJzZXkgTWlrZSdzIGlzIGF0IHNpZ25lZCBMT0kgb24gdGhlIHNob3BzIGJ1aWxkaW5nLiBXYWxtYXJ0IFN1cGVyY2VudGVyIGFuY2hvcmVkIHdpdGggQnVybGluZ3RvbiwgUm9zcyBEcmVzcyBmb3IgTGVzcywgUGV0U21hcnQgYW5kIEJveE91dCBHeW07IG1ham9yIHJlbm92YXRpb24gMjAyNjsgem9uZWQgUEFELCBDaXR5IG9mIENoYW5kbGVyOyAyNCw5ODEgVlBEIG9uIEFsbWEgU2Nob29sIFJkIGFuZCAxNywxODIgQ1BEIG9uIFdhcm5lciBSZDsgMiBtaWxlcyBlYXN0IG9mIHRoZSBMb29wIDEwMS4iLCwiMSw5MDAgU0Ygc3BhY2UgZmFjZXMgQWxtYSBTY2hvb2wgYW5kIHdhcyBmb3JtZXJseSBhIGNvZmZlZSBzaG9wLiBBc2tpbmcgJDMyLjAwICsgJDUuNTAgTk5OIGZvciB0aGUgc2hvcCBzcGFjZSwgb3IgdGhlIFBBRCBhdCAkNDguMDAgKyAkNS41MCBOTk4uIg0KLFBlY29zICYgTWNRdWVlbiBSZXRhaWwsIlNXQyBQZWNvcyBSZCAmIE1jUXVlZW4gUmQsIENoYW5kbGVyLCBBWiA4NTIyNSIsU2hvcHMsLCQ1NS4wMCwsTm90IHN0YXRlZCxWaWV3IE1hdGVyaWFsLCJJbmxpbmUgc2hvcCBzcGFjZSBhdCB0aGUgU1dDIG9mIFBlY29zICYgTWNRdWVlbiBvbiBhICsvLSAzLjU0IGFjcmUgKCsvLSAxNTQsMjAyIFNGKSBQQUQtem9uZWQgcGFyY2VsOyBpbmxpbmUgc3VpdGUgU0YgaXMgbm90IHN0YXRlZCBpbiB0aGUgT00gYW5kIHRoZSB1cGRhdGVkIHNpdGUgcGxhbiB3YXMgbm90IHJlY2VpdmVkLiBLaWRkaWUgQWNhZGVteSBkYXljYXJlIHNpZ25lZCBvbiBQYWQgQyAoMTMsMDAwIFNGIHdpdGggMTIsMDAwIFNGIGFuZCAxMCwwMDAgU0YgcGxheSBhcmVhcyksIER1dGNoIEJyb3Mgc2lnbmVkIG9uIHRoZSBoYXJkIGNvcm5lciBhbmQgVmFsdm9saW5lIHNpZ25lZCBvbiB0aGUgc291dGhlcm4gcGFkOyBPTSBzaG93cyBQYWQgQSBhdCAyLDMwNiBTRiBhbmQgUGFkIEIgYXQgMiw4MDAgU0YsIGJvdGggd2l0aCBkcml2ZS10aHJ1cyAoMTIwJyB0byBvcmRlciBib3gpIGFuZCAzNjYgU0YgLyA1MDAgU0YgcGF0aW9zLiAkNTAuMDAgUFNGIFRJQS4gUGhhc2UgMSBjb3ZlcnMgUGFkIEEgY29uc3RydWN0aW9uLCBwZXJpbWV0ZXIgbGFuZHNjYXBlIGFuZCB0aGUgZHJpdmV3YXkgdG8gUGFkcyBBICYgQi4gTWNRdWVlbiBSZCAyMywxMTMgQ1BEIGFuZCBQZWNvcyBSZCAxMyw4NjMgQ1BEOyAxIG1pbGUgbm9ydGggb2YgdGhlIExvb3AgMjAyLiIsU2VlbXMgbGlrZSBhIGdvb2QgYXJlYS4gSXQgd2lsbCBiZSBpbnRlcmVzdGluZyB0byBzZWUgdGhlIG1hdGVyaWFscyBhbmQgdGhlIGF2YWlsYWJsZSBzcGFjZS4sS2lkZGllIEFjYWRlbXkgZGF5Y2FyZSBzaWduZWQ7IER1dGNoIEJyb3Mgb24gdGhlIGhhcmQgY29ybmVyIGFuZCBWYWx2b2xpbmUgb24gdGhlIHNvdXRoZXJuIFBBRC4gSW5saW5lIGFza2luZyAkNTUuMDAgUFNGIHdpdGggJDUwLjAwIFBTRiBUSUEuIFVwZGF0ZWQgc2l0ZSBwbGFuIHJlZmVyZW5jZWQgYnV0IG5vdCByZWNlaXZlZCAtIHRoZSBhdHRhY2hlZCBPTSBzaXRlIHBsYW4gZG9lcyBub3Qgc2hvdyB0aGVzZSB0ZW5hbnRzIG9yIGFueSBpbmxpbmUgc3VpdGUgc2l6ZXMuDQo=";
+
+const OWNERS = [
+  { id: "charles", name: "Charles Swindler", role: "Franchisee — West of I-17", csvB64: FALLBACK_CSV_B64 },
+  { id: "sean",    name: "Sean Provost",     role: "Franchisee — Scottsdale, Paradise Valley & Arcadia", csvB64: SEAN_CSV_B64 },
+  { id: "levi",    name: "Levi Ayriss",      role: "Franchisee — Queen Creek, Mesa, Chandler & Gilbert", csvB64: LEVI_CSV_B64 },
+  { id: "kyle",    name: "Kyle Garrett",     role: "Franchisee — sub-region TBD", csvB64: null }
+];
+const OWNER_COLORS = { charles: "#C6821E", sean: "#5B7A3D", levi: "#3A6EA5", kyle: "#8A7A66" };
 
 // Pins below are nudged off the bare street centerline onto the correct side of the road (~150ft),
 // using the Census geocoder's TIGER address-range "side" (L/R) plus the segment's bearing to compute
@@ -275,6 +297,42 @@ const CITY_COORDS = {
   "SUN CITY": {lat:33.5981, lng:-112.2718},
   "SUN CITY WEST": {lat:33.6636, lng:-112.3428}
 };
+
+// New coords for Sean's and Levi's sites — geocoded via US Census Bureau geocoder 2026-08-02.
+// Full addresses are direct TIGER-matched points; intersections are nudged ~150ft toward the
+// named corner (NEC/NWC/SEC/SWC). Two entries (Gateway Crossing, Pegasus Village) use a nearby
+// cross-street proxy since the exact named road (SR-24, Empire Blvd) isn't resolvable in TIGER.
+Object.assign(KNOWN_COORDS, {
+  "1855 N POWER RD, MESA, AZ 85205": {lat:33.449936, lng:-111.684072},
+  "2075 N ALMA SCHOOL RD, CHANDLER, AZ 85224": {lat:33.336129, lng:-111.858990},
+  "7001 N SCOTTSDALE RD, SCOTTSDALE, AZ 85250": {lat:33.463916, lng:-111.926316},
+  "15650 N HAYDEN RD, SCOTTSDALE, AZ 85260": {lat:33.627449, lng:-111.895516},
+  "7101 E INDIAN SCHOOL RD, SCOTTSDALE, AZ 85251": {lat:33.494845, lng:-111.928853},
+  "SWC ELLSWORTH RD & WARNER RD, MESA, AZ": {lat:33.335271, lng:-111.636080},
+  "NEC ELLSWORTH RD & ELLIOT RD, MESA, AZ": {lat:33.350561, lng:-111.635224},
+  "NEC HUNT HWY & GARY RD, SAN TAN VALLEY, AZ 85143": {lat:33.180200, lng:-111.584401},
+  "NWC POWER RD & WILLIAMS FIELD RD, GILBERT, AZ": {lat:33.307559, lng:-111.689067},
+  "NWC GILBERT RD & ELLIOT RD, GILBERT, AZ": {lat:33.350408, lng:-111.790070},
+  "SEC GERMANN RD & VAL VISTA DR, GILBERT, AZ": {lat:33.277275, lng:-111.754708},
+  "SWC HIGLEY RD & RAY RD, GILBERT, AZ": {lat:33.321024, lng:-111.721692},
+  "SWC WILLIAMS FIELD RD & SAN TAN VILLAGE PKWY, GILBERT, AZ 85295": {lat:33.306372, lng:-111.747351},
+  "SWC PECOS RD & MCQUEEN RD, CHANDLER, AZ 85225": {lat:33.291270, lng:-111.824805},
+  "SWC SR-24 & WILLIAMS FIELD RD, MESA, AZ": {lat:33.306021, lng:-111.601052},
+  "NEC LOOP 101 & N 90TH ST, SCOTTSDALE, AZ": {lat:33.564869, lng:-111.888727},
+  "NEC 90TH ST & LOOP 101, SCOTTSDALE, AZ": {lat:33.565469, lng:-111.888327},
+  "SWC SCOTTSDALE RD & MCDOWELL RD, SCOTTSDALE, AZ 85257": {lat:33.465312, lng:-111.926726},
+  "SCOTTSDALE RD & KIERLAND BLVD, SCOTTSDALE, AZ": {lat:33.625705, lng:-111.925994},
+  "NWC VIA DE VENTURA & HAYDEN RD, SCOTTSDALE, AZ": {lat:33.554807, lng:-111.899118},
+  "NEC EMPIRE BLVD & ELLSWORTH RD, QUEEN CREEK, AZ 85142": {lat:33.202205, lng:-111.633955}
+});
+Object.assign(CITY_COORDS, {
+  "SCOTTSDALE": {lat:33.4942, lng:-111.9261},
+  "MESA": {lat:33.4152, lng:-111.8315},
+  "CHANDLER": {lat:33.3062, lng:-111.8413},
+  "GILBERT": {lat:33.3528, lng:-111.7890},
+  "QUEEN CREEK": {lat:33.2487, lng:-111.6343},
+  "SAN TAN VALLEY": {lat:33.1454, lng:-111.5427}
+});
 
 const CRITERIA_DEFS = [
   {key:"sf", label:"Size", req:"1,800 – 2,800 SF"},
@@ -392,8 +450,246 @@ const BROCHURE_DATA = {
   }
 };
 
+// BROCHURE_DATA overrides for Sean Provost's 5 sites — same structure/keying convention as the
+// existing Charles BROCHURE_DATA in index.html. Keys are normAddr()-style (trim/uppercase/collapse
+// whitespace) addresses as extracted from each brochure. NOTE: no CSV/spreadsheet for Sean's sites
+// exists yet (task #29) — verify these keys match exactly once his site list is embedded.
+// Compiled 2026-08-02 from sean_brochure_notes.md.
+
+const SEAN_BROCHURE_DATA = {
+  "7001 N SCOTTSDALE RD, SCOTTSDALE, AZ 85250": {
+    source: "Whitestone REIT brochure — Scottsdale Seville (brochure reviewed; data compiled 2026-08-02)",
+    criteria: {
+      sf: {status:"not_met", note:"Second-gen restaurant space is 2,894 SF — 94 SF over Bohl's 2,800 SF max."},
+      patio: {status:"met", note:"1,120 SF dedicated patio included with the space."},
+      visibility: {status:"met", note:"Upscale lifestyle center on Scottsdale Rd (79,203 VPD) at Indian Bend Rd (19,497 VPD) — excellent visibility in the Scottsdale Resort Corridor."},
+      access: {status:"likely", note:"Signalized arterial corner (Scottsdale Rd & Indian Bend Rd) with strong access; no freeway/interchange proximity noted."},
+      parking: {status:"unknown", note:"No parking ratio or space count given in the brochure."},
+      centerAge: {status:"met", note:"Center recently renovated with upgraded luxury amenities."},
+      population: {status:"met", note:"Drive-time demographics reported (not mile-radius): 15-minute drive-time population of 287,497 comfortably clears the 150K+ (~10mi) threshold; 10-minute drive-time population (99,781, roughly analogous to a 5mi radius) narrowly misses the 100K mark on its own."},
+      income: {status:"met", note:"Average HH income $188,014 (5min) / $172,863 (10min) / $168,430 (15min) — all far above the $110K preferred level, though these are averages rather than median figures."}
+    }
+  },
+  "15650 N HAYDEN RD, SCOTTSDALE, AZ 85260": {
+    source: "GPS Commercial Advisors brochure — Core Commons (brochure reviewed; data compiled 2026-08-02)",
+    criteria: {
+      sf: {status:"likely", note:"Available range is 1,200–6,000 SF across the 30,000 SF retail component — a 1,800–2,800 SF suite is achievable via subdivision, but no fixed suite in that exact range is being marketed yet."},
+      siteType: {status:"likely", note:"New ground-floor retail fronting a 282-unit apartment complex (\"The Core\") — inline-style shop space, configuration not explicitly labeled inline/end-cap."},
+      visibility: {status:"met", note:"Signalized intersection of Hayden Rd (23,994 VPD) & Frank Lloyd Wright Blvd (42,954 VPD, ADOT '25), positioned between Costco and Home Depot."},
+      access: {status:"met", note:"Signalized major-arterial corner in the Scottsdale Airpark; surface plus underground parking access."},
+      parking: {status:"met", note:"Surface and underground parking provided."},
+      centerAge: {status:"met", note:"New development — \"Core Commons – A Lifestyle Center,\" 2.81 AC."},
+      population: {status:"met", note:"172,092 population within 5 miles clears the 100K+ threshold (3-mile figure is 75,999, just under)."},
+      income: {status:"met", note:"Median HH income $125,232 (3mi) / $130,594 (5mi) — both comfortably exceed the $110K preferred level."}
+    }
+  },
+  "NEC LOOP 101 & N 90TH ST, SCOTTSDALE, AZ": {
+    source: "Phoenix Commercial Advisors brochure — Sierra Bloom / Loop 101 & 90th Marketing Package, general campus overview (brochure reviewed; data compiled 2026-08-02)",
+    criteria: {
+      sf: {status:"unknown", note:"This is a ±40-acre, ~900,000 SF mixed-use campus overview, not a specific-suite flyer — no suite size is stated for the Sierra Bloom retail frontage yet."},
+      siteType: {status:"unknown", note:"Retail frontage described only qualitatively (specialty grocers, drive-thru, fast food, exercise & health uses) — inline/end-cap configuration not yet defined."},
+      patio: {status:"unknown", note:"No patio information given at this stage of planning."},
+      visibility: {status:"met", note:"Described as having \"immediate Loop 101 access, unparalleled visibility.\""},
+      access: {status:"met", note:"Immediate Loop 101 freeway access."},
+      parking: {status:"unknown", note:"Parking details not yet available for this stage of the campus plan."},
+      centerAge: {status:"met", note:"Ground-up ~900,000 SF wellness/mixed-use campus currently in development (\"43-acre wellness campus\")."},
+      population: {status:"met", note:"Trade-area 2024 ESRI population of 224,001 (projected 232,773 by 2029) — comfortably clears the population thresholds, though the exact mile-radius for this trade-area figure isn't specified in the brochure."},
+      income: {status:"met", note:"Trade-area median HH income $115,008 — exceeds the $110K preferred level."}
+    }
+  },
+  "NEC 90TH ST & LOOP 101, SCOTTSDALE, AZ": {
+    source: "Diversified Partners brochure — The Edge, Pima Center (brochure reviewed; data compiled 2026-08-02)",
+    criteria: {
+      sf: {status:"not_met", note:"Smallest marketed space is PAD 2 at ~4,200 SF; Shops A (~7,300 SF) and Shops B (~15,400 SF) are also above the 2,800 SF max as currently listed. A 1,800–2,800 SF suite would require subdividing one of the shop buildings — not being marketed as such yet."},
+      siteType: {status:"likely", note:"Mix of freestanding pads (PADs 1–5) and inline shop buildings (Shops A/B) — the shop buildings are a better fit for Bohl's inline/end-cap preference than the standalone pads."},
+      patio: {status:"unknown", note:"No patio specified for any individual space in the brochure."},
+      visibility: {status:"met", note:"Loop 101 frontage (159,554 VPD) and N 90th St (43,000 VPD) — very high traffic, freeway-adjacent visibility."},
+      access: {status:"met", note:"Direct Loop 101 freeway frontage."},
+      parking: {status:"unknown", note:"Parking details not stated in the brochure."},
+      centerAge: {status:"met", note:"212,000 SF Class A mixed-use, new construction, up to ±66,900 SF still buildable."},
+      population: {status:"met", note:"156,031 population within 5 miles — clears even the 150K+ (10mi/urban) threshold at just a 5-mile radius."},
+      income: {status:"met", note:"Average HH income $180,750 (1mi) / $182,713 (3mi) / $188,192 (5mi) — far above the $110K preferred level, though these are averages rather than median figures."}
+    }
+  },
+  "SWC SCOTTSDALE RD & MCDOWELL RD, SCOTTSDALE, AZ 85257": {
+    source: "Orion Investment Real Estate brochure — Papago Plaza (brochure reviewed; data compiled 2026-08-02)",
+    criteria: {
+      sf: {status:"met", note:"National sandwich space at 2,100 SF (+patio) and the ice cream building's upper range (up to 2,576 SF, +patio) both fit within Bohl's 1,800–2,800 SF range."},
+      siteType: {status:"likely", note:"Available spaces are standalone buildings (Wells Fargo bldg, ice cream bldg) within a larger mixed-use development rather than explicitly labeled inline/end-cap shop space."},
+      patio: {status:"met", note:"Both the ice cream building and the national sandwich space are listed with patios."},
+      visibility: {status:"met", note:"SWC of Scottsdale Rd (32,058 VPD) & McDowell Rd (30,097 VPD), grocery-anchored (Sprouts, opening Oct 2026) mixed-use corner."},
+      access: {status:"met", note:"Signalized corner of two major arterials."},
+      parking: {status:"unknown", note:"No parking ratio or count given in the brochure."},
+      centerAge: {status:"met", note:"New mixed-use development — Sprouts Farmers Market (23,453 SF) opening Oct 2026, SpringHill Suites (118 keys), Seventyoneis McDowell (274 residential units)."},
+      population: {status:"met", note:"293,065 population within 5 miles — clears both the 100K (3–5mi) and 150K (10mi) thresholds."},
+      income: {status:"not_met", note:"Median HH income $103,399 (1mi) / $91,563 (3mi) / $85,337 (5mi) — meets Bohl's $95K floor only at the 1-mile ring; drops below the $95K minimum at the 3-mile and 5-mile rings, which are the more relevant trade-area radii."}
+    }
+  }
+};
+
+// BROCHURE_DATA overrides for Levi Ayriss's active sites — same structure/keying convention as the
+// existing Charles BROCHURE_DATA in index.html. Keys are normAddr()-style (trim/uppercase/collapse
+// whitespace) addresses/intersections. Reconciled 2026-08-02 against the live "Bohl - Lease Survey |
+// Levi" Google Sheet (owned by Branden Mondragon, shared with Charles) — the spreadsheet is treated as
+// the current source of truth for availability/pricing/status; the standalone PDF brochures (in
+// levi_brochure_notes.md) are used for demographic/area-context depth the spreadsheet doesn't carry.
+// Where the two disagree (deals move fast — spaces lease up, brokers narrow down options), the
+// spreadsheet's figure wins and the brochure's original figure is noted for context.
+// 3 of Levi's active sites (Pegasus Village, Bella Storia, Harvest Grove) have no brochure yet — they
+// are NOT included here and will be scored automatically from their spreadsheet Highlights/Notes text.
+// 6 sites on Levi's "Non-Active" tab (passed on) are excluded per Charles's instruction (2026-08-02).
+
+const LEVI_BROCHURE_DATA = {
+  "2075 N ALMA SCHOOL RD, CHANDLER, AZ 85224": {
+    source: "Arizona Partners brochure — Desert Palms (brochure reviewed 2026-07-31; reconciled against live spreadsheet 2026-08-02)",
+    criteria: {
+      sf: {status:"met", note:"Live ask per the survey is Suite 2095-5 at 1,900 SF (a former coffee shop, matches the brochure's \"2095-5\" at 1,908 SF) — fits Bohl's range well. A pad alternative also exists on the Warner Rd side: QSR 3 at 2,513 SF also fits; QSR 2 at 3,430 SF is oversized. (The original brochure's wider suite list — e.g. 2055-18, 2055-20, 2055-26 — may since have leased; the survey narrows the live ask to these two options.)"},
+      siteType: {status:"met", note:"1,900 SF option is inline shop space (Shops building) facing Alma School Rd; the pad alternative (QSR 3) would be a freestanding pad with drive-thru."},
+      patio: {status:"likely", note:"Shops A building includes an outdoor patio area near suites 2095-2/2095-3 per the brochure; patio adjacency to Suite 2095-5 specifically isn't confirmed. Survey doesn't mention a patio for either live option."},
+      visibility: {status:"met", note:"NEC of Alma School Rd & Warner Rd, a signalized major intersection (24,981 CPD / 17,182 CPD)."},
+      access: {status:"met", note:"Multiple curb cuts/driveways on all four sides of the center; 2 miles east of Loop 101."},
+      parking: {status:"likely", note:"Ample shared parking across the large lot, but no specific ratio or space count given."},
+      centerAge: {status:"met", note:"Brochure explicitly branded \"Major Renovation 2026.\""},
+      population: {status:"unknown", note:"No population figures given in either the brochure or the spreadsheet — more info needed."},
+      income: {status:"unknown", note:"No income figures given in either the brochure or the spreadsheet — more info needed."}
+    },
+    dealNote: "Survey notes QSR 1 (5,173 SF) is at ground lease with Chick-fil-A, and Jersey Mike's is at signed LOI on the shops building — center is filling up quickly."
+  },
+  "NEC ELLSWORTH RD & ELLIOT RD, MESA, AZ": {
+    source: "Diversified Partners brochure — East Gate Plaza (brochure reviewed 2026-07-31; reconciled against live spreadsheet 2026-08-02)",
+    criteria: {
+      sf: {status:"met", note:"Live availability per the survey is two options: 1,563 SF end cap (next to Señor Taco, $46.00 PSF + $8.00 NNN, available immediately) and 1,800 SF end-cap drive-thru ($54.00 PSF). Both are at or near Bohl's 1,800–2,800 SF range; the 1,800 SF option fits squarely. (The original brochure also showed a 2,171 SF space and listed the drive-thru at 1,612 SF — those figures appear to have moved since the brochure was printed.)"},
+      siteType: {status:"met", note:"End-cap spaces explicitly described, including one with a drive-thru."},
+      patio: {status:"met", note:"The 1,563 SF end cap has a confirmed 200 SF patio (limited to 200 amps) per the live survey."},
+      visibility: {status:"met", note:"NEC signalized corner of Elliot Rd (38,391 VPD) & Ellsworth Rd (32,851 VPD), near the San Tan (Loop 202) freeway (103,309 VPD)."},
+      access: {status:"met", note:"Multiple curb cuts, signalized intersection, accessible to 3 freeways (Loop 202, SR-24, US 60)."},
+      parking: {status:"likely", note:"Ample shared lot parking across the development, no specific ratio given."},
+      centerAge: {status:"met", note:"Construction complete — new mixed-use development (±17 acres)."},
+      population: {status:"met", note:"215,668 population within 5 miles clears the 100K+ threshold (3-mile figure is 89,195, just under)."},
+      income: {status:"met", note:"Average HH income $137,789 (3mi) / $121,003 (5mi) — well above the $110K preferred level, though these are averages rather than median figures."}
+    }
+  },
+  "SWC ELLSWORTH RD & WARNER RD, MESA, AZ": {
+    source: "Phoenix Commercial Advisors + Genesis brochure — SWC Ellsworth Rd & Warner Rd (brochure reviewed; data compiled 2026-08-02)",
+    criteria: {
+      sf: {status:"met", note:"Pad A (2,255 SF + 840 SF patio) and Pad D (2,600 SF) both fit within the 1,800–2,800 SF range; Pad F (6,000 SF) is oversized, and Pad C (5,000 SF multi-tenant) could subdivide to fit."},
+      siteType: {status:"likely", note:"Mostly freestanding pad sites (Pads A/B/D) rather than inline/end-cap; Pad C is a multi-tenant shop building that could offer a better end-cap fit."},
+      patio: {status:"met", note:"Pad A explicitly shows an 840 SF patio on the site plan."},
+      visibility: {status:"met", note:"SWC of a major signalized intersection with traffic up to 41,458 VPD on Ellsworth Rd (ADOT 2024)."},
+      access: {status:"met", note:"Multiple curb cuts along Ellsworth Rd frontage, signal at the corner."},
+      parking: {status:"likely", note:"Ample surface parking throughout, no specific ratio given."},
+      centerAge: {status:"met", note:"Brand-new construction — Phase 1 (Chick-fil-A, Starbucks) just opened; Phase 2 announced for 2026."},
+      population: {status:"met", note:"202,616 population within 5 miles clears the 100K+ threshold comfortably (also clears 150K+ at a wider radius)."},
+      income: {status:"met", note:"Median HH income $161,612 (1mi) / $130,403 (3mi) / $112,494 (5mi) — explicitly median, and clears the $110K preferred level at every ring — the strongest income data point across Levi's sites."}
+    }
+  },
+  "NWC GILBERT RD & ELLIOT RD, GILBERT, AZ": {
+    source: "Keeley Properties / Phoenix Commercial Advisors brochure — Gilbert South Anchor (brochure reviewed 2026-07-31; reconciled against live spreadsheet 2026-08-02)",
+    criteria: {
+      sf: {status:"met", note:"Live survey confirms current ask is 2,000–2,400 SF at $50.00 PSF + $12.00 NNN, delivering in ~16 months — both fit well within the 1,800–2,800 SF target. (Brochure also showed a 2,600 SF +terrace option, slightly above target, not mentioned in the current survey ask.)"},
+      siteType: {status:"likely", note:"Ground-floor retail within a 4-story Class A mixed-use residential building — not explicitly labeled inline/end-cap, but functions similarly."},
+      patio: {status:"met", note:"2,000 SF 1st-floor suite has an explicit exclusive patio; the 2,600 SF 2nd-floor suite includes a terrace."},
+      visibility: {status:"met", note:"NWC of Gilbert Rd & Elliot Rd, a major signalized intersection in the Heritage District core."},
+      access: {status:"met", note:"Dual street frontage (Gilbert Rd + Elliot Rd) plus alley access."},
+      parking: {status:"met", note:"86 dedicated retail/restaurant spaces plus 45 additional public parking spaces — explicit numbers given."},
+      centerAge: {status:"met", note:"Brand-new Class A mixed-use construction."},
+      population: {status:"met", note:"Broader trade-area population of 691,443 (Placer.ai) and Town of Gilbert population of 289,260 both far exceed the population thresholds, though the exact mile-radius for the trade-area figure isn't stated."},
+      income: {status:"met", note:"Town of Gilbert median HH income $121,543 — exceeds the $110K preferred level."}
+    },
+    dealNote: "This site is only 2.4 miles from Levi's other active Gilbert pursuit (SWC Williams Field Rd & San Tan Village Pkwy) — worth weighing trade-area overlap/cannibalization before pursuing both."
+  },
+  "SWC HIGLEY RD & RAY RD, GILBERT, AZ": {
+    source: "Phoenix Commercial Advisors brochure — Higley Commons / Modera (brochure reviewed; data compiled 2026-08-02)",
+    criteria: {
+      sf: {status:"not_met", note:"The only available suite is ±2,983 SF (\"Last Space\") — 183 SF over Bohl's 2,800 SF max; the rest of the center is leased, LOI, or at-lease."},
+      siteType: {status:"met", note:"Inline retail space within the 1-A Retail building of the mixed-use development."},
+      patio: {status:"unknown", note:"The development is marketed with \"large, engaging patios\" as a design theme, but the specific 2,983 SF suite's own patio access isn't confirmed."},
+      visibility: {status:"met", note:"SWC of Higley Rd & Ray Rd, a major signalized intersection."},
+      access: {status:"met", note:"Multiple curb cuts, walkable mixed-use retail/residential design."},
+      parking: {status:"met", note:"±280 dedicated retail parking spaces shared across the center."},
+      centerAge: {status:"met", note:"Brand-new construction — Modera by Mill Creek, now under construction."},
+      population: {status:"met", note:"279,617 population within 5 miles — clears the 100K+ threshold comfortably."},
+      income: {status:"met", note:"Average HH income $155,553 (5mi) — well above the $110K preferred level, though this is an average rather than a median figure."}
+    },
+    dealNote: "An LOI has already been submitted for this site (awaiting the listing broker's response). Also only 2.4 miles from Levi's other active Gilbert pursuit (SWC Williams Field Rd & San Tan Village Pkwy) — worth weighing trade-area overlap before committing to both."
+  },
+  "NEC HUNT HWY & GARY RD, SAN TAN VALLEY, AZ 85143": {
+    source: "SRS Real Estate Partners brochure — The Zone at Skyline Ranch Marketplace (brochure reviewed 2026-07-31; reconciled against live spreadsheet 2026-08-02)",
+    criteria: {
+      sf: {status:"met", note:"Live qualifying availability per the survey is on the east end caps of two pads, both with patios: Pad F1b (the adjacent PT group is now 2,400 SF, so 1,950 SF can be accommodated) and Pad F2b (up to 2,400 SF) — both fit squarely within Bohl's 1,800–2,800 SF range. (The brochure's original ±1,750/±1,760/±3,600 SF figures have since been superseded by this narrower, confirmed picture.)"},
+      siteType: {status:"met", note:"Both qualifying spaces are explicitly described as east end caps."},
+      patio: {status:"met", note:"Both Pad F1b and Pad F2b end caps include patios; broker notes the east elevation is best for patios given the westerly sun."},
+      visibility: {status:"met", note:"NEC signalized intersection with combined traffic exceeding 68,000 VPD (Hunt Hwy 42,696 + Gary Rd 26,142, ADOT 2024)."},
+      access: {status:"met", note:"Multiple curb cuts across the large 50-acre power center."},
+      parking: {status:"likely", note:"Ample shared surface parking across the center, no specific ratio for this pad area given."},
+      centerAge: {status:"met", note:"Brand-new construction — Home Depot and WinCo just opened, EoS Fitness under construction."},
+      population: {status:"met", note:"Trade-area population of 195,190 — clears even the 150K+ (10mi/urban) threshold."},
+      income: {status:"met", note:"Average HH income $126,570 clears the $110K preferred level (median HH income is $101,327, above the $95K minimum but below the $110K preferred figure)."}
+    }
+  },
+  "1855 N POWER RD, MESA, AZ 85205": {
+    source: "W.M. Grace Companies brochure — McKellips Marketplace (brochure reviewed 2026-07-31; reconciled against live spreadsheet 2026-08-02)",
+    criteria: {
+      sf: {status:"met", note:"Shops B Suite 101 is 1,820 SF, fitting at the low end of the 1,800–2,800 SF range, and comes as an existing built-out restaurant space (kitchen, hood, walk-in already in place)."},
+      siteType: {status:"met", note:"Live survey confirms this is an end cap within a Safeway-anchored center (Shops B building), with 2nd-generation cafe buildout."},
+      patio: {status:"met", note:"Live survey broker notes confirm: \"1,820 SF end cap with patio; 2nd generation cafe\" — the brochure itself didn't state a patio, but the survey resolves it."},
+      visibility: {status:"met", note:"Part of a major established retail hub at the signalized Power Rd & McKellips Rd intersection."},
+      access: {status:"met", note:"Large anchor-center lot with multiple curb cuts."},
+      parking: {status:"likely", note:"Ample shared Safeway-anchored center parking, no specific ratio given."},
+      centerAge: {status:"not_met", note:"Established/mature retail center with no renovation date given."},
+      population: {status:"met", note:"252,593 population within 5 miles clears the 100K+ threshold well."},
+      income: {status:"met", note:"Average HH income $171,645 (1mi) / $120,805 (3mi) both clear the $110K preferred level; the 5-mile figure ($99,031) drops below it, but the more relevant 3-mile trade area still qualifies."}
+    }
+  },
+  "SWC SR-24 & WILLIAMS FIELD RD, MESA, AZ": {
+    source: "Vestar / Phoenix Commercial Advisors brochure — Gateway Crossing (brochure reviewed 2026-07-31; reconciled against live spreadsheet 2026-08-02)",
+    criteria: {
+      sf: {status:"met", note:"Live survey confirms qualifying availability of 1,800–2,800 SF with broker notes stating \"End Caps available\" — the brochure's Shops A (±15,550 SF) / Shops B (±12,400 SF) multi-tenant buildings are being subdivided into end-cap suites in this range."},
+      siteType: {status:"met", note:"Broker notes confirm end-cap suites are available within the Shops A/B buildings."},
+      patio: {status:"met", note:"Shopping center renderings explicitly depict large covered/pergola-shaded outdoor patio dining areas as a design centerpiece."},
+      visibility: {status:"met", note:"SWC of SR-24 (a freeway) & Williams Field Rd, directly adjacent to a 4M-visitor/year sports complex (Arizona Athletic Grounds)."},
+      access: {status:"met", note:"Full-diamond interchange planned nearby, signalized intersection at Williams Field Rd."},
+      parking: {status:"likely", note:"Large surface lot serving the Sam's Club anchor plus shops/hotels, no specific ratio for retail shop space given."},
+      centerAge: {status:"met", note:"Explicitly branded \"High Profile | New Construction.\""},
+      population: {status:"met", note:"173,488 population within 5 miles (231,999 in the broader 12-minute trade area) — clears the 100K+ threshold well."},
+      income: {status:"met", note:"Median HH income $159,745 (3mi) / $134,190 (5mi) / $111,770 (12-min trade area) — explicitly median, and clears the $110K preferred level at every ring."}
+    }
+  },
+  "SWC PECOS RD & MCQUEEN RD, CHANDLER, AZ 85225": {
+    source: "Hungry Inc. brochure — SWC Pecos Rd & McQueen Rd development site (brochure reviewed 2026-07-31; reconciled against live spreadsheet 2026-08-02)",
+    criteria: {
+      sf: {status:"met", note:"Pad A (2,306 SF) and Pad B (2,800 SF) both fit within the 1,800–2,800 SF target and both include drive-thrus (120' to order box). Survey also flags a third option — inline shop space at the same corner — though its suite SF isn't stated and an updated site plan hasn't been received yet."},
+      siteType: {status:"unknown", note:"Pad A/B are freestanding pad buildings on a raw 3.54-acre development parcel — configuration doesn't match Bohl's typical inline/end-cap preference, though a small standalone pad can function similarly. The separate inline shop option would be a better siteType fit if its SF works out."},
+      patio: {status:"met", note:"Pad A includes a 366 SF patio and Pad B a 500 SF patio."},
+      visibility: {status:"met", note:"SWC of two major arterials (Pecos Rd & McQueen Rd — 23,113 CPD / 13,863 CPD), both carrying high traffic counts."},
+      access: {status:"met", note:"1 mile north of the Loop 202 Freeway, corner-lot access."},
+      parking: {status:"likely", note:"Dedicated surface parking planned per pad, no specific count given yet."},
+      centerAge: {status:"met", note:"Ground-up new construction — Phase 1 covers Pad A construction, perimeter landscape, and the driveway to Pads A & B."},
+      population: {status:"unknown", note:"No demographic figures given in either the brochure or the spreadsheet — more info needed."},
+      income: {status:"unknown", note:"No demographic figures given in either the brochure or the spreadsheet — more info needed."}
+    },
+    dealNote: "This is a raw land/pad-sale development opportunity rather than a signed, ready-to-lease retail space — the deal structure and timeline would differ from Bohl's typical inline/end-cap lease approach. Per the live survey, Kiddie Academy has signed for daycare use on Pad C (13,000 SF), Dutch Bros has signed the hard corner, and Valvoline has signed the southern pad — asking rate for the inline option is $55.00 PSF with $50.00 PSF TIA."
+  },
+  "SWC WILLIAMS FIELD RD & SAN TAN VILLAGE PKWY, GILBERT, AZ 85295": {
+    source: "LevRose Commercial Real Estate brochure — SWC Williams Field & San Tan Village Pkwy, listed as \"Gilbert Retail Opportunity\" on the live survey (brochure reviewed 2026-07-31; reconciled against live spreadsheet 2026-08-02)",
+    criteria: {
+      sf: {status:"met", note:"Survey's own qualifying range is 1,800–3,000 SF (narrower than the brochure's full ±1,200–4,543 SF building range) — squarely achievable within Bohl's 1,800–2,800 SF target, pending final space plans."},
+      siteType: {status:"likely", note:"A small standalone new retail building rather than a labeled inline/end-cap space, though it functions similarly given its compact footprint."},
+      patio: {status:"met", note:"±950 SF of dedicated patio space (two separate patio areas, 503 SF + 455 SF) explicitly included in the building plan."},
+      visibility: {status:"met", note:"Positioned just west of a major Loop 202 interchange with \"exceptional visibility and freeway-oriented exposure\" per broker."},
+      access: {status:"met", note:"Fronts Williams Field Rd (primary east-west corridor) with direct Loop 202 access nearby."},
+      parking: {status:"likely", note:"Reciprocal parking arrangement with the surrounding center — shared, but no specific space count given."},
+      centerAge: {status:"met", note:"Brand-new construction (new building)."},
+      population: {status:"met", note:"302,904 population within 5 miles — far exceeds the 150K+ (10mi/urban) threshold."},
+      income: {status:"met", note:"Average HH income $132,742 (1mi) / $152,325 (3mi) / $146,302 (5mi) — comfortably clears the $110K preferred level across all rings, though these are averages rather than median figures."}
+    }
+  }
+};
+
+const ALL_BROCHURE_DATA = {...BROCHURE_DATA, ...SEAN_BROCHURE_DATA, ...LEVI_BROCHURE_DATA};
+
 function applyBrochureOverrides(address, results){
-  const data = BROCHURE_DATA[normAddr(address)];
+  const data = ALL_BROCHURE_DATA[normAddr(address)];
   if (!data) return results;
   const merged = {...results};
   for (const k in data.criteria){
@@ -639,7 +935,7 @@ let selectedId = null;
 // flies the map to the site (rather than each click handler re-fitting the whole map).
 function selectSite(id){
   selectedId = id;
-  renderList();
+  renderOwnerColumns();
   renderMap();
   renderDetail();
   const s = SITES.find(x=>x.id===id);
@@ -650,7 +946,7 @@ function renderAll(){
   SITES.sort((a,b)=> b.score.fitScore - a.score.fitScore);
   if (selectedId===null && SITES.length) selectedId = SITES[0].id;
   renderStats();
-  renderList();
+  renderOwnerColumns();
   renderMap();
   renderDetail();
 }
@@ -672,30 +968,41 @@ function animateNumber(el, target, duration, suffix){
 
 function renderStats(){
   const el = document.getElementById('statsStrip');
-  const strong = SITES.filter(s=>s.score.fitScore>=55).length;
-  const possible = SITES.filter(s=>s.score.fitScore>=35 && s.score.fitScore<55).length;
-  const weak = SITES.length - strong - possible;
-  el.innerHTML = `
-    <div class="stat-card total"><div class="n" data-target="${SITES.length}">0</div><div class="l">Sites surveyed</div></div>
-    <div class="stat-card strong"><div class="n" data-target="${strong}">0</div><div class="l">Strong fit</div></div>
-    <div class="stat-card possible"><div class="n" data-target="${possible}">0</div><div class="l">Possible fit</div></div>
-    <div class="stat-card needsdata"><div class="n" data-target="${weak}">0</div><div class="l">Needs data / weak</div></div>
-  `;
+  const tiles = [`<div class="stat-card total market"><div class="n" data-target="${SITES.length}">0</div><div class="l">Market total sites</div></div>`];
+  OWNERS.forEach(o=>{
+    const count = SITES.filter(s=>s.ownerId===o.id).length;
+    const firstName = o.name.split(' ')[0];
+    if (count === 0){
+      tiles.push(`<div class="stat-card owner no-data"><div class="n" data-target="0">0</div><div class="l"><span class="owner-swatch" style="background:${OWNER_COLORS[o.id]}"></span>${firstName}'s sites</div></div>`);
+    } else {
+      tiles.push(`<div class="stat-card owner"><div class="n" data-target="${count}">0</div><div class="l"><span class="owner-swatch" style="background:${OWNER_COLORS[o.id]}"></span>${firstName}'s sites</div></div>`);
+    }
+  });
+  el.innerHTML = tiles.join('');
   el.querySelectorAll('.n').forEach(n=>animateNumber(n, parseInt(n.dataset.target,10), 700));
 }
 
-function renderList(){
-  const el = document.getElementById('siteList');
-  if (!SITES.length){ el.innerHTML = '<div class="empty-hint">No sites found in the survey yet.</div>'; return; }
-  el.innerHTML = SITES.map((s,i)=>`
-    <div class="site-row ${s.id===selectedId?'selected':''}" data-id="${s.id}">
-      <div class="rank">${i+1}</div>
-      <div class="score-badge" style="background:${scoreColor(s.score.fitScore)}">${s.score.fitScore}%</div>
-      <div class="site-meta">
-        <div class="nm">${escapeHtml(s.name)}${s.hasBrochure ? '' : ' <span class="need-info" title="More info needed — no brochure reviewed yet, scored from broker notes only">*</span>'}</div>
-        <div class="ad">${escapeHtml(s.address)}</div>
-      </div>
-    </div>`).join('');
+function renderOwnerColumns(){
+  const el = document.getElementById('ownerColumns');
+  el.innerHTML = OWNERS.map(o=>{
+    const ownerSites = SITES.filter(s=>s.ownerId===o.id); // already globally sorted by fit score
+    const body = ownerSites.length
+      ? ownerSites.map((s,i)=>`
+          <div class="site-row ${s.id===selectedId?'selected':''}" data-id="${s.id}">
+            <div class="rank">${i+1}</div>
+            <div class="score-badge" style="background:${scoreColor(s.score.fitScore)}">${s.score.fitScore}%</div>
+            <div class="site-meta">
+              <div class="nm">${escapeHtml(s.name)}${s.hasBrochure ? '' : ' <span class="need-info" title="More info needed — no brochure reviewed yet, scored from broker notes only">*</span>'}</div>
+              <div class="ad">${escapeHtml(s.address)}</div>
+            </div>
+          </div>`).join('')
+      : `<div class="empty-hint" style="padding:16px 8px;">No sites shared yet — check back once ${o.name.split(' ')[0]}'s site list is in.</div>`;
+    return `<div class="owner-col" style="border-top-color:${OWNER_COLORS[o.id]}" data-owner="${o.id}">
+      <h2><span class="owner-swatch-lg" style="background:${OWNER_COLORS[o.id]}"></span>${escapeHtml(o.name)}</h2>
+      <div class="owner-role">${escapeHtml(o.role)}</div>
+      ${body}
+    </div>`;
+  }).join('');
   el.querySelectorAll('.site-row').forEach(row=>{
     row.addEventListener('click', ()=>selectSite(row.dataset.id));
   });
@@ -745,7 +1052,7 @@ function renderMap(){
     const sel = s.id===selectedId;
     const marker = L.marker([s.coords.lat, s.coords.lng], { icon: pinDivIcon(s.score.fitScore, color, sel) });
     marker.on('click', ()=>selectSite(s.id));
-    marker.bindTooltip(escapeHtml(s.name));
+    marker.bindTooltip(`${escapeHtml(s.ownerName)} — ${escapeHtml(s.name)}`);
     marker.addTo(map);
     leafletMarkers.push(marker);
     bounds.push([s.coords.lat, s.coords.lng]);
@@ -816,7 +1123,7 @@ function renderDetail(){
     <div class="tabpane ${activeTab==='overview'?'active':''}" data-pane="overview">
       <div class="det-header">
         <div>
-          <h3>${escapeHtml(s.name)} ${s.coords.approx?'<span class="approx-tag">location approx.</span>':''}</h3>
+          <h3>${escapeHtml(s.name)} <span class="owner-badge" style="background:${OWNER_COLORS[s.ownerId]}">${escapeHtml(s.ownerName)}</span> ${s.coords.approx?'<span class="approx-tag">location approx.</span>':''}</h3>
           <div class="addr">${escapeHtml(s.address)}</div>
         </div>
         <div>
@@ -877,23 +1184,31 @@ function renderDetail(){
   if (ringNum) animateNumber(ringNum, s.score.fitScore, 900, '%');
 }
 
-const SNAPSHOT_DATE = "Aug 1, 2026";
+const SNAPSHOT_DATE = "Aug 2, 2026";
 
 function loadData(){
   const statusEl = document.getElementById('statusText');
   const errBox = document.getElementById('errBox');
-  errBox.innerHTML = `<div class="snapshot-banner">This is a shared snapshot of the Bohl site survey as of ${SNAPSHOT_DATE}. Ask Charles for the latest if it's been a while.</div>`;
-  const csvText = b64ToUtf8(FALLBACK_CSV_B64);
-  const rawSites = extractSites(csvText);
-  SITES = rawSites.map((s,idx)=>({
-    id: 'site-'+idx,
-    ...s,
-    coords: coordsFor(s.address),
-    brochureUrl: brochureFor(s.address),
-    competitive: competitiveFor(s.address),
-    hasBrochure: !!BROCHURE_DATA[normAddr(s.address)],
-    score: scoreSite(s)
-  }));
+  errBox.innerHTML = `<div class="snapshot-banner">This is a shared snapshot of the Bohl Phoenix market site survey — Charles, Sean, Levi &amp; Kyle — as of ${SNAPSHOT_DATE}. Ping the group if it's been a while since anyone refreshed it.</div>`;
+  SITES = [];
+  OWNERS.forEach(owner=>{
+    if (!owner.csvB64) return; // Kyle stub — no data yet
+    const csvText = b64ToUtf8(owner.csvB64);
+    const rawSites = extractSites(csvText);
+    rawSites.forEach((s,idx)=>{
+      SITES.push({
+        id: owner.id+'-'+idx,
+        ownerId: owner.id,
+        ownerName: owner.name,
+        ...s,
+        coords: coordsFor(s.address),
+        brochureUrl: brochureFor(s.address),
+        competitive: competitiveFor(s.address),
+        hasBrochure: !!ALL_BROCHURE_DATA[normAddr(s.address)],
+        score: scoreSite(s)
+      });
+    });
+  });
   statusEl.textContent = 'Snapshot — ' + SNAPSHOT_DATE;
   renderAll();
 }
@@ -960,4 +1275,3 @@ if (alreadyUnlocked){
 </script>
 </body>
 </html>
-
