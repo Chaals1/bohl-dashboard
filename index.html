@@ -103,7 +103,7 @@
   .layout { display:grid; grid-template-columns: 1.35fr 1fr; gap: 16px; align-items:stretch; }
   @media (max-width: 980px){ .layout { grid-template-columns: 1fr; } .map-card, .list-card { height: 480px !important; } }
   .map-card, .list-card { display:flex; flex-direction:column; height: 560px; }
-  .map-card > div:first-child, .map-card .owner-filter-tabs, .list-card h2 { flex: none; }
+  .map-card > div:first-child, .owner-filter-tabs, .list-card h2 { flex: none; }
   .map-card #leafletMap { flex: 1; min-height: 0; }
   .list-card #siteList { flex: 1; overflow-y: auto; min-height: 0; }
 
@@ -249,6 +249,7 @@
         <div id="leafletMap" style="border-radius:12px;overflow:hidden;"></div>
       </div>
       <div class="card list-card">
+        <div class="owner-filter-tabs" id="stageFilterTabs" style="margin-bottom:10px;"></div>
         <h2 id="listHeading">Sites, ranked by fit</h2>
         <div id="siteList"></div>
       </div>
@@ -957,6 +958,7 @@ function renderAll(){
   if (selectedId===null && SITES.length) selectedId = SITES[0].id;
   renderStats();
   renderFilterTabs();
+  renderStageTabs();
   renderList();
   renderMap();
   renderDetail();
@@ -1010,11 +1012,23 @@ function renderStats(){
   el.querySelectorAll('.n').forEach(n=>animateNumber(n, parseInt(n.dataset.target,10), 700));
 }
 
-// One filter drives both the map and the ranked list: 'all' or an owner id.
+// Two independent filters drive both the map and the ranked list: which owner ('all' or an
+// owner id), and which deal stage ('all' or 'inprogress').
 let selectedOwnerFilter = 'all';
+let selectedStageFilter = 'all';
+
+// A site counts as "in progress" when its BROKER/TENANT notes (not the general highlights —
+// those often mention a *different* tenant's LOI on the same property, e.g. Jersey Mike's at
+// Desert Palms) reference an LOI on our own deal — submitted, drafting, or far along.
+function isInProgress(site){
+  const text = `${site.brokerNotes||''} ${site.tenantNotes||''}`.toLowerCase();
+  return /\bloi\b/.test(text);
+}
 
 function sitesForFilter(){
-  return selectedOwnerFilter === 'all' ? SITES : SITES.filter(s=>s.ownerId===selectedOwnerFilter);
+  let list = selectedOwnerFilter === 'all' ? SITES : SITES.filter(s=>s.ownerId===selectedOwnerFilter);
+  if (selectedStageFilter === 'inprogress') list = list.filter(isInProgress);
+  return list;
 }
 
 function renderFilterTabs(){
@@ -1038,19 +1052,38 @@ function renderFilterTabs(){
   });
 }
 
+function renderStageTabs(){
+  const el = document.getElementById('stageFilterTabs');
+  const basePool = selectedOwnerFilter === 'all' ? SITES : SITES.filter(s=>s.ownerId===selectedOwnerFilter);
+  const inProgressCount = basePool.filter(isInProgress).length;
+  el.innerHTML = `
+    <div class="filter-tab ${selectedStageFilter==='all'?'active':''}" data-stage="all">All sites</div>
+    <div class="filter-tab ${selectedStageFilter==='inprogress'?'active':''}" data-stage="inprogress">Sites in progress (${inProgressCount})</div>
+  `;
+  el.querySelectorAll('.filter-tab').forEach(tab=>{
+    tab.addEventListener('click', ()=>{
+      selectedStageFilter = tab.dataset.stage;
+      renderStageTabs();
+      renderList();
+      renderMap();
+      fitMapToFilteredSites();
+    });
+  });
+}
+
 function renderList(){
   const el = document.getElementById('siteList');
   const heading = document.getElementById('listHeading');
   const filtered = sitesForFilter(); // already globally sorted by fit score
-  if (selectedOwnerFilter === 'all'){
-    heading.textContent = 'Sites, ranked by fit';
-  } else {
-    const o = OWNERS.find(x=>x.id===selectedOwnerFilter);
-    heading.textContent = `${o.name}'s sites, ranked by fit`;
-  }
+  const ownerLabel = selectedOwnerFilter === 'all' ? null : OWNERS.find(x=>x.id===selectedOwnerFilter);
+  const base = ownerLabel ? `${ownerLabel.name}'s sites` : 'Sites';
+  heading.textContent = selectedStageFilter === 'inprogress' ? `${base} in progress` : `${base}, ranked by fit`;
   if (!filtered.length){
-    const o = OWNERS.find(x=>x.id===selectedOwnerFilter);
-    el.innerHTML = `<div class="empty-hint">No sites shared yet — check back once ${o ? o.name.split(' ')[0] : 'their'}'s site list is in.</div>`;
+    if (selectedStageFilter === 'inprogress'){
+      el.innerHTML = `<div class="empty-hint">No sites with LOI activity right now${ownerLabel ? ' for ' + ownerLabel.name.split(' ')[0] : ''} — check back once a deal moves forward.</div>`;
+    } else {
+      el.innerHTML = `<div class="empty-hint">No sites shared yet — check back once ${ownerLabel ? ownerLabel.name.split(' ')[0] : 'their'}'s site list is in.</div>`;
+    }
     return;
   }
   el.innerHTML = filtered.map((s,i)=>`
