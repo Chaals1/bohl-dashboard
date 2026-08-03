@@ -1003,8 +1003,8 @@ function renderStats(){
   const tiles = [statTileHtml('var(--gold-dark)', null, 'Market total sites', fitBreakdown(SITES), false)];
   OWNERS.forEach(o=>{
     const ownerSites = SITES.filter(s=>s.ownerId===o.id);
-    const firstName = o.name.split(' ')[0];
-    tiles.push(statTileHtml(OWNER_COLORS[o.id], OWNER_COLORS[o.id], `${firstName}'s sites`, fitBreakdown(ownerSites), ownerSites.length===0));
+    const firstName = o.name.split(' ')[0].toUpperCase();
+    tiles.push(statTileHtml(OWNER_COLORS[o.id], OWNER_COLORS[o.id], firstName, fitBreakdown(ownerSites), ownerSites.length===0));
   });
   el.innerHTML = tiles.join('');
   el.querySelectorAll('.n').forEach(n=>animateNumber(n, parseInt(n.dataset.target,10), 700));
