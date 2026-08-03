@@ -1020,14 +1020,84 @@ let selectedStageFilter = 'all';
 // A site counts as "in progress" when its BROKER/TENANT notes (not the general highlights —
 // those often mention a *different* tenant's LOI on the same property, e.g. Jersey Mike's at
 // Desert Palms) reference an LOI on our own deal — submitted, drafting, or far along.
-function isInProgress(site){
+// --- Deal stage pipeline ---
+// Built from each broker's "Site Status Updates" log (dated, per-property entries they already
+// keep — e.g. "LOI Submitted", "Details Received"). Raw status text maps to a canonical stage;
+// STAGE_ORDER ranks how far along a deal is. Sites with no log entry fall back to scanning their
+// broker/tenant notes for an "LOI" mention (this covers brokers, like Sean's, who haven't started
+// keeping a formal status log yet); sites with neither show no stage at all.
+const STAGE_ORDER = ["Tenant Interested", "Broker Contacted", "Details Received", "LOI Drafting", "LOI Submitted", "Lease Negotiation", "Signed"];
+const STAGE_CANON = {
+  "tenant interested": "Tenant Interested",
+  "broker emailed": "Broker Contacted",
+  "awaiting broker response": "Broker Contacted",
+  "details received": "Details Received",
+  "loi drafting": "LOI Drafting",
+  "loi submitted": "LOI Submitted",
+  "lease negotiation": "Lease Negotiation",
+  "signed": "Signed",
+  "passed / non-active": "Passed",
+  "passed": "Passed"
+};
+const STAGE_COLORS = {
+  "Tenant Interested": "#B9AE9A", "Broker Contacted": "#D9A441", "Details Received": "#EFA736",
+  "LOI Drafting": "#C6821E", "LOI Submitted": "#5B7A3D", "Lease Negotiation": "#3A6EA5", "Signed": "#241A13"
+};
+
+// Per-owner status logs: [{property, date (MM/DD/YYYY), status}], pulled directly from each
+// broker's "Site Status Updates" tab. Add new dated rows here as brokers log them.
+const STATUS_LOG = {
+  charles: [
+    { property: "Palm Valley Cornerstone", date: "07/27/2026", status: "Details Received" },
+    { property: "GSQ – Goodyear Civic Square", date: "07/27/2026", status: "Awaiting Broker Response" },
+    { property: "Sheely Center", date: "07/27/2026", status: "Details Received" }
+  ],
+  sean: [], // Sean's broker hasn't started a formal status log yet — falls back to note-scanning below.
+  levi: [
+    { property: "The Zone at Skyline Ranch Marketplace", date: "07/26/2026", status: "Tenant Interested" },
+    { property: "The Zone at Skyline Ranch Marketplace", date: "07/27/2026", status: "Broker Emailed" },
+    { property: "The Zone at Skyline Ranch Marketplace", date: "07/31/2026", status: "Details Received" },
+    { property: "Harvest Grove", date: "07/21/2026", status: "Details Received" },
+    { property: "Harvest Grove", date: "07/29/2026", status: "LOI Drafting" },
+    { property: "Higley Commons", date: "07/20/2026", status: "Tenant Interested" },
+    { property: "Higley Commons", date: "07/21/2026", status: "Details Received" },
+    { property: "Higley Commons", date: "07/29/2026", status: "LOI Submitted" },
+    { property: "Gilbert South Anchor", date: "07/20/2026", status: "Tenant Interested" },
+    { property: "Gilbert South Anchor", date: "07/21/2026", status: "Details Received" }
+  ]
+};
+
+function parseLogDate(d){
+  const [m,day,y] = d.split('/').map(Number);
+  return new Date(y, m-1, day).getTime();
+}
+
+// Returns {stage, source, note} for a site, or null if there's no signal at all.
+function getStage(site){
+  const log = (STATUS_LOG[site.ownerId] || []).filter(e => e.property.trim().toLowerCase() === site.name.trim().toLowerCase());
+  if (log.length){
+    const latest = log.reduce((a,b) => parseLogDate(b.date) > parseLogDate(a.date) ? b : a);
+    const canon = STAGE_CANON[latest.status.trim().toLowerCase()] || latest.status;
+    return { stage: canon, source: 'log', note: `${latest.status} — ${latest.date}` };
+  }
   const text = `${site.brokerNotes||''} ${site.tenantNotes||''}`.toLowerCase();
-  return /\bloi\b/.test(text);
+  if (/\bloi\b/.test(text)) return { stage: "LOI Mentioned", source: 'notes', note: "Mentioned in broker/tenant notes — no formal status log entry yet." };
+  return null;
+}
+
+function isInProgress(site){
+  const s = getStage(site);
+  return !!s && s.stage !== "Passed";
 }
 
 function sitesForFilter(){
   let list = selectedOwnerFilter === 'all' ? SITES : SITES.filter(s=>s.ownerId===selectedOwnerFilter);
-  if (selectedStageFilter === 'inprogress') list = list.filter(isInProgress);
+  if (selectedStageFilter === 'inprogress'){
+    list = list.filter(isInProgress);
+    // Sort by how far along the deal is (most advanced first) rather than fit score.
+    const rank = s => { const st = getStage(s).stage; const i = STAGE_ORDER.indexOf(st); return i === -1 ? -1 : i; };
+    list = [...list].sort((a,b) => rank(b) - rank(a));
+  }
   return list;
 }
 
@@ -1086,15 +1156,22 @@ function renderList(){
     }
     return;
   }
-  el.innerHTML = filtered.map((s,i)=>`
+  const showStage = selectedStageFilter === 'inprogress';
+  el.innerHTML = filtered.map((s,i)=>{
+    const stageInfo = showStage ? getStage(s) : null;
+    const badge = showStage && stageInfo
+      ? `<div class="score-badge" style="background:${STAGE_COLORS[stageInfo.stage] || '#B9AE9A'}; font-size:10px; min-width:auto; white-space:nowrap; padding:5px 8px;">${escapeHtml(stageInfo.stage)}</div>`
+      : `<div class="score-badge" style="background:${scoreColor(s.score.fitScore)}">${s.score.fitScore}%</div>`;
+    return `
     <div class="site-row ${s.id===selectedId?'selected':''}" data-id="${s.id}">
       <div class="rank">${i+1}</div>
-      <div class="score-badge" style="background:${scoreColor(s.score.fitScore)}">${s.score.fitScore}%</div>
+      ${badge}
       <div class="site-meta">
         <div class="nm">${escapeHtml(s.name)} <span class="owner-badge" style="background:${OWNER_COLORS[s.ownerId]}">${escapeHtml(s.ownerName.split(' ')[0])}</span>${s.hasBrochure ? '' : ' <span class="need-info" title="More info needed — no brochure reviewed yet, scored from broker notes only">*</span>'}</div>
         <div class="ad">${escapeHtml(s.address)}</div>
       </div>
-    </div>`).join('');
+    </div>`;
+  }).join('');
   el.querySelectorAll('.site-row').forEach(row=>{
     row.addEventListener('click', ()=>selectSite(row.dataset.id));
   });
@@ -1215,6 +1292,7 @@ function renderDetail(){
 
   const comp = s.competitive;
   const compTier = comp ? COMPETITIVE_TIERS[comp.tier] : null;
+  const stageInfo = getStage(s);
 
   el.innerHTML = `
     <div class="tabs">
@@ -1242,6 +1320,7 @@ function renderDetail(){
         <div><b>Delivery</b>${escapeHtml(s.deliveryDate||'—')}</div>
         <div><b>Marketing material</b>${s.brochureUrl ? `<a class="marketing-link" href="${s.brochureUrl}" target="_blank" rel="noopener">View brochure ↗</a>` : (s.marketingLabel ? 'Not yet captured here — check the broker sheet' : '—')}</div>
         <div><b>Nearest known competitor</b>${comp ? `${comp.distanceMi} mi <span class="approx-tag" style="background:${compTier.color}22; color:${compTier.color};">${compTier.label}</span>` : 'Not researched yet'}</div>
+        <div><b>Deal stage</b>${stageInfo ? `<span class="approx-tag" style="background:${STAGE_COLORS[stageInfo.stage]||'#B9AE9A'}22; color:${STAGE_COLORS[stageInfo.stage]||'#8A7A66'};">${escapeHtml(stageInfo.stage)}</span> <span style="font-size:11px; color:var(--ink-soft);">${escapeHtml(stageInfo.note)}</span>` : 'No updates logged yet'}</div>
       </div>
       <div class="kv" style="grid-template-columns:1fr;">
         <div><b>Criteria met so far</b>${s.score.met} met &middot; ${s.score.likely} likely &middot; ${s.score.notMet} not met &middot; ${s.score.unknown} need data</div>
