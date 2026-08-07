@@ -543,6 +543,36 @@ const BROCHURE_DATA = {
       population: {status:"unknown", note:"Brochure gives citywide Surprise population (166,000) rather than a mile-radius trade-area figure specific to this site."},
       income: {status:"likely", note:"Brochure cites a citywide Surprise median household income of $96,912 — just above the $95K floor but well short of the $110K preferred level; this is a citywide figure, not a precise-radius trade-area number."}
     }
+  },
+  "10155 W. MCDOWELL ROAD, AVONDALE, AZ 85392": {
+    sourceUrl: "https://www.dropbox.com/scl/fi/arb8dq2u00amm2j72rngs/McDowell_103rd_SEC_Pkg_Blaze_031726.pdf?rlkey=6kc3eua4xssy9j4wlap004ifv&st=sbbv525x&dl=0",
+    source: "SRS Real Estate Partners brochure — McDowell Rd & 103rd Ave (brochure reviewed 2026-08-06)",
+    criteria: {
+      sf: {status:"not_met", note:"Suite C-103 is 2,860 SF — 60 SF over Bohl's 2,800 SF max."},
+      siteType: {status:"met", note:"Inline restaurant space (Suite C-103); neighboring suites are Habit Burger Grill and Sleep Number."},
+      patio: {status:"unknown", note:"No patio mentioned in the brochure."},
+      visibility: {status:"met", note:"Ranked in the top 5% of Costco locations nationwide and #2 community shopping center in Arizona for this regional retail intersection; Papago Fwy/I-10 carries 235,640 VPD, McDowell Rd 30,699 VPD, 99th Ave 36,768 VPD (2024, ADOT)."},
+      access: {status:"met", note:"At the Loop 101 Agua Fria Fwy & I-10 interchange, 15 minutes west of Phoenix."},
+      parking: {status:"unknown", note:"No parking ratio or count given in the brochure."},
+      centerAge: {status:"unknown", note:"No build or renovation year stated in the brochure."},
+      population: {status:"met", note:"123,081 population within 3 miles (2025 ESRI) — meets the 100K+ (3–5mi) requirement."},
+      income: {status:"not_met", note:"Median HH income $85,703 within 3 miles (2025 ESRI) — below Bohl's $95K minimum (average HH income is higher at $106,661, but Bohl's criteria specifies median)."}
+    }
+  },
+  "6770 N SUNRISE BLVD, GLENDALE, AZ": {
+    sourceUrl: "https://www.dropbox.com/scl/fi/abkz8icvk0whon0kabd53/Westgate-Entertainment-Custom-Brochure-7.15.26.pdf?rlkey=ujk12h3roqv1vobyr6m3rek5f&st=scjc7bko&dl=0",
+    source: "Western Retail Advisors brochure — Westgate Entertainment District (brochure reviewed 2026-08-06)",
+    criteria: {
+      sf: {status:"met", note:"Suite A101 is 2,550 SF, shown Available on the first-floor site plan — within the 1,800–2,800 SF target."},
+      siteType: {status:"met", note:"Broker notes describe the Suite A101/Cup Bop space as a 2,550 SF end cap, previously occupied by Chipotle before it relocated to Glendale Ave."},
+      patio: {status:"met", note:"Broker notes confirm the 2,550 SF space is an end cap with patio; a dedicated \"Tenants Patio's\" area is also shown along the Promenade on the site plan."},
+      visibility: {status:"met", note:"Loop 101 frontage (156,634–168,739 ADT) and Glendale Ave (32,429 ADT); premier outdoor entertainment/lifestyle destination anchored by AMC, Dave & Buster's and adjacent to State Farm Stadium, Desert Diamond Arena, VAI Resort and Topgolf."},
+      access: {status:"met", note:"Direct Loop 101 frontage and access."},
+      parking: {status:"met", note:"±3,186 parking stalls across the 76.7-acre, 15-building center — ample shared parking, though no space-specific ratio given."},
+      centerAge: {status:"not_met", note:"Built in 2006 — no renovation noted in the brochure (nearly 20 years old)."},
+      population: {status:"met", note:"118,523 population within 3 miles (ESRI 2025) — meets the 100K+ (3–5mi) requirement; 371,265 within 5 miles clears even the 150K+ (10mi/urban) threshold at a tighter radius."},
+      income: {status:"not_met", note:"Median HH income $83,272 within 3 miles and $72,938 within 5 miles (ESRI 2025) — below Bohl's $95K minimum at both of the more relevant trade-area radii; only the 1-mile ring ($105,285) clears the minimum."}
+    }
   }
 };
 
@@ -779,6 +809,37 @@ const LEVI_BROCHURE_DATA = {
       income: {status:"unknown", note:"No demographic figures given in either the brochure or the spreadsheet — more info needed."}
     },
     dealNote: "This is a raw land/pad-sale development opportunity rather than a signed, ready-to-lease retail space — the deal structure and timeline would differ from Bohl's typical inline/end-cap lease approach. Per the live survey, Kiddie Academy has signed for daycare use on Pad C (13,000 SF), Dutch Bros has signed the hard corner, and Valvoline has signed the southern pad — asking rate for the inline option is $55.00 PSF with $50.00 PSF TIA."
+  },
+  "NEC EMPIRE BLVD & ELLSWORTH RD, QUEEN CREEK, AZ 85142": {
+    sourceUrl: "https://www.dropbox.com/scl/fi/asue5khwdoyau4z0h4xje/Pegasus-Village-brochure-LR.pdf?rlkey=o4w3tonq9rh0yf695xh4kd7my&st=6tcminxz&dl=0",
+    source: "DPC Real Estate brochure — Pegasus Village (brochure reviewed 2026-08-06)",
+    criteria: {
+      sf: {status:"met", note:"Site plan shows Pad E at 2,450 SF (matches the live survey's 2,450 SF ask) — within Bohl's 1,800–2,800 SF range."},
+      siteType: {status:"unknown", note:"Pad E is a freestanding c-store pad (2,450 SF) rather than inline/end-cap shop space; Shops 1C/3A/3B buildings are also shown on the site plan but at 4,850–18,500 SF and not marketed as subdivided suites."},
+      patio: {status:"unknown", note:"No patio mentioned in the brochure."},
+      visibility: {status:"met", note:"Brochure states \"booming traffic counts of ±50,000 VPD at the intersection\" (Ellsworth Rd 38,602 VPD + Empire Blvd 11,159 VPD)."},
+      access: {status:"likely", note:"Signalized major-arterial corner (Ellsworth Rd & Empire Blvd), described as the \"gateway to Queen Creek & Hunt Highway\" — no freeway/interchange access noted in the brochure."},
+      parking: {status:"unknown", note:"No parking ratio or count given in the brochure."},
+      centerAge: {status:"met", note:"Ground-up new development; per the live survey no leases are signed yet and the developer is still finalizing its agreement with the city before starting construction — estimated delivery in 2–2.5 years."},
+      population: {status:"met", note:"126,547 population within 5 miles (2024, Sites USA) — meets the 100K+ (3–5mi) requirement (3-mile figure is only 44,011, well under)."},
+      income: {status:"met", note:"Average HH income $171,003 (1mi) / $143,937 (3mi) / $150,184 (5mi) — comfortably exceeds the $110K preferred level, though these are averages rather than median figures; brochure also cites a $609,837 median home value within 1 mile."}
+    }
+  },
+  "SEC GERMANN RD & VAL VISTA DR": {
+    sourceUrl: "https://www.dropbox.com/scl/fo/yqvmwm7wtblz7c0pbsk6i/AFOCFCoST55dkvIY7vMqyaI?rlkey=v1wlsmifi4br0hatws0lamr2h&st=g2lm6to3&dl=0",
+    source: "Barclay Group brochure + 07/07/2026 updated Shops C floor plan — Harvest Grove (brochure/LOD reviewed 2026-08-06)",
+    criteria: {
+      sf: {status:"met", note:"Live survey lists 1,800–2,100 SF as the current ask, within Bohl's 1,800–2,800 SF target. The 08/06/2026 LOD confirms the Shops C vacancy (Suite D, 3,800 SF on the updated floor plan) can be demised down to this range with a 750 SF patio if Bohl moves quickly."},
+      siteType: {status:"met", note:"Broker notes confirm an end cap in Shops C (also an inline option in Shops B); the updated 07/07/2026 floor plan shows Suite D (3,800 SF, southern end of the 12,600 SF Shops C building) as the end-cap space referenced for demising."},
+      patio: {status:"met", note:"Broker confirmed via the 08/06/2026 LOD that the space includes a 750 SF patio; the updated floor plan shows two dedicated patio areas within Shops C."},
+      visibility: {status:"met", note:"Traffic exceeds 78,000 VPD (ADOT); the southern end-cap space receives visibility from Fry's Marketplace and the multifamily development under construction next door."},
+      access: {status:"likely", note:"SEC Germann Rd & Val Vista Dr, a signalized major-arterial corner; no freeway/interchange proximity stated in the brochure."},
+      parking: {status:"unknown", note:"No parking ratio or count given in the brochure."},
+      centerAge: {status:"met", note:"Ground-up new grocery-anchored (Fry's Marketplace) development; broker notes construction starts in approximately 5–6 months. Live survey lists delivery as November 2027; the updated marketing flyer instead states \"Opening Q1 2028\" — worth confirming the current timeline with the broker."},
+      population: {status:"met", note:"Marketing flyer states population exceeding 100,000 within a 3-mile radius — meets the 100K+ (3–5mi) requirement. 24 active and 11 planned subdivisions are adding 2,300+ new homes to the trade area."},
+      income: {status:"met", note:"Marketing flyer states median household income of nearly $140,000 within a 3-mile radius — explicitly median, and well above the $110K preferred level."}
+    },
+    dealNote: "LOI is being drafted for the demised space, pending Kyle and Levi approval. Broker sent the LOD on 08/06/2026 confirming the 750 SF patio and that the space can be demised quickly if Bohl moves fast; contact Barclay about reducing rent to align with desired economics."
   },
   "SWC WILLIAMS FIELD RD & SAN TAN VILLAGE PKWY, GILBERT, AZ 85295": {
     sourceUrl: "https://www.dropbox.com/scl/fi/bno9d06if6f7ar0ovsfpu/SWC-Williams-Field-San-Tan-Village-Pkwy-Brochure.pdf?rlkey=ovderqww4v4gzuyd2qw2e4pgv&st=yqi0ftay&dl=0",
