@@ -33,6 +33,11 @@ real progress from first tenant interest through a signed lease.
 - **Chipotle sales-volume overlay** — a toggleable reference layer (top-left of the map, next to
   "Show all sites") plotting 52 existing Chipotle locations across the Phoenix metro, each
   labeled with its estimated annual sales volume, for competitive/market-strength context.
+- **Automated brochure checks** — a scheduled task checks all three sheets several times a day
+  for a brand-new or replaced brochure, reads it, scores it against Bohl's criteria, and
+  republishes the dashboard on its own. No one has to notice a new brochure got attached and ask
+  for it to be read — see **Automated brochure scoring** below for how it works and what it
+  depends on.
 - **Password gate** — client-side deterrent plus a server-side check in the Worker (see below);
   keeps the link out of search engines and casual hands. Not meant to withstand a determined
   attacker — the underlying broker data is only ever served after the correct password reaches
@@ -75,6 +80,57 @@ the `pages-build-deployment` run to confirm.
 
 ---
 
+## Automated brochure scoring
+
+A scheduled task (`bohl-brochure-check`, defined at
+`/Users/charles.swindler/Claude/Scheduled/bohl-brochure-check/SKILL.md`) runs at 8am, 11am, 2pm,
+5pm, and 8pm daily. Each run: fetches all three live sheets, compares every site's current
+brochure link against the one last read for it (tracked via a `sourceUrl` field on each scoring
+entry in `index.html`), and for anything new or replaced, reads the PDF, scores it against Bohl's
+criteria, updates `index.html`, and republishes — all without anyone asking. Most runs find
+nothing and stay silent; that's expected.
+
+**What it depends on:** the Claude desktop app running and Chrome open with the extension
+connected, on Charles's machine, at each check time. If the laptop's closed or the app isn't
+running, that check simply doesn't fire — it isn't a background server process. In practice it
+behaves like "catches up whenever the laptop's next open" rather than hitting all five slots
+precisely. The task checks its own browser connection first and will tell you directly if a run
+couldn't proceed, rather than silently doing nothing and leaving it unclear whether it's working.
+
+**Dream-state idea, not yet built:** true instant-on-upload scoring (dashboard reflects a new
+brochure within moments, with nothing running on anyone's computer) would mean moving the scoring
+step off this scheduled task entirely — a Google Apps Script trigger on each sheet firing the
+moment a brochure link changes, calling a new Cloudflare Worker endpoint that hits the Anthropic
+API directly. That needs a real (billed) Anthropic API key and moving scoring data out of the
+static HTML into something the Worker can write to live. Pinned for later.
+
+---
+
+## Known limitations / lessons learned
+
+- **Address-matching is the fragile point.** Coordinates, brochure scoring, and competitive-proximity
+  data are all keyed by a normalized version of each site's address. Most broker addresses include
+  a city/state suffix, but intersection-only addresses sometimes don't — and a broker can edit a
+  sheet's formatting at any time, even for a site that's already been scored, silently breaking an
+  exact-match lookup that used to work. This actually happened (Aug 2026): three of Levi's East
+  Valley sites started showing up on the map in Charles's West Valley territory because their
+  addresses lost their city suffix after being keyed with one. The lookup logic now tolerates a
+  city/state suffix appearing on one side but not the other, and any site that still can't be
+  matched falls back to a point within its *own* franchisee's territory (never someone else's) and
+  renders with a dashed pin outline so a future mismatch is visible on the map instead of blending
+  in silently. Worth a periodic glance at the map for any dashed pins.
+- **Single shared password today.** Everyone uses the same password; revoking one person's access
+  means rotating it for everyone. Pinned idea: an "Access" tab in a sheet mapping password → person
+  → allowed markets/franchisees, read live by the Worker the same way broker data is — so adding a
+  broker, cutting someone off, or scoping a future Utah/Idaho team to their own region is a
+  spreadsheet edit, not a code change.
+- **One market today (Phoenix).** Expanding to Utah, Idaho, etc. is mostly data entry on the
+  backend (new owner + spreadsheet ID), but the UI currently assumes one region (map default
+  center, Chipotle overlay, hero text). Pinned idea: a market selector above the franchisee filter
+  that scopes the map, stats, and competitive overlay to whichever market is selected.
+
+---
+
 ## How we got here
 
 1. Compiled initial site data from the broker spreadsheet, built the Bohl fit-scoring model
@@ -97,6 +153,16 @@ the `pages-build-deployment` run to confirm.
 8. Simplified: dropped unused "Non-Active" tracking once we confirmed passed sites already just
    disappear from the dashboard on their own when a broker moves them off their Active tab.
 9. Added the toggleable Chipotle sales-volume map layer, sourced from a Google My Maps export.
+10. Built the automated brochure-checking scheduled task — closing the last manual gap, where a
+    new brochure's link updated live but its actual fit score still needed someone to notice and
+    ask for it to be read. Verified with a live test run that found and correctly scored four real
+    new brochures unprompted, then refined the task's instructions based on what that test
+    actually required (a validated PDF-reading method, and reporting clearly instead of failing
+    silently when the browser connection is down).
+11. Fixed a real bug where three of Levi's East Valley sites were showing up in Charles's West
+    Valley territory on the map (and one had a stale, unapplied score) due to an address-key
+    mismatch, and hardened the address-matching and coordinate-fallback logic so the same class of
+    bug degrades safely (and visibly) instead of silently again — see **Known limitations** above.
 
 ---
 
@@ -108,3 +174,4 @@ the `pages-build-deployment` run to confirm.
 | `bohl-sheets-proxy-worker.js` | Local only, deployed to Cloudflare | Worker source — Google Sheets proxy |
 | `bohl-live-fetch-setup-checklist.md` | Local only | One-time setup steps for the live-fetch backend (completed) |
 | `levi_brochure_notes.md`, `sean_brochure_notes.md` | Local only | Research notes from reading each site's brochure, feeding the manual criteria overrides in `index.html` |
+| `bohl-brochure-check/SKILL.md` | `~/Claude/Scheduled/bohl-brochure-check/` | The scheduled task's instructions — read this to see exactly what the automated check does each run |
