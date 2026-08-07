@@ -90,6 +90,15 @@ entry in `index.html`), and for anything new or replaced, reads the PDF, scores 
 criteria, updates `index.html`, and republishes — all without anyone asking. Most runs find
 nothing and stay silent; that's expected.
 
+**It also flags a different, softer problem it can't fix on its own:** a broker sometimes attaches
+a brochure by email, Drive, or plain-text paste without actually using Google Sheets' "Insert
+link" on the Marketing Material cell — so nothing about the sheet actually changes from this
+system's point of view, even though the broker thinks it's done (this happened for real, Aug 2026 —
+Sean's "The Groves"). Each run scans the notes on any site with no Marketing Material hyperlink for
+language suggesting material was sent but never linked, and reports it once (tracked in a local
+`missing_link_flags.json` so the same note doesn't get re-flagged every few hours) — framed as
+"worth checking with the broker," since fixing the sheet itself isn't something this system can do.
+
 **What it depends on:** the Claude desktop app running and Chrome open with the extension
 connected, on Charles's machine, at each check time. If the laptop's closed or the app isn't
 running, that check simply doesn't fire — it isn't a background server process. In practice it
