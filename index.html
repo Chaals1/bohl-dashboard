@@ -1490,7 +1490,7 @@ function renderMarketTabs(){
       renderList();
       updateChipotleToggleVisibility();
       renderMap();
-      fitMapToFilteredSites();
+      fitMapToFilteredSites(true);
     });
   });
 }
@@ -1654,14 +1654,27 @@ function showAllSites(){
 }
 
 // Re-fits the map to whatever the current franchisee filter includes — called both by the
-// "Show all sites" button and automatically whenever the filter tab changes.
-function fitMapToFilteredSites(){
+// "Show all sites" button, automatically whenever the filter tab changes, and (with
+// immediate=true) whenever the MARKET changes, since that can be a huge jump (e.g. Phoenix to
+// Austin) that a smooth flyTo can visually corrupt: Leaflet's tile-grid math can desync on a
+// large animated pan, leaving the map showing stale or blank tiles even though its internal
+// center/zoom state is already correct (confirmed via direct inspection — this is a rendering
+// glitch, not a data or logic bug). invalidateSize() first forces Leaflet to recompute its
+// container size/pixel origin before the jump, which is what actually fixes it.
+function fitMapToFilteredSites(immediate){
   const sites = sitesForFilter();
   if (!sites.length) return;
   const map = ensureLeafletMap();
+  map.invalidateSize();
   const bounds = sites.map(s=>[s.coords.lat, s.coords.lng]);
-  if (bounds.length === 1) map.flyTo(bounds[0], 14, { duration: 0.6 });
-  else map.flyToBounds(bounds, { padding: [40,40], duration: 0.6 });
+  if (immediate){
+    if (bounds.length === 1) map.setView(bounds[0], 14);
+    else map.fitBounds(bounds, { padding: [40,40] });
+    setTimeout(()=>map.invalidateSize(), 50);
+  } else {
+    if (bounds.length === 1) map.flyTo(bounds[0], 14, { duration: 0.6 });
+    else map.flyToBounds(bounds, { padding: [40,40], duration: 0.6 });
+  }
 }
 
 // ---- Chipotle sales-volume overlay ----
