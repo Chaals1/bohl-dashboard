@@ -114,6 +114,12 @@
   .filter-dot { width:8px; height:8px; border-radius:50%; display:inline-block; flex:none; }
   .filter-tab.active .filter-dot { box-shadow: 0 0 0 2px rgba(255,255,255,0.4); }
 
+  /* Market tabs sit on the dark hero background, not a card, so they need their own contrast. */
+  #marketFilterTabs.owner-filter-tabs { margin-bottom:0; }
+  .market-tab { display:inline-flex; align-items:center; font-size:11px; font-weight:700; padding:5px 11px; border-radius:999px; border:1px solid rgba(255,255,255,0.28); background:rgba(255,255,255,0.10); color:#F3E6CE; cursor:pointer; user-select:none; }
+  .market-tab:hover { background:rgba(255,255,255,0.2); }
+  .market-tab.active { background:var(--gold-dark); color:#241A13; border-color:var(--gold-dark); }
+
   .owner-swatch-lg { width:9px; height:9px; border-radius:50%; display:inline-block; flex:none; }
   .owner-badge { display:inline-flex; align-items:center; gap:5px; font-size:10.5px; font-weight:700; padding:2px 9px; border-radius:999px; color:#fff; margin-left:8px; vertical-align:middle; }
 
@@ -190,8 +196,9 @@
     <div class="hero-left">
       <div class="wordmark" data-text="bohl">bohl</div>
       <div>
-        <div style="font-size:15px; font-weight:700;">Phoenix Market Site Selection Dashboard</div>
-        <div class="hero-sub">Shared by Charles, Sean, Levi &amp; Kyle · scored against the Bohl Phoenix Metro tenant profile</div>
+        <div style="font-size:15px; font-weight:700;">Site Selection Dashboard</div>
+        <div class="hero-sub" id="heroSubtitle">Phoenix, AZ · shared by Charles, Sean, Levi, Kyle · scored against the Bohl tenant profile</div>
+        <div class="owner-filter-tabs" id="marketFilterTabs" style="margin-top:8px;"></div>
       </div>
     </div>
     <div class="hero-right">
@@ -244,7 +251,7 @@
         <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:10px; gap:8px; flex-wrap:wrap;">
           <h2 style="margin:0;">Site map</h2>
           <div style="display:flex; align-items:center; gap:8px;">
-            <label style="display:flex; align-items:center; gap:5px; font-size:11.5px; font-weight:700; color:var(--gold-dark); cursor:pointer; user-select:none; white-space:nowrap;">
+            <label id="chipotleToggleWrap" style="display:flex; align-items:center; gap:5px; font-size:11.5px; font-weight:700; color:var(--gold-dark); cursor:pointer; user-select:none; white-space:nowrap;">
               <input type="checkbox" id="chipotleToggle" style="accent-color:var(--brown-dark); cursor:pointer;">
               Chipotle sales
             </label>
@@ -281,13 +288,32 @@ const LEVI_CSV_B64 = "LCwsLCwsLCwsDQosLCxTdXJ2ZXkgQ3JpdGVyaWEsLCwsLCwNCiwsLCxMb2
 // franchisee's own region" instead of "a plausible-looking pin sitting in someone else's
 // territory," which is what happened before this was added (see: three of Levi's East Valley
 // sites briefly showing up in Charles's West Valley region due to an address key mismatch).
-const OWNERS = [
-  { id: "charles", name: "Charles Swindler", role: "Franchisee — West of I-17", csvB64: FALLBACK_CSV_B64, homeBase: {lat:33.4353, lng:-112.3496} },
-  { id: "sean",    name: "Sean Provost",     role: "Franchisee — Scottsdale, Paradise Valley & Arcadia", csvB64: SEAN_CSV_B64, homeBase: {lat:33.5538, lng:-111.9036} },
-  { id: "levi",    name: "Levi Ayriss",      role: "Franchisee — Queen Creek, Mesa, Chandler & Gilbert", csvB64: LEVI_CSV_B64, homeBase: {lat:33.3200, lng:-111.7500} },
-  { id: "kyle",    name: "Kyle Garrett",     role: "Franchisee — sub-region TBD", csvB64: null, homeBase: {lat:33.4484, lng:-112.0740} }
+// Bass's Austin, TX metro sites — from "Bohl Lease Survey - Bass" (Google Sheet, broker contacts
+// Brady Ruth & Baylor Worman at Matthews). Compiled 2026-08-10. One row ("Example") that was
+// leftover template boilerplate from copying the sheet was excluded. "Saltillo" had no address at
+// all in the survey — an approximate East Austin proxy address was used so it still places on the
+// map (see the KNOWN_COORDS comment). No brochures attached to any site yet, so initial scoring
+// runs entirely on the survey's own text via the auto-scoring engine.
+const BASS_CSV_B64 = "LFN1cnZleSBDcml0ZXJpYQ0KLCwsLExvY2F0aW9uOiwiQXVzdGluLCBUWCBtZXRybyAoUm91bmQgUm9jaywgQ2VkYXIgUGFyaywgR2VvcmdldG93biwgTGVhbmRlciwgUGZsdWdlcnZpbGxlLCBBdXN0aW4sIEJlZSBDYXZlKSINCiwsLCxTaXplIENyaXRlcmlhOiwiMiwwMDAgLSAzLDAwMCBTRiINCiwsLCxQcm9kdWN0IFR5cGU6LFJldGFpbA0KLCwsLExpc3RpbmcgVHlwZTosRm9yIExlYXNlDQoNCiwsLCxDb250YWN0IEluZm9ybWF0aW9uLCwsQ29udGFjdCBJbmZvcm1hdGlvbg0KLCwsLENvbnRhY3Q6LEJyYWR5IFJ1dGgsLENvbnRhY3Q6LEJheWxvciBXb3JtYW4NCiwsLCxDZWxsOiw4MTctODI1LTg3NjEsLENlbGw6LDIxNC02MDAtNTUyNQ0KLCwsLEUtbWFpbDosYnJhZHkucnV0aEBtYXR0aGV3cy5jb20sLEUtbWFpbDosYmF5bG9yLndvcm1hbkBtYXR0aGV3cy5jb20NCg0KLEJvaGwgLSBMZWFzZSBTdXJ2ZXkgfCBCYXNzDQoNCixOYW1lLEFkZHJlc3MsU3BhY2UgVHlwZSxBdmFpbGFibGUgU0YsUHJpY2UgUFNGLE5OTixEZWxpdmVyeSBEYXRlLE1hcmtldGluZyBNYXRlcmlhbCxIaWdobGlnaHRzLFRlbmFudCBOb3RlcyxCcm9rZXIgTm90ZXMNCixSb3VuZCBSb2NrDQosUm91bmQgUm9jayBDcm9zc2luZywzMDIxIC0gMzIwMiBOIElILTM1LFNob3AgU3BhY2UsIjMsMTc5IFNGIiwkMzguMDAsLE5vdywsSW5saW5lIHNwYWNlIG5leHQgdG8gTGl0dGxlIEd5bSBhbmQgQmVzdCBCdXksLElubGluZSBzcGFjZSBuZXh0IHRvIExpdHRsZSBHeW0gYW5kIEJlc3QgQnV5DQosQ2VkYXIgUGFyaw0KLEFuZGVyc29uIEFyYm9yIFNob3BwaW5nIENlbnRlciwxMzQzNSBOIEh3eSAxODMsU2hvcHMsIjMsMDA5IFNGIiwkMzUuMDAsJDE0Ljk1LEF2YWlsYWJsZSAxLjEuMjAyNywsQW5jaG9yZWQgYnkgR29sZHMgR3ltLCwNCixUcmFpbHMgYXQgNjIwLDgzMDAgTiBGbSA2MjAsU2hvcHMsIjEsNjAwIFNGIC0gMywwMDAgU0YiLCQzNi4wMCwkMTQuNTUsTm93LCxBbmNob3JlZCBieSB0aGUgWSBhbmQgTW92aWUgRWF0ZXJ5LCwybmQgZ2VuIFJSDQosQ3lwcmVzcyBDcmVlayBWaWxsYWdlLDE1MjUgQ3lwcmVzcyBDcmVlayBSb2FkLFNob3BzLCIxLDY4MCBTRiIsJDM4LjAwLCQxMS40MyxOb3csLEFuY2hvcmVkIGJ5IFN0YXJidWNrcy4gIGFjcm9zcyB0aGUgc3RyZWV0IGZyb20gUmFuZGFsbHMgYW5kIHNwcm91dHMuLCwiMm5kIGdlbiBSUi4gSGFzIGdyZWFzZSB0cmFwLiBubyB2ZW50IGhvb2QuIEZvcm1lciBTd2VldCBTaGFjayBDYW5keSBTaG9wLiBUaGV5IGFsc28gaGF2ZSBhIDMsMDAwIFNGIHN0YW5kIGFsb25lIDJuZCBnZW4gUlIgc3BhY2Ugd2l0aCBhIGRyaXZlIHRocm91Z2ggYXZhaWxhYmxlIGhlcmUgaXMgdGhhdCBjb3VsZCB3b3JrLiINCixNYXJrZXQgYXQgTGFrZSBDcmVlaywxMzc3NiBVUyAxODMsLCI0LDY4NSBTRiAoc3BhY2UgY2FuIGJlIGRlbWlzZWQpIiwsLE5vdywsQW5jaG9yZWQgYnkgdGhlIGZpdG5lc3MgY29ubmVjdGlvbi4sLFNwYWNlIGRvZXNudCBoYXZlIHRoZSBiZXN0IHZpc2libGl0eS4gd291bGQgbGlrZSB0byBzZWUgaG93IHRoZSBzcGFjZSBjb3VsZCBiZSBkZW1pc2VkLiBTdGlsbCB3YWl0aW5nIG9uIHByaWNpbmcuDQosTGFrZWxpbmUgUGxhemEsMTEwNjYgUGVjYW4gUGFyayBCbHZkLFNob3BzLCIxLDgwMCBTRiIsJDQ2LjAwLCQxMS41NSxOb3csLCJQb3dlciBDZW50ZXIuIEJlc3QgQnV5LCBUSiBNYXgsIFRvdGFsIFdpbmUuIFNoYWRvdyBBbmNob3JlZCBieSBMYWtlbGluZSBNYWxsLiIsLE11bHRpcGxlIDE4MDAgU0Ygc3BhY2VzLiBnb29kIHZpc2liaWxpdHkgdG8gdGhlIG1hbGwNCixHcmFuZHZpZXcgU2hvcHBpbmcgQ2VudGVyLDc5MDAgUmFuY2ggUmQgNjIwLFNob3BzLCIyLDIwMCIsJDM2LjAwLCQxNS4wMCxOb3csLEFuY2hvcmVkIGJ5IEhvbWVEZXBvdC4gVGhlIHBpY2tsZXIgQXVzdGluIGlzIGFjcm9zcyB0aGUgc3RyZWV0LiwsQ3J1bWJsIENsb3NlZC4gTGFuZGxvcmQgaXMgc3RpbGwgd29ya2luZyB0byBnZXQgbGVnYWwgcG9zc2Vzc2lvbiBvZiB0aGUgc3BhY2UuDQosV2FsZGVuIFBhcmssMTA5MDAgTGFrZWxpbmUgTWFsbCBSZCxTaG9wcywiMiwwMDAgU0YiLCwsLCxBbmNob3JlZCBieSBUYXJnZXQuLCxmb3JtZXIgQ3Jhbmt5IEdyYW5ueSdzIGNvbWluZyBhdmFpbGJsZSBzb29uLiBTdGlsbCB3YWl0aW5nIG9uIGRhdGUgYW5kIHByaWNpbmcuDQosMTg5MCBSYW5jaCwiMTMzNSBFLiBXaGl0ZXN0b25lIEJsdmQuLCBDZWRhciBQYXJrLCBUWCA3ODYxMyIsU2hvcHMgLyBFbmRjYXAsIjQsOTg1IFNGKioiLCQ0OC4wMCwkMTIuNDUsTm93LCwiVGhlIHNwYWNlIGNhbiBiZSBkZW1pc2VkIGFuZCBjb3VsZCBoYXZlIGEgcGF0aW8uIE93bmVyc2hpcCBsaWtlIHRoZSB1c2UvYnJhbmQgb2YgQm9obCBhbmQgd291bGQgbGlrZSB0byBoYXZlIHVzIGhlcmUuIEFuY2hvcmVkIGJ5IENydW5jaCwgU3VwZXIgVGFyZ2V0LCBQZXQgU21hcnQsIEFjYWRlbXkuIiwsDQosR2VvcmdldG93bg0KLFdvbGQgUmFuY2ggVG93biBDZW50ZXIsMTAyMSBXIFVuaXZlcnNpdHkgQXZlLElubGluZSBzcGFjZSwiMSw2MDcgU0YiLCQ1OC4wMCwkMTQuMTYsTm93LCxQb3dlciBDZW50ZXIgYW5jaG9yZWQgYnkgVGFyZ2V0LiwsDQosTGVhbmRlcg0KLExlYW5kZXIgSHd5IDE4MyBSZXRhaWwsU0ggMTgzICYgSGVybyBXYXksSW5saW5lIHNwYWNlLCIxLDIwMCIsJDQ0LjAwLCQ5LjAwLE5vdywsQW5jaG9yZWQgYnkgQ3J1bmNoIEZpdG5lc3MsLElubGluZSBzcGFjZS4gVGhlIGNlbnRlciBpcyBmdWxsIG9mIG5hdGlvbmFsIHRlbmFudHMgYW5kIGhhcyBDcnVuY2ggYXMgdGhlIEFuY2hvci4NCixBdXN0aW4NCixFc2NhcnBtZW50IFZpbGxhZ2UsNTkwMCBFc2NhcnBtZW50IEJsdmQsU2hvcCBTcGFjZSwiMywwMDAgU0YgKyBQYXRpbyIsV2UncmUgbm90IHB1dHRpbmcgb3V0IGEgZmlybSByYXRlLCQxNS44NSxOb3csLEhFQiBBbmNob3JlZCwsDQosU291dGhwYXJrIE1lYWRvd3MsOTYwMCBTIEktMzUgRnJvbnRhZ2UgUmQsU2hvcCBTcGFjZSwiMiwxMDAgU0YiLEhpZ2ggJDMwcyAtIGxvdyAkNDBzLE5OTixOb3csLCJBbmNob3JlZCBieSBXYWxtYXJ0LCBUYXJnZXQsIEJlc3RidXkuIFBvd2VyQ2VudGVyIiwsTXVsdGlwbGUgc3BhY2VzIGF2YWlsYWJsZS4gU2VlIGZseWVyDQosU2FsdGlsbG8sIjV0aCBTdCAmIENvbWFsIFN0LCBBdXN0aW4sIFRYIChhcHByb3hpbWF0ZSAtLSBubyBhZGRyZXNzIGdpdmVuIGluIHN1cnZleSkiLEdyb3VuZCBGbG9vciBSZXRhaWwsIjEsODAwIFNGIC0gMywzMDcgU0YiLCQ1NS4wMCwkMjEuMDAsTm93LCxUYXJnZXQgYW5kIFdob2xlIGZvb2RzIGFuY2hvcmVkLiBDaGlwb3RsZSwsMm5kIGdlbiBSUi4gTm8gdmVudCBob29kIGJ1dCBncmVhc2UgdHJhcCBpcyBpbiBwbGFjZSBhbmQgc2hhZnRzIGFyZSBpbiBwbGFjZS4gTWl4ZWQgdXNlIGRldmVsb3BtZW50Lg0KLEF0bGFzIE4gTGFtYXIsNTYyOSBOIExhbWFyIEJsdmQsR3JvdW5kIEZsb29yIFJldGFpbCwiMiw2MjYgU0YiLCQzNS4wMCwkMTEuMDAsTm93LCxHcm91bmQgRmxvb3IgcmV0YWlsLCwybmQgR2VuIFJSIHdpdGggR3JlYXNlIFRyYXANCixHdWFkIDMxLDMwMDggR3VhZGFsdXBlIFN0LFNob3AgU3BhY2UgLyBFbmQgY2FwIC8gR3JvdW5kIEZsb29yIFJldGFpbCwiMiw0MDAgU0YiLCQ0NC4wMCwkMTYuMDAsTm93LCxHcm91bmQgZmxvb3IgcmV0YWlsLCwybmQgR2VuIFBoYXJtYWN5DQosQ29ybmVycyBJSSwyOTE5IE1lbmNoYWNhIFJkLFNob3AgU3BhY2UsIjEsNzg5IFNGIiwkNDQuMDAsJDE0LjI1LE5vdywsRW5kIGNhcCwsMm5kIGdlbiBSUi4NCixJcmlzIEF0IE11ZWxsZXIsNTAyNSBNdWVsbGVyIEJsdmQsR3JvdW5kIEZsb29yIFJldGFpbCAvIEVuZGNhcCwiMiwxNzAgU0YgLSAyLDQ3NSBTRiIsJDQyLjAwLCQxMy4wMCxOb3csLFdhcm0gU2hlbGwgY29uZGl0aW9uLCwNCixTb3V0aHBhcmsgTWVhZG93cyBJSSw5OTAwIFMgSS0zNSBGcm9udGFnZSBSZCxJbmxpbmUgc3BhY2UsIjEsNjUwIFNGIiwkNDAuMDAsJDEwLjI1LG5vdywsQW5jaG9yZWQgYnkgVGFyZ2V0LCxSUiBncm91cCBsb3N0IGZpbmFuY2luZyBkdXJpbmcgYnVpbGQgb3V0LiBTaGVsbCBjb25kaXRpb24uDQosVGhlIENvZGUsMjMyMyBTIExhbWFyLEVuZCBjYXAgZ3JvdW5kIGZsb29yIHJldGFpbCwiMSw4OTggU0YgKyBQYXRpbyIsJDQyLjAwLCQxNS4wMCxOb3csLEdyb3VuZCBGbG9vciBSZXRhaWwsLCQ1MCBpbiBUSS4gU2hlbGwgY29uZGl0aW9uLiBFbmQgY2FwDQosTGFrZWhpbGxzIFBsYXphLDQyMTEgUyBMYW1hciBCbHZkLFNob3AgU3BhY2UsIjMsMDI5IFNGIiwkNDUuMDAsJDE0LjE2LE5vdywsQW5jaG9yZWQgYnkgVGFyZ2V0LiAybmQgZ2VuIFJSLiBJbmxpbmUgc3BhY2UsLA0KLEJlZSBDYXZlDQosUXVpbmxhbiBDcm9zc2luZyw1MDAwIE4uIFF1aW5sYW4gUGFyayBSZCxTaG9wIFNwYWNlLCIxLDQzMiBTRiIsJDQyLjAwLCQxMy43MCxOb3csLEFuY2hvcmVkIGJ5IFJhbmRhbGxzLCxFbmQgY2FwIHNwYWNlIHdpdGggbGFyZ2UgUGF0aW8NCixIaWxsIENvdW50cnkgR2FsbGVyaWEsMTI3MDAgSGlsbCBDb3VudHJ5IEJsdmQsU2hvcCBTcGFjZSwiMiw0MzUgU0YiLCQ0NC4wMCwkMTYuMDAsTm93LiBDb2xkIFNoZWxsLiwsIkNvdWxkIGdpdmUgdXAgdG8gJDEwMCBpbiBUSS4gTWFzc2l2ZSBkYXl0aW1lIHBvcHVsYXRpb24uIFdob2xlIGZvb2RzIGFuY2hvci4gQnJva2VyIHRvbGQgbWUgYWJvdXQgYSBneW0gYW5jaG9yIHRoYXQgaXMgZ29pbmcgdG8gdGhlIGRldmVsb3BtZW50LCBjb3VsZG4ndCB0ZWxsIG1lIG1vcmUgYmVjYXVzZSBzaGUgaXMgdW5kZXIgYW4gTkRBLiBUb2xkIG1lIGl0cyA2MCwwMDAgU0YuIENvdWxkIGJlIExpZmUgVGltZSBvciBzb21ldGhpbmcgc2ltaWxhci4iLCxXZSBuZWVkIHRvIGdpdmUgdGhpcyBvbmUgc2VyaW91cyB0aG91Z2h0LiBJcyBldmVyeXRoaW5nIHdlIHdhbnQgYW5kIG1vcmUuDQo=";
+
+// MARKETS: each region the dashboard covers. A market with owners: [] is a placeholder — it shows
+// up in the market selector but with an empty state, the same way Kyle's tile shows zero sites
+// until his region is set up. mapCenter/mapZoom are only used as a first-paint default; once sites
+// load, the map fits to whatever's actually in that market via fitMapToFilteredSites().
+const MARKETS = [
+  { id: "phoenix-az", name: "Phoenix, AZ", mapCenter: {lat:33.4484, lng:-112.0740}, mapZoom: 9 },
+  { id: "austin-tx",  name: "Austin, TX",  mapCenter: {lat:30.3200, lng:-97.7000}, mapZoom: 9 },
+  { id: "idaho",      name: "Idaho",       mapCenter: {lat:43.6150, lng:-116.2023}, mapZoom: 7 }
 ];
-const OWNER_COLORS = { charles: "#C6821E", sean: "#5B7A3D", levi: "#3A6EA5", kyle: "#8A7A66" };
+
+const OWNERS = [
+  { id: "charles", name: "Charles Swindler", role: "Franchisee — West of I-17", csvB64: FALLBACK_CSV_B64, homeBase: {lat:33.4353, lng:-112.3496}, market: "phoenix-az" },
+  { id: "sean",    name: "Sean Provost",     role: "Franchisee — Scottsdale, Paradise Valley & Arcadia", csvB64: SEAN_CSV_B64, homeBase: {lat:33.5538, lng:-111.9036}, market: "phoenix-az" },
+  { id: "levi",    name: "Levi Ayriss",      role: "Franchisee — Queen Creek, Mesa, Chandler & Gilbert", csvB64: LEVI_CSV_B64, homeBase: {lat:33.3200, lng:-111.7500}, market: "phoenix-az" },
+  { id: "kyle",    name: "Kyle Garrett",     role: "Franchisee — sub-region TBD", csvB64: null, homeBase: {lat:33.4484, lng:-112.0740}, market: "phoenix-az" },
+  { id: "bass",    name: "Bass",             role: "Franchisee — Austin, TX metro", csvB64: BASS_CSV_B64, homeBase: {lat:30.3200, lng:-97.7000}, market: "austin-tx" }
+];
+const OWNER_COLORS = { charles: "#C6821E", sean: "#5B7A3D", levi: "#3A6EA5", kyle: "#8A7A66", bass: "#8E4B3C" };
 
 // ---- Live-fetch backend (Cloudflare Worker -> Google Sheets, password-gated) ----
 // Falls back to the embedded snapshot CSVs above if the Worker is unreachable, the
@@ -332,7 +358,15 @@ const CITY_COORDS = {
   "PHOENIX": {lat:33.4793, lng:-112.2725},
   "TOLLESON": {lat:33.4501, lng:-112.2585},
   "SUN CITY": {lat:33.5981, lng:-112.2718},
-  "SUN CITY WEST": {lat:33.6636, lng:-112.3428}
+  "SUN CITY WEST": {lat:33.6636, lng:-112.3428},
+  // Austin, TX metro (Bass market, added 2026-08)
+  "AUSTIN": {lat:30.2672, lng:-97.7431},
+  "CEDAR PARK": {lat:30.5052, lng:-97.8203},
+  "ROUND ROCK": {lat:30.5083, lng:-97.6789},
+  "GEORGETOWN": {lat:30.6333, lng:-97.6780},
+  "LEANDER": {lat:30.5788, lng:-97.8531},
+  "PFLUGERVILLE": {lat:30.4394, lng:-97.6200},
+  "BEE CAVE": {lat:30.3080, lng:-97.9425}
 };
 
 // New coords for Sean's and Levi's sites — geocoded via US Census Bureau geocoder 2026-08-02.
@@ -369,6 +403,29 @@ Object.assign(CITY_COORDS, {
   "GILBERT": {lat:33.3528, lng:-111.7890},
   "QUEEN CREEK": {lat:33.2487, lng:-111.6343},
   "SAN TAN VALLEY": {lat:33.1454, lng:-111.5427}
+});
+
+// Bass's Austin, TX metro sites — geocoded via US Census Bureau geocoder 2026-08-10. Keys are
+// the RAW address text exactly as it appears in the broker sheet (most of these are missing a
+// city/state suffix entirely, same as several AZ intersection addresses) — see coordsFor()'s
+// flexible matching for how a mismatch here degrades safely instead of silently. 11 of Bass's 23
+// sites didn't resolve to a precise TIGER address match (mostly highway-named addresses like
+// "N Hwy 183" or "Ranch Rd 620") and fall back to city-center + jitter for now — refine as
+// better addresses come in from the broker.
+Object.assign(KNOWN_COORDS, {
+  "3021 - 3202 N IH-35": {lat:30.552015, lng:-97.692261},
+  "1525 CYPRESS CREEK ROAD": {lat:30.481353, lng:-97.832674},
+  "11066 PECAN PARK BLVD": {lat:30.470070, lng:-97.802330},
+  "7900 RANCH RD 620": {lat:30.406668, lng:-97.852516},
+  "1335 E. WHITESTONE BLVD., CEDAR PARK, TX 78613": {lat:30.526059, lng:-97.813787},
+  "1021 W UNIVERSITY AVE": {lat:30.633186, lng:-97.686175},
+  "SH 183 & HERO WAY": {lat:30.594910, lng:-97.813916},
+  "5629 N LAMAR BLVD": {lat:30.324572, lng:-97.727137},
+  "3008 GUADALUPE ST": {lat:30.296862, lng:-97.741932},
+  "2919 MENCHACA RD": {lat:30.241988, lng:-97.781992},
+  "2323 S LAMAR": {lat:30.247162, lng:-97.775691},
+  "4211 S LAMAR BLVD": {lat:30.236439, lng:-97.79207},
+  "5TH ST & COMAL ST, AUSTIN, TX (APPROXIMATE -- NO ADDRESS GIVEN IN SURVEY)": {lat:30.262153, lng:-97.726965}
 });
 
 const CRITERIA_DEFS = [
@@ -1219,11 +1276,18 @@ function selectSite(id){
 
 function renderAll(){
   SITES.sort((a,b)=> b.score.fitScore - a.score.fitScore);
-  if (selectedId===null && SITES.length) selectedId = SITES[0].id;
+  if (selectedId===null){
+    const defaultMarketSites = SITES.filter(s=>s.marketId===selectedMarket);
+    if (defaultMarketSites.length) selectedId = defaultMarketSites[0].id;
+    else if (SITES.length) selectedId = SITES[0].id;
+  }
+  renderMarketTabs();
+  updateHeroSubtitle();
   renderStats();
   renderFilterTabs();
   renderStageTabs();
   renderList();
+  updateChipotleToggleVisibility();
   renderMap();
   renderDetail();
 }
@@ -1266,8 +1330,16 @@ function statTileHtml(borderColor, dotColor, label, breakdown, noData){
 
 function renderStats(){
   const el = document.getElementById('statsStrip');
-  const tiles = [statTileHtml('var(--gold-dark)', null, 'Market total sites', fitBreakdown(SITES), false)];
-  OWNERS.forEach(o=>{
+  const marketSites = SITES.filter(s=>s.marketId===selectedMarket);
+  const marketOwners = OWNERS.filter(o=>o.market===selectedMarket);
+  if (!marketOwners.length){
+    el.innerHTML = `<div class="stat-card no-data" style="border-top-color:var(--gold-dark); grid-column: 1 / -1;">
+      <div class="l">No franchisees set up in this market yet</div>
+    </div>`;
+    return;
+  }
+  const tiles = [statTileHtml('var(--gold-dark)', null, 'Market total sites', fitBreakdown(marketSites), false)];
+  marketOwners.forEach(o=>{
     const ownerSites = SITES.filter(s=>s.ownerId===o.id);
     const firstName = o.name.split(' ')[0].toUpperCase();
     tiles.push(statTileHtml(OWNER_COLORS[o.id], OWNER_COLORS[o.id], firstName, fitBreakdown(ownerSites), ownerSites.length===0));
@@ -1276,8 +1348,11 @@ function renderStats(){
   el.querySelectorAll('.n').forEach(n=>animateNumber(n, parseInt(n.dataset.target,10), 700));
 }
 
-// Two independent filters drive both the map and the ranked list: which owner ('all' or an
-// owner id), and which deal stage ('all' or 'inprogress').
+// Three independent filters drive the map and ranked list: which market, which owner ('all' or
+// an owner id) within that market, and which deal stage ('all' or 'inprogress'). Switching markets
+// always resets the owner filter back to 'all' — a franchisee filter selection from one market
+// has no meaning in another.
+let selectedMarket = 'phoenix-az';
 let selectedOwnerFilter = 'all';
 let selectedStageFilter = 'all';
 
@@ -1357,7 +1432,8 @@ function isInProgress(site){
 }
 
 function sitesForFilter(){
-  let list = selectedOwnerFilter === 'all' ? SITES : SITES.filter(s=>s.ownerId===selectedOwnerFilter);
+  let list = SITES.filter(s=>s.marketId===selectedMarket);
+  list = selectedOwnerFilter === 'all' ? list : list.filter(s=>s.ownerId===selectedOwnerFilter);
   if (selectedStageFilter === 'inprogress'){
     list = list.filter(isInProgress);
     // Sort by how far along the deal is (most advanced first) rather than fit score.
@@ -1369,10 +1445,15 @@ function sitesForFilter(){
 
 function renderFilterTabs(){
   const el = document.getElementById('ownerFilterTabs');
+  const marketOwners = OWNERS.filter(o=>o.market===selectedMarket);
+  if (!marketOwners.length){
+    el.innerHTML = `<div style="font-size:12px; color:var(--tan);">No franchisees set up in this market yet.</div>`;
+    return;
+  }
   const allTab = `<div class="filter-tab ${selectedOwnerFilter==='all'?'active':''}" data-filter="all">
       <span class="filter-dot" style="background:var(--gold-dark)"></span>All
     </div>`;
-  const ownerTabs = OWNERS.map(o=>`
+  const ownerTabs = marketOwners.map(o=>`
     <div class="filter-tab ${selectedOwnerFilter===o.id?'active':''}" data-filter="${o.id}">
       <span class="filter-dot" style="background:${OWNER_COLORS[o.id]}"></span>${o.name.split(' ')[0]}
     </div>`).join('');
@@ -1388,9 +1469,64 @@ function renderFilterTabs(){
   });
 }
 
+function renderMarketTabs(){
+  const el = document.getElementById('marketFilterTabs');
+  if (!el) return;
+  el.innerHTML = MARKETS.map(m=>`
+    <div class="filter-tab market-tab ${selectedMarket===m.id?'active':''}" data-market="${m.id}">${m.name}</div>
+  `).join('');
+  el.querySelectorAll('.market-tab').forEach(tab=>{
+    tab.addEventListener('click', ()=>{
+      const newMarket = tab.dataset.market;
+      if (newMarket === selectedMarket) return;
+      selectedMarket = newMarket;
+      selectedOwnerFilter = 'all';
+      selectedStageFilter = 'all';
+      renderMarketTabs();
+      updateHeroSubtitle();
+      renderStats();
+      renderFilterTabs();
+      renderStageTabs();
+      renderList();
+      updateChipotleToggleVisibility();
+      renderMap();
+      fitMapToFilteredSites();
+    });
+  });
+}
+
+function updateHeroSubtitle(){
+  const el = document.getElementById('heroSubtitle');
+  if (!el) return;
+  const market = MARKETS.find(m=>m.id===selectedMarket);
+  const marketOwners = OWNERS.filter(o=>o.market===selectedMarket);
+  const names = marketOwners.length ? marketOwners.map(o=>o.name.split(' ')[0]).join(', ') : 'no franchisees yet';
+  el.textContent = `${market ? market.name : ''} · shared by ${names} · scored against the Bohl tenant profile`;
+}
+
+// The Chipotle sales-volume overlay is Phoenix-specific reference data — hide the toggle (and
+// force the layer off) for any other market so it can't be mistakenly left on showing AZ pins
+// over a different region's map.
+function updateChipotleToggleVisibility(){
+  const wrap = document.getElementById('chipotleToggleWrap');
+  if (!wrap) return;
+  if (selectedMarket === 'phoenix-az'){
+    wrap.style.display = '';
+  } else {
+    wrap.style.display = 'none';
+    if (showChipotleLayer){
+      showChipotleLayer = false;
+      const cb = document.getElementById('chipotleToggle');
+      if (cb) cb.checked = false;
+      renderChipotleLayer();
+    }
+  }
+}
+
 function renderStageTabs(){
   const el = document.getElementById('stageFilterTabs');
-  const basePool = selectedOwnerFilter === 'all' ? SITES : SITES.filter(s=>s.ownerId===selectedOwnerFilter);
+  let basePool = SITES.filter(s=>s.marketId===selectedMarket);
+  basePool = selectedOwnerFilter === 'all' ? basePool : basePool.filter(s=>s.ownerId===selectedOwnerFilter);
   const inProgressCount = basePool.filter(isInProgress).length;
   el.innerHTML = `
     <div class="filter-tab ${selectedStageFilter==='all'?'active':''}" data-stage="all">All sites</div>
@@ -1740,6 +1876,7 @@ async function loadData(){
         id: owner.id+'-'+idx,
         ownerId: owner.id,
         ownerName: owner.name,
+        marketId: owner.market,
         ...s,
         coords: coordsFor(s.address, owner.homeBase),
         brochureUrl: (s.marketingHyperlink) || brochureFor(s.address),
