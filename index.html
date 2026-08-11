@@ -319,7 +319,7 @@ const OWNER_COLORS = { charles: "#C6821E", sean: "#5B7A3D", levi: "#3A6EA5", kyl
 // Falls back to the embedded snapshot CSVs above if the Worker is unreachable, the
 // password is wrong, or CORS blocks the request (e.g. viewing the file locally).
 const WORKER_BASE_URL = "https://b-dashboard-proxy.charles-swindler1.workers.dev";
-const LIVE_OWNER_IDS = ["charles", "sean", "levi"]; // owners with a Worker-backed sheet (Kyle: stub)
+const LIVE_OWNER_IDS = ["charles", "sean", "levi", "bass"]; // owners with a Worker-backed sheet (Kyle: stub)
 
 async function fetchLiveOwnerData(ownerId, password){
   const url = `${WORKER_BASE_URL}/?owner=${encodeURIComponent(ownerId)}&pw=${encodeURIComponent(password)}`;
