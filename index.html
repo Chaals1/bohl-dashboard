@@ -1180,6 +1180,7 @@ function extractSites(csvText){
       continue;
     }
     if (!col1) continue;
+    if (col1.trim().toLowerCase() === "example") continue; // leftover template boilerplate row from copying the sheet
     const restEmpty = r.slice(2,12).every(c => !(c||'').trim());
     if (restEmpty) continue;
     const address = (r[2]||'').trim();
@@ -1216,6 +1217,7 @@ function extractSitesFromGrid(rows){
       continue;
     }
     if (!col1) continue;
+    if (col1.trim().toLowerCase() === "example") continue; // leftover template boilerplate row from copying the sheet
     const restEmpty = r.slice(2,12).every(c => !((c && c.value) || '').trim());
     if (restEmpty) continue;
     const address = cell(2).trim();
