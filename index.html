@@ -937,7 +937,13 @@ const LEVI_BROCHURE_DATA = {
   }
 };
 
-const ALL_BROCHURE_DATA = {...BROCHURE_DATA, ...SEAN_BROCHURE_DATA, ...LEVI_BROCHURE_DATA};
+// BROCHURE_DATA overrides for Bass's Austin, TX sites — same structure/keying convention as the
+// existing Charles BROCHURE_DATA above. Empty to start: no brochures had been attached to any
+// Bass site as of 2026-08-11, so initial scoring runs entirely on the survey's own text via the
+// auto-scoring engine. Populated by the bohl-brochure-check scheduled task as brochures come in.
+const BASS_BROCHURE_DATA = {};
+
+const ALL_BROCHURE_DATA = {...BROCHURE_DATA, ...SEAN_BROCHURE_DATA, ...LEVI_BROCHURE_DATA, ...BASS_BROCHURE_DATA};
 
 function applyBrochureOverrides(address, results){
   const data = ALL_BROCHURE_DATA[normAddr(address)];
