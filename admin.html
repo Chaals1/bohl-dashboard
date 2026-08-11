@@ -1,0 +1,436 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>bohl — Admin</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root {
+    color-scheme: light;
+    --brown-dark:#241A13; --brown:#3A2A1D; --brown-mid:#4A3423; --gold:#EFA736; --gold-dark:#C6821E;
+    --cream:#FBF3E4; --card:#FFFFFF; --ink:#201A13; --ink-soft:#6B6152; --border:#EAE2D2;
+    --terracotta:#C1503A; --olive:#5B7A3D; --tan:#B9AE9A;
+    --surface-2:#faf7f0; --row-hover:#f5f1e6; --hairline:#f2ede3; --note-ink:#5b5147;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; padding: 0; background: var(--cream); color: var(--ink);
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
+  }
+  .wrap { max-width: 900px; margin: 0 auto; padding: 0 0 48px; }
+
+  .hero {
+    background: linear-gradient(120deg, var(--brown-dark), var(--brown-mid));
+    color: #fff; padding: 28px 32px; display:flex; align-items:center; justify-content:space-between;
+    flex-wrap: wrap; gap: 14px; border-radius: 0 0 20px 20px; margin-bottom: 18px;
+  }
+  .hero-left { display:flex; align-items:center; gap:22px; }
+  .wordmark {
+    position: relative; font-size: 52px; font-weight: 800; letter-spacing: 1px; color:#FBF3E4; line-height:1;
+    text-shadow:
+      0px 0.5px 0 #E4D3B1, 0px 1px 0 #D7C3A0, 0px 1.5px 0 #C9B491, 0px 2px 0 #BCA582,
+      0px 2.5px 0 #AE9673, 0px 3px 0 #A08765, 0px 3.5px 0 #927857,
+      0px 4px 1px rgba(0,0,0,0.2), 0px 5px 5px rgba(0,0,0,0.35), 0px 8px 11px rgba(0,0,0,0.3);
+  }
+  .hero-sub { font-size: 13px; color: #D9C6A8; margin-top: 3px; }
+  .pill { display:inline-flex; align-items:center; gap:6px; font-size:12.5px; padding:7px 14px; border-radius:999px; text-decoration:none; }
+  .pill.action { background: var(--gold); color:#2B1A10; font-weight:700; cursor:pointer; user-select:none; border:none; }
+  .pill.action:hover { background:#FFC15C; }
+  .pill.ghost { background:rgba(255,255,255,0.14); color:#F3E6CE; font-weight:700; }
+  .pill.ghost:hover { background:rgba(255,255,255,0.24); }
+
+  .content { padding: 0 20px; }
+
+  .card { background:var(--card); border:1px solid var(--border); border-radius:16px; padding:20px; box-shadow: 0 2px 14px rgba(31,61,43,0.06); margin-bottom:18px; }
+  .card h2 { font-size:16px; margin:0 0 4px; color:var(--ink); font-weight:800; }
+  .card .sub { font-size:12.5px; color:var(--ink-soft); margin:0 0 16px; line-height:1.6; }
+
+  .explainer { background:#FBF0DA; border:1px solid #EAD3A0; color:#7A5A1E; padding:16px 18px; border-radius:12px; font-size:13px; line-height:1.7; margin-bottom:18px; }
+  .explainer h2 { font-size:14px; margin:0 0 8px; color:#7A5A1E; font-weight:800; }
+  .explainer ol { margin:8px 0 0; padding-left:20px; }
+  .explainer li { margin-bottom:5px; }
+  .explainer b { color:#5F4514; }
+
+  label { display:block; font-size:11.5px; font-weight:700; text-transform:uppercase; letter-spacing:.4px; color:var(--ink-soft); margin:0 0 5px; }
+  .field { margin-bottom:14px; }
+  .field .hint { font-size:11.5px; color:var(--ink-soft); margin-top:5px; line-height:1.5; }
+  input[type=text], select {
+    width:100%; padding:10px 12px; border:1px solid var(--border); border-radius:9px;
+    font-size:14px; font-family:inherit; color:var(--ink); background:var(--card);
+  }
+  input[type=text]:focus, select:focus { outline:none; border-color:var(--gold-dark); box-shadow:0 0 0 3px rgba(239,167,54,0.18); }
+  .row2 { display:grid; grid-template-columns:1fr 1fr; gap:14px; }
+  @media (max-width:600px){ .row2 { grid-template-columns:1fr; } }
+
+  button.submit { padding:11px 20px; border:none; border-radius:9px; background:var(--gold); color:#2B1A10; font-weight:700; font-size:14px; font-family:inherit; cursor:pointer; }
+  button.submit:hover { background:#FFC15C; }
+
+  .formerr { display:none; background:#fdecea; border:1px solid #f3c1bb; color:#8f3025; padding:10px 14px; border-radius:10px; font-size:12.5px; margin-bottom:14px; }
+  .formerr.show { display:block; }
+
+  .out { display:none; margin-top:20px; border-top:1px solid var(--hairline); padding-top:18px; }
+  .out.show { display:block; }
+  .out h3 { font-size:13px; margin:0 0 4px; color:var(--ink); font-weight:800; }
+  .out .step { font-size:11.5px; text-transform:uppercase; letter-spacing:.4px; color:var(--gold-dark); font-weight:700; margin:18px 0 6px; }
+  .out .step:first-child { margin-top:0; }
+  .out p { font-size:12.5px; color:var(--note-ink); line-height:1.6; margin:0 0 8px; }
+  .cmdbox { position:relative; background:var(--brown-dark); color:#F3E6CE; border-radius:10px; padding:14px 16px; padding-right:96px; font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; font-size:12px; line-height:1.65; white-space:pre-wrap; word-break:break-word; }
+  .copybtn { position:absolute; top:10px; right:10px; background:var(--gold); color:#2B1A10; border:none; border-radius:7px; padding:6px 11px; font-size:11.5px; font-weight:700; font-family:inherit; cursor:pointer; }
+  .copybtn:hover { background:#FFC15C; }
+  .copybtn.done { background:var(--olive); color:#fff; }
+  .workernote { background:var(--surface-2); border:1px solid var(--border); border-left:3px solid var(--terracotta); border-radius:10px; padding:13px 15px; font-size:12.5px; line-height:1.65; color:var(--note-ink); }
+  .workernote b { color:var(--terracotta); }
+  .workernote code { background:#fff; border:1px solid var(--border); border-radius:5px; padding:1px 5px; font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; font-size:11.5px; }
+  .foot { font-size:12px; color:var(--ink-soft); text-align:center; line-height:1.7; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="hero">
+    <div class="hero-left">
+      <div class="wordmark" data-text="bohl">bohl</div>
+      <div>
+        <div style="font-size:15px; font-weight:700;">Admin</div>
+        <div class="hero-sub">Add a city or a franchisee to the site-selection dashboard</div>
+      </div>
+    </div>
+    <div>
+      <a class="pill ghost" href="index.html">&larr; Back to dashboard</a>
+    </div>
+  </div>
+
+  <div class="content">
+
+    <div class="explainer">
+      <h2>How this works</h2>
+      <p style="margin:0;">The dashboard is a single web page with no server behind it, so this form
+      can't add the city or the person by itself. What it does do is write out the exact instruction
+      that makes the change — you copy it, and it gets run once to update the dashboard.</p>
+      <ol>
+        <li>Fill in the form below.</li>
+        <li>Hit the button — a command appears.</li>
+        <li>Click <b>Copy</b> and send it to Skip (or run it, if you're set up to).</li>
+        <li>For a new franchisee whose sheet should update on its own, there's <b>one extra step</b>
+            on our side to connect their Google Sheet. The form will remind you.</li>
+      </ol>
+      <p style="margin:10px 0 0;"><b>Nothing on this page changes the live dashboard.</b> It only
+      writes out the instruction.</p>
+    </div>
+
+    <!-- ============================ ADD A CITY ============================ -->
+    <div class="card">
+      <h2>Add a new city</h2>
+      <p class="sub">Creates a new market tab on the dashboard, centered on the city, ready for
+      franchisees and their sites.</p>
+
+      <div class="formerr" id="cityErr"></div>
+
+      <div class="row2">
+        <div class="field">
+          <label for="cityName">City name</label>
+          <input type="text" id="cityName" placeholder="Boise" autocomplete="off">
+        </div>
+        <div class="field">
+          <label for="cityState">State (helps us place it on the map)</label>
+          <input type="text" id="cityState" placeholder="Idaho — or just ID" autocomplete="off">
+        </div>
+      </div>
+
+      <div class="field">
+        <label for="citySheet">Google Sheet URL</label>
+        <input type="text" id="citySheet" placeholder="https://docs.google.com/spreadsheets/d/..." autocomplete="off">
+        <div class="hint">The broker sheet for this market. Same columns as the others: address,
+        pad/shop, sqft, price, notes.</div>
+      </div>
+
+      <button class="submit" id="cityGo">Get the command</button>
+
+      <div class="out" id="cityOut"></div>
+    </div>
+
+    <!-- ========================== ADD A PERSON ============================ -->
+    <div class="card">
+      <h2>Add a new person (franchisee)</h2>
+      <p class="sub">Adds a franchisee to a market — their own color on the map, their own filter tab,
+      and their sites pulled live from their sheet.</p>
+
+      <div class="formerr" id="ownErr"></div>
+
+      <div class="row2">
+        <div class="field">
+          <label for="ownName">Name</label>
+          <input type="text" id="ownName" placeholder="Kyle Garrett" autocomplete="off">
+        </div>
+        <div class="field">
+          <label for="ownRole">Role / sub-region</label>
+          <input type="text" id="ownRole" placeholder="Franchisee — Peoria" autocomplete="off">
+        </div>
+      </div>
+
+      <div class="row2">
+        <div class="field">
+          <label for="ownMarket">Market</label>
+          <select id="ownMarket">
+            <option value="phoenix-az">Phoenix, AZ</option>
+            <option value="austin-tx">Austin, TX</option>
+            <option value="idaho">Idaho</option>
+          </select>
+          <div class="hint">New cities show up in this list after they've been added.</div>
+        </div>
+        <div class="field">
+          <label for="ownHome">Home area (city or ZIP)</label>
+          <input type="text" id="ownHome" placeholder="Peoria, AZ — or 85345" autocomplete="off">
+          <div class="hint">Where they're based. Used to center their view of the map.</div>
+        </div>
+      </div>
+
+      <div class="field">
+        <label for="ownSheet">Google Sheet URL</label>
+        <input type="text" id="ownSheet" placeholder="https://docs.google.com/spreadsheets/d/..." autocomplete="off">
+        <div class="hint">Their broker sheet — the dashboard reads their sites from here.</div>
+      </div>
+
+      <button class="submit" id="ownGo">Get the command</button>
+
+      <div class="out" id="ownOut"></div>
+    </div>
+
+    <p class="foot">
+      Questions, or something looks wrong? Send it to Skip — don't fight with it.
+    </p>
+
+  </div>
+</div>
+
+<script>
+(function(){
+  "use strict";
+
+  // Paths are written relative to the monorepo root, which is where the command gets run from.
+  var TOOL   = "clients/bohl/projects/active/phoenix-site-selection-dashboard/add_city.py";
+  var TARGET = "clients/bohl/projects/active/phoenix-site-selection-dashboard/dashboard-assets/index.dev.html";
+  var PY     = ".venv/bin/python";
+
+  var STATES = {
+    "alabama":"AL","alaska":"AK","arizona":"AZ","arkansas":"AR","california":"CA","colorado":"CO",
+    "connecticut":"CT","delaware":"DE","district of columbia":"DC","florida":"FL","georgia":"GA",
+    "hawaii":"HI","idaho":"ID","illinois":"IL","indiana":"IN","iowa":"IA","kansas":"KS",
+    "kentucky":"KY","louisiana":"LA","maine":"ME","maryland":"MD","massachusetts":"MA",
+    "michigan":"MI","minnesota":"MN","mississippi":"MS","missouri":"MO","montana":"MT",
+    "nebraska":"NE","nevada":"NV","new hampshire":"NH","new jersey":"NJ","new mexico":"NM",
+    "new york":"NY","north carolina":"NC","north dakota":"ND","ohio":"OH","oklahoma":"OK",
+    "oregon":"OR","pennsylvania":"PA","rhode island":"RI","south carolina":"SC",
+    "south dakota":"SD","tennessee":"TN","texas":"TX","utah":"UT","vermont":"VT",
+    "virginia":"VA","washington":"WA","west virginia":"WV","wisconsin":"WI","wyoming":"WY"
+  };
+  var ABBREVS = {};
+  for (var k in STATES) { ABBREVS[STATES[k]] = true; }
+
+  function clean(s){ return (s || "").replace(/\s+/g, " ").trim(); }
+
+  // "Idaho" -> "ID"; "id" -> "ID"; anything unrecognized comes back as typed (trimmed).
+  function stateCode(raw){
+    var s = clean(raw);
+    if (!s) return "";
+    var up = s.toUpperCase();
+    if (up.length === 2 && ABBREVS[up]) return up;
+    var full = STATES[s.toLowerCase()];
+    return full || s;
+  }
+
+  function slug(s){
+    return clean(s).toLowerCase()
+      .replace(/[^a-z0-9]+/g, "-")
+      .replace(/^-+|-+$/g, "");
+  }
+
+  // First name, letters/digits only — matches the short ids already in the dashboard (charles, sean...).
+  function ownerId(fullName){
+    var first = clean(fullName).split(" ")[0] || "";
+    return first.toLowerCase().replace(/[^a-z0-9]/g, "");
+  }
+
+  // Safe inside a double-quoted shell string.
+  function shq(s){
+    return '"' + String(s).replace(/([\\"$`])/g, "\\$1") + '"';
+  }
+
+  function looksLikeSheet(url){
+    return /docs\.google\.com\/spreadsheets\//i.test(clean(url));
+  }
+
+  function esc(s){
+    return String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;");
+  }
+
+  function showErr(el, msg){
+    el.textContent = msg;
+    el.classList.add("show");
+  }
+  function clearErr(el){
+    el.textContent = "";
+    el.classList.remove("show");
+  }
+
+  // Renders a command block with a working copy button.
+  function cmdBlock(cmd){
+    var box = document.createElement("div");
+    box.className = "cmdbox";
+    box.textContent = cmd;
+    var btn = document.createElement("button");
+    btn.className = "copybtn";
+    btn.type = "button";
+    btn.textContent = "Copy";
+    btn.addEventListener("click", function(){
+      var done = function(){
+        btn.textContent = "Copied";
+        btn.classList.add("done");
+        setTimeout(function(){ btn.textContent = "Copy"; btn.classList.remove("done"); }, 1800);
+      };
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(cmd).then(done, function(){ selectFallback(box, btn); });
+      } else {
+        selectFallback(box, btn);
+      }
+    });
+    box.appendChild(btn);
+    return box;
+  }
+
+  // No clipboard permission (or file://) — select the text so Cmd-C works.
+  function selectFallback(box, btn){
+    var r = document.createRange();
+    r.selectNodeContents(box);
+    var sel = window.getSelection();
+    sel.removeAllRanges();
+    sel.addRange(r);
+    btn.textContent = "Press Cmd-C";
+  }
+
+  function stepLabel(text){
+    var d = document.createElement("div");
+    d.className = "step";
+    d.textContent = text;
+    return d;
+  }
+  function para(html){
+    var p = document.createElement("p");
+    p.innerHTML = html;
+    return p;
+  }
+
+  // ---------------------------------------------------------------- add city
+  document.getElementById("cityGo").addEventListener("click", function(){
+    var errEl = document.getElementById("cityErr");
+    var out   = document.getElementById("cityOut");
+    clearErr(errEl);
+
+    var city  = clean(document.getElementById("cityName").value);
+    var stRaw = clean(document.getElementById("cityState").value);
+    var sheet = clean(document.getElementById("citySheet").value);
+
+    if (!city)  { showErr(errEl, "Add the city name."); return; }
+    if (!stRaw) { showErr(errEl, "Add the state — it's how we find the city on the map."); return; }
+    if (!sheet) { showErr(errEl, "Add the Google Sheet URL for this market."); return; }
+    if (!looksLikeSheet(sheet)) {
+      showErr(errEl, "That doesn't look like a Google Sheet link — it should start with https://docs.google.com/spreadsheets/");
+      return;
+    }
+
+    var st   = stateCode(stRaw);
+    var id   = slug(city + " " + st);
+    var name = city + ", " + st;
+
+    var base = PY + " " + TOOL + " --file " + TARGET +
+               " add-market --id " + shq(id) + " --name " + shq(name);
+
+    out.innerHTML = "";
+    out.appendChild(stepLabel("Step 1 — preview (changes nothing)"));
+    out.appendChild(para("Run this first. It shows what would change without touching anything."));
+    out.appendChild(cmdBlock(base));
+
+    out.appendChild(stepLabel("Step 2 — apply it"));
+    out.appendChild(para("Same thing with <b>--write</b> on the end. This is the one that actually adds " +
+                         esc(name) + " to the dashboard."));
+    out.appendChild(cmdBlock(base + " --write"));
+
+    out.appendChild(stepLabel("One more step on our side"));
+    var note = document.createElement("div");
+    note.className = "workernote";
+    note.innerHTML =
+      "<b>The sheet still needs connecting.</b> Adding the city puts " + esc(name) +
+      " on the dashboard, but this sheet —<br><code>" + esc(sheet) + "</code><br>" +
+      "gets hooked up per person, not per city. Add the franchisee below (using this same sheet link), " +
+      "then we wire the sheet into the live-data connector on Cloudflare. Send Skip both the command and " +
+      "the sheet link and he'll handle it.";
+    out.appendChild(note);
+    out.classList.add("show");
+  });
+
+  // -------------------------------------------------------------- add person
+  document.getElementById("ownGo").addEventListener("click", function(){
+    var errEl = document.getElementById("ownErr");
+    var out   = document.getElementById("ownOut");
+    clearErr(errEl);
+
+    var name   = clean(document.getElementById("ownName").value);
+    var role   = clean(document.getElementById("ownRole").value);
+    var marketSel = document.getElementById("ownMarket");
+    var market = marketSel.value;
+    var marketLabel = marketSel.options[marketSel.selectedIndex].text;
+    var home   = clean(document.getElementById("ownHome").value);
+    var sheet  = clean(document.getElementById("ownSheet").value);
+
+    if (!name) { showErr(errEl, "Add their name."); return; }
+    if (!role) { showErr(errEl, "Add a role or sub-region — it's the label under their name."); return; }
+    if (!home) { showErr(errEl, "Add their home area (a city or a ZIP)."); return; }
+    if (!sheet){ showErr(errEl, "Add the Google Sheet URL for this person."); return; }
+    if (!looksLikeSheet(sheet)) {
+      showErr(errEl, "That doesn't look like a Google Sheet link — it should start with https://docs.google.com/spreadsheets/");
+      return;
+    }
+
+    var oid = ownerId(name);
+    if (!oid) { showErr(errEl, "Couldn't make a short name out of that — try their first name in plain letters."); return; }
+
+    var base = PY + " " + TOOL + " --file " + TARGET +
+               " add-owner --id " + shq(oid) +
+               " --name " + shq(name) +
+               " --role " + shq(role) +
+               " --market " + shq(market) +
+               " --home " + shq(home) +
+               " --live";
+
+    out.innerHTML = "";
+    out.appendChild(para("Short name used inside the dashboard: <b>" + esc(oid) + "</b>. " +
+                         "If there's already a " + esc(oid) + " on the dashboard, tell Skip so we pick a different one."));
+
+    out.appendChild(stepLabel("Step 1 — preview (changes nothing)"));
+    out.appendChild(para("Run this first. It shows what would change without touching anything."));
+    out.appendChild(cmdBlock(base));
+
+    out.appendChild(stepLabel("Step 2 — apply it"));
+    out.appendChild(para("Same thing with <b>--write</b> on the end. This adds " + esc(name) +
+                         " to " + esc(marketLabel) + " on the dashboard."));
+    out.appendChild(cmdBlock(base + " --write"));
+
+    out.appendChild(stepLabel("One more step on our side"));
+    var note = document.createElement("div");
+    note.className = "workernote";
+    note.innerHTML =
+      "<b>Their sheet still needs connecting.</b> The command above puts " + esc(name) +
+      " on the dashboard, but their sites won't load until this sheet —<br><code>" + esc(sheet) + "</code><br>" +
+      "is pointed at <code>" + esc(oid) + "</code> in the live-data connector (the Cloudflare Worker) and that " +
+      "gets republished. That part isn't in this project and can't be done from this page — send Skip the " +
+      "command and the sheet link together and he'll finish it. Until then " + esc(name) +
+      " shows up with no sites.";
+    out.appendChild(note);
+    out.classList.add("show");
+  });
+
+})();
+</script>
+</body>
+</html>
