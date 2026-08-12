@@ -9,30 +9,42 @@
   :root {
     --brown-dark:#241A13; --gold:#EFA736; --gold-dark:#C6821E; --cream:#FBF3E4;
     --card:#FFFFFF; --ink:#201A13; --ink-soft:#6B6152; --border:#EAE2D2; --olive:#5B7A3D;
+    --terracotta:#C1503A;
   }
   * { box-sizing: border-box; }
   body { margin:0; background:var(--cream); color:var(--ink);
     font-family:'Inter',system-ui,-apple-system,sans-serif; line-height:1.55; }
-  .wrap { max-width:680px; margin:0 auto; padding:22px 18px 60px; }
+  .wrap { max-width:700px; margin:0 auto; padding:22px 18px 60px; }
   header { background:var(--brown-dark); border-radius:18px; padding:26px 24px; text-align:center; margin-bottom:16px; }
   .wordmark { font-size:44px; font-weight:800; color:var(--cream); letter-spacing:-1px; line-height:1; }
   .subtitle { color:#F3E6CE; font-size:14px; margin-top:8px; }
   .textme { display:block; background:var(--gold); color:var(--brown-dark); border-radius:14px;
     padding:14px 18px; text-align:center; font-weight:700; font-size:15px; text-decoration:none; margin-bottom:22px; }
   .textme span { display:block; font-weight:800; font-size:17px; margin-top:2px; }
-  h1 { font-size:24px; margin:0 0 4px; }
-  .lead { color:var(--ink-soft); font-size:15px; margin:0 0 22px; }
+  h1 { font-size:26px; margin:0 0 6px; }
+  .lead { color:var(--ink-soft); font-size:15.5px; margin:0 0 22px; }
   .item { background:var(--card); border:1px solid var(--border); border-radius:14px;
-    padding:16px 18px; margin-bottom:14px; box-shadow:0 2px 10px rgba(31,61,43,0.05); }
-  .item h2 { font-size:16px; margin:0 0 6px; color:var(--brown-dark); }
-  .item p { margin:0; color:#4A4034; font-size:14.5px; }
-  .item ul { margin:6px 0 0; padding-left:18px; color:#4A4034; font-size:14.5px; }
-  .item li { margin:5px 0; }
+    padding:16px 18px 14px; margin-bottom:14px; box-shadow:0 2px 10px rgba(31,61,43,0.05); }
+  .item.hero { border:2px solid var(--gold); box-shadow:0 4px 18px rgba(198,130,30,0.14); }
+  .kicker { font-size:11.5px; font-weight:800; letter-spacing:.6px; text-transform:uppercase;
+    color:var(--gold-dark); margin-bottom:4px; }
+  .item h2 { font-size:17px; margin:0 0 10px; color:var(--brown-dark); }
+  .item ul { margin:0; padding-left:20px; color:#40382D; font-size:14.5px; }
+  .item li { margin:7px 0; }
+  .item li b { color:var(--brown-dark); }
+  .beforeafter { display:flex; gap:10px; margin:2px 0 12px; flex-wrap:wrap; }
+  .ba { flex:1 1 210px; border-radius:11px; padding:11px 13px; font-size:13.5px; }
+  .ba .t { font-weight:800; font-size:11.5px; letter-spacing:.5px; text-transform:uppercase; margin-bottom:3px; }
+  .ba.before { background:#F6EEE1; color:#7A6A52; }
+  .ba.before .t { color:var(--terracotta); }
+  .ba.after { background:rgba(91,122,61,0.12); color:#3f5230; }
+  .ba.after .t { color:var(--olive); }
   .whitespace-note { color:var(--olive); font-weight:700; }
-  .foot { margin-top:24px; text-align:center; font-size:14px; color:var(--ink-soft); }
-  .foot a { color:var(--gold-dark); font-weight:700; text-decoration:none; }
   .revert { background:rgba(91,122,61,0.10); border-left:3px solid var(--olive); border-radius:10px;
     padding:12px 16px; font-size:14px; color:#3f5230; margin-top:20px; }
+  .more { text-align:center; font-size:14.5px; color:var(--ink-soft); margin-top:18px; }
+  .foot { margin-top:20px; text-align:center; font-size:14px; }
+  .foot a { color:var(--gold-dark); font-weight:700; text-decoration:none; }
 </style>
 </head>
 <body>
@@ -46,54 +58,72 @@
     <span>615-574-3546 (Skip Matheny)</span></a>
 
   <h1>What's new</h1>
-  <p class="lead">Walked through everything that's new so you and the guys can put it to work:</p>
+  <p class="lead">You already had the hard part built — the sites, the scoring, the map. Here's
+  everything we layered on top to turn it into a real site-hunting tool. Skim away, I know you're busy:</p>
 
-  <div class="item">
-    <h2>You can actually see a site now without driving to it.</h2>
-    <p>On any spot in the list, there's a one-click button that drops you right on the corner in
-    Google Street View. There's also a satellite view of the map, so you can flip from streets to
-    aerial and eyeball the actual parking lot, patio room, how you'd get in and out. Basically scout
-    the pad from your couch.</p>
-  </div>
-
-  <div class="item">
-    <h2>It sizes up the competition for you.</h2>
-    <p>Every site now pulls live from Google and shows you the nearest Cava, Qdoba, Sweetgreen and
-    Chipotle, plus whether there's an In-N-Out or Chick-fil-A close by, and the gyms nearby (fitness
-    folks eat bowls, so that's a good signal). And when a spot has no bowl competition within a mile
-    and a half, it literally flags it as <span class="whitespace-note">open field</span>, which is
-    exactly what you want to see. You can also flip pins on and off for any of those right on the map
-    to scan a whole area at once.</p>
-  </div>
-
-  <div class="item">
-    <h2>Adding a new city or a new person is way easier.</h2>
-    <p>There's an "Admin" button up top now. You type in the city and state, paste the broker's Google
-    Sheet link, and it sets up the new market. No more hand-wiring the thing every time you add
-    somebody (that was the part eating up your tokens the other day).</p>
-  </div>
-
-  <div class="item">
-    <h2>And a pile of little stuff that adds up:</h2>
+  <!-- HERO: the competitor upgrade -->
+  <div class="item hero">
+    <div class="kicker">The big one</div>
+    <h2>Real competitor intel on every single site</h2>
+    <div class="beforeafter">
+      <div class="ba before"><div class="t">Before</div>The only competitor info was a static list of
+        Chipotles you'd plotted onto a map one time, by hand.</div>
+      <div class="ba after"><div class="t">Now</div>Every one of your 50+ sites pulls real data
+        straight from Google and scores the competition around it, automatically.</div>
+    </div>
     <ul>
-      <li>Pulled in all the Austin sites that were missing before.</li>
-      <li>Cleaned up the gym list so it's real gyms, not hotel workout rooms.</li>
-      <li>Added a "Refresh" button so if the live data hiccups, you can re-pull it in one click.</li>
-      <li>Pointed the little "something's not loading" help button at me, so if it ever acts up your
-        guys just text me for tech support instead of bugging you.</li>
-      <li>Tidied up the busy top of the page (there's a "Fit details" button to hide or show the
-        scoring key whenever you want).</li>
-      <li>Fixed it so it actually works on your phone. It was getting cut off before, which matters
-        since you're usually looking at this from the road.</li>
+      <li>Shows the nearest <b>Cava, Qdoba, Sweetgreen and Chipotle</b> — your actual competition, not just Chipotle.</li>
+      <li>Tells you if an <b>In-N-Out or Chick-fil-A</b> is close by (the traffic magnets you want as neighbors).</li>
+      <li>Counts the <b>gyms nearby</b> — those folks walk out hungry for exactly what you sell.</li>
+      <li>Gives you the <b>exact distance</b> to each one, per site.</li>
+      <li>Flags a spot as <span class="whitespace-note">open field</span> when there's no bowl competition within a mile and a half — that's a green light.</li>
+      <li>Flip any of these on and off as <b>pins on the map</b> to size up a whole market at a glance.</li>
     </ul>
   </div>
 
-  <div class="revert">It's all live on your dashboard now, and everything on your old version is
+  <div class="item">
+    <div class="kicker">See it before you drive it</div>
+    <h2>Walk any site from your phone</h2>
+    <ul>
+      <li><b>One-click Street View</b> on any site — stand right on the corner without leaving the couch.</li>
+      <li><b>Satellite / aerial view</b> — flip the whole map from streets to overhead and eyeball the parking lot, patio room, and how you'd get in and out.</li>
+      <li>Works on <b>every site</b>, Phoenix and Austin.</li>
+    </ul>
+  </div>
+
+  <div class="item">
+    <div class="kicker">Do it yourself in seconds</div>
+    <h2>Add a new city or a new person</h2>
+    <div class="beforeafter">
+      <div class="ba before"><div class="t">Before</div>Adding a market meant re-wiring the whole thing by hand (the part that was eating your tokens).</div>
+      <div class="ba after"><div class="t">Now</div>Hit "Admin," fill in a quick form, and it's set up.</div>
+    </div>
+    <ul>
+      <li>Type the <b>city and state</b>, paste the broker's <b>Google Sheet link</b>, done.</li>
+      <li>New <b>"Admin"</b> and <b>"What's New"</b> buttons up top so it's all one click away.</li>
+    </ul>
+  </div>
+
+  <div class="item">
+    <div class="kicker">And a bunch that makes it feel finished</div>
+    <h2>The details that add up</h2>
+    <ul>
+      <li><b>Pulled in every Austin site</b> that was missing before — the whole market's on the map now.</li>
+      <li><b>Cleaned up the gym list</b> so it's real gyms, not hotel and apartment workout rooms cluttering it up.</li>
+      <li><b>One-click "Refresh"</b> if the live data ever hiccups — no reload, no fuss.</li>
+      <li><b>"Text me for tech support"</b> button, so if it ever acts up your guys ping me instead of bugging you.</li>
+      <li><b>"Fit details" toggle</b> to hide or show the scoring key whenever the screen feels busy.</li>
+      <li><b>Fixed it for your phone</b> — it was getting cut off before, which matters since you're usually checking this from the road.</li>
+    </ul>
+  </div>
+
+  <div class="revert">It's all live on your dashboard right now, and everything on your old version is
     revertable with a click. If anything ever feels off, just text me and I'll flip it right back.</div>
 
-  <div class="foot">
-    <a href="index.html">← Back to the dashboard</a>
-  </div>
+  <p class="more">And this is just what I could knock out in an afternoon — got more ideas whenever
+  you and the guys want them (that playbook, for one).</p>
+
+  <div class="foot"><a href="index.html">← Back to the dashboard</a></div>
 </div>
 </body>
 </html>
