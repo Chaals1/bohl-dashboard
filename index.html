@@ -17,14 +17,48 @@
   }
   :root[data-theme="dark"] {
     color-scheme: dark;
-    /* Bohl black surround (like the backlit sign wall), clean white modules, warm tan writing. */
-    --cream:#0D0B08; --card:#FFFFFF; --ink:#6B4A25; --ink-soft:#A9835A; --border:#E7D9BC;
-    --surface-2:#F8F2E4; --row-hover:#F5EDDC; --hairline:#EDE1C7; --note-ink:#7A5C36;
+    /* Full warm-dark theme: deep near-black brown page, elevated warm-brown cards (one step
+       lighter than the page, not white), cream/tan text. Gold/olive/terracotta status colors are
+       left untouched — they're already saturated enough to read on dark and are the whole point
+       of the "Bohl brand character" carrying through both themes. */
+    --cream:#1A140E; --card:#2A2015; --ink:#F3E6CE; --ink-soft:#C7B696; --border:#4A3A28;
+    --surface-2:#241B12; --row-hover:#362A1B; --hairline:#3A2D1E; --note-ink:#D8C8A8;
   }
   :root[data-theme="dark"] .card,
   :root[data-theme="dark"] .stat-card,
   :root[data-theme="dark"] .profile-panel {
     box-shadow: 0 0 26px rgba(239,167,54,0.16), 0 2px 10px rgba(0,0,0,0.5);
+  }
+  /* ---- Surfaces that use hardcoded (non-var) colors in the light theme — completing the dark
+     theme for them explicitly. Each of these wins on selector specificity over the later-appended
+     per-feature CSS from the build pipeline (map_layers.py/traffic.py/etc. all append their own
+     un-scoped rules near the end of this <style> block); the ones with dynamic inline styles
+     (traffic/stage/confidence chips using `${color}22` backgrounds) are left alone on purpose —
+     they're translucent tints of the SAME olive/gold/tan status colors kept for both themes, and
+     they render fine blended over the new dark card surface (verified by render). ---- */
+  :root[data-theme="dark"] .err {
+    background:#3A1A16; border-color:#6B332B; color:#F0A99A;
+  }
+  :root[data-theme="dark"] .snapshot-banner {
+    background:#332210; border-color:#5A4020; color:#E8C892;
+  }
+  :root[data-theme="dark"] .site-row.selected {
+    background:#332210;
+  }
+  :root[data-theme="dark"] .approx-tag {
+    background:#332210;
+  }
+  :root[data-theme="dark"] .banner-btn {
+    background:#2A2015; color:#E8C892; border-color:#8A6323;
+  }
+  :root[data-theme="dark"] .banner-btn:hover {
+    background:#3A2C1B;
+  }
+  :root[data-theme="dark"] .mini-chip.strong { background:#5B7A3D33; color:#8FB36B; }
+  :root[data-theme="dark"] .mini-chip.possible { background:#EFA73633; color:#F3C57A; }
+  :root[data-theme="dark"] .mini-chip.needsdata { background:#B9AE9A33; color:#C7B696; }
+  :root[data-theme="dark"] #mapLayersMenu {
+    box-shadow: 0 8px 22px rgba(0,0,0,0.5);
   }
   /* Backlight glow: a blurred duplicate of the word sits BEHIND the crisp letters (z-index -1),
      like light escaping from behind the sign — the letters themselves stay solid/matte, not glowing. */
@@ -182,12 +216,12 @@
   /* Per-site Street View / Aerial deep links (injected by streetview.py) */
   .sv-block { margin: 0 0 12px; }
   .sv-links { display:flex; align-items:center; gap:8px; flex-wrap:wrap; }
-  a.sv-btn { display:inline-flex; align-items:center; gap:6px; font-size:12.5px; font-weight:700;
-             padding:7px 14px; border-radius:999px; text-decoration:none; cursor:pointer;
+  a.sv-btn, button.sv-btn { display:inline-flex; align-items:center; gap:6px; font-size:12.5px; font-weight:700;
+             font-family:inherit; padding:7px 14px; border-radius:999px; text-decoration:none; cursor:pointer;
              background:var(--gold); color:#2B1A10; border:1px solid transparent; }
-  a.sv-btn:hover { background:#FFC15C; }
-  a.sv-btn.ghost { background:transparent; color:var(--gold-dark); border-color:var(--border); }
-  a.sv-btn.ghost:hover { background:var(--row-hover); }
+  a.sv-btn:hover, button.sv-btn:hover { background:#FFC15C; }
+  a.sv-btn.ghost, button.sv-btn.ghost { background:transparent; color:var(--gold-dark); border-color:var(--border); }
+  a.sv-btn.ghost:hover, button.sv-btn.ghost:hover { background:var(--row-hover); }
   .sv-embed { margin-top:10px; border:1px solid var(--border); border-radius:10px; overflow:hidden; }
   .sv-embed iframe { display:block; width:100%; height:280px; border:0; }
   /* Brochure photos in site detail (injected by brochure_photos.py) */
