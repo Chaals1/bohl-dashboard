@@ -251,6 +251,14 @@ body.hide-fit .mini-chip { display: none !important; }
   border:1px solid #C99A3A; background:#fff; color:#7A5A1E; font-weight:700; font-size:11.5px;
   cursor:pointer; text-decoration:none; vertical-align:baseline; }
 .banner-btn:hover { background:#F6E7C4; }
+
+/* bohl-fit-confidence (PRD #4): confidence meter beside the fit ring + list-row chip. */
+.confwrap { display:flex; flex-direction:column; align-items:center; margin-left:14px; }
+.confmeter { width:64px; }
+.conftrack { width:100%; height:7px; border-radius:999px; background:var(--border); overflow:hidden; }
+.conffill { height:100%; width:0%; border-radius:999px; transition: width 0.9s cubic-bezier(.22,.9,.3,1); }
+.conflbl { font-size:10px; font-weight:700; color:var(--ink-soft); text-align:center; margin-top:4px; white-space:nowrap; }
+.conf-chip { font-size:9.5px; font-weight:700; padding:2px 6px; border-radius:999px; white-space:nowrap; margin-left:5px; }
 </style>
 </head>
 <body class="locked">
@@ -322,6 +330,7 @@ body.hide-fit .mini-chip { display: none !important; }
       <span class="b"><span class="swatch" style="background:#B9AE9A"></span>Needs data / weak fit (&lt;35%)</span>
       <span class="b" style="margin-left:8px;">✓ Met &nbsp; ~ Likely (unverified) &nbsp; — No data yet &nbsp; ✕ Not met</span>
       <span class="b"><span class="need-info">*</span> More info needed — no brochure reviewed yet</span>
+      <span class="b"><span class="swatch" style="background:#5B7A3D"></span>Confidence — share of criteria backed by a brochure or a hard figure, not just an adjective</span>
     </div>
 
     <div class="layout">
@@ -1450,6 +1459,39 @@ function scoreColor(fitScore){
   return "#B9AE9A";
 }
 
+
+// FIT_CONFIDENCE_MARKER (bohl PRD #4 — fit_confidence.py)
+// Additive fit/confidence split (PRD #4) — reads the SAME criteria object scoreSite() already
+// built; never re-derives or overrides met/likely/notMet/unknown/fitScore/badge.
+function confColor(confidence){
+  if (confidence == null) return "#B9AE9A";
+  if (confidence >= 0.55) return "#5B7A3D";
+  if (confidence >= 0.35) return "#EFA736";
+  return "#B9AE9A";
+}
+function computeFitConfidence(scoreResult){
+  const c = scoreResult.criteria;
+  let met=0, likely=0, notMet=0, verified=0;
+  const total = CRITERIA_DEFS.length;
+  for (const def of CRITERIA_DEFS){
+    const r = c[def.key];
+    if (!r) continue;
+    if (r.status === "met") met++;
+    else if (r.status === "likely") likely++;
+    else if (r.status === "not_met") notMet++;
+    const isMetOrNotMet = (r.status === "met" || r.status === "not_met");
+    const hasHardEvidence = !!r.fromBrochure || /\d/.test(r.note || "");
+    if (isMetOrNotMet && hasHardEvidence) verified++;
+  }
+  const signaled = met + likely + notMet;   // excludes "unknown" — matches the spec's "ANY signal"
+  const fit = signaled === 0 ? null : Math.round((met*100 + likely*100) / signaled);
+  const confidence = verified / total;      // 0–1 fraction, per the literal spec formula
+  let confidenceBand = "Low confidence";
+  if (confidence >= 0.55) confidenceBand = "High confidence";
+  else if (confidence >= 0.35) confidenceBand = "Some confidence";
+  return { fit, confidence, confidenceBand };
+}
+
 function iconFor(status){
   if (status==="met") return {sym:"✓", color:"#5B7A3D"};
   if (status==="likely") return {sym:"~", color:"#EFA736"};
@@ -1865,7 +1907,7 @@ function renderList(){
       <div class="rank">${i+1}</div>
       ${badge}
       <div class="site-meta">
-        <div class="nm">${escapeHtml(s.name)} <span class="owner-badge" style="background:${OWNER_COLORS[s.ownerId]}">${escapeHtml(s.ownerName.split(' ')[0])}</span>${s.hasBrochure ? '' : ' <span class="need-info" title="More info needed — no brochure reviewed yet, scored from broker notes only">*</span>'}</div>
+        <div class="nm">${escapeHtml(s.name)} <span class="owner-badge" style="background:${OWNER_COLORS[s.ownerId]}">${escapeHtml(s.ownerName.split(' ')[0])}</span>${s.hasBrochure ? '' : ' <span class="need-info" title="More info needed — no brochure reviewed yet, scored from broker notes only">*</span>'}${(function(){ var pct = Math.round((s.score.confidence||0)*100); var col = confColor(s.score.confidence); return ' <span class="conf-chip" style="background:'+col+'22; color:'+col+';" title="Confidence: '+pct+'% of criteria verified by a brochure or hard figure">'+pct+'% conf</span>'; })()}</div>
         <div class="ad">${escapeHtml(s.address)}</div>
       </div>
     </div>`;
@@ -2428,6 +2470,10 @@ function renderDetail(){
           <div class="fitring">${fitRingSvg(s.score.fitScore, color)}<div class="num" style="color:${color}">0%</div></div>
           <div class="fitlbl">${s.score.badge}</div>
         </div>
+        <div class="confwrap" title="Confidence: share of Bohl's 9 criteria backed by a brochure or a hard cited figure, not just a broker adjective">
+          <div class="confmeter"><div class="conftrack"><div class="conffill" style="background:${confColor(s.score.confidence)}"></div></div></div>
+          <div class="conflbl">${Math.round((s.score.confidence||0)*100)}% conf.</div>
+        </div>
       </div>
       ${renderStreetView(s)}
       <div class="kv">
@@ -2511,6 +2557,9 @@ function renderDetail(){
     requestAnimationFrame(()=>requestAnimationFrame(()=>{ ringCircle.style.strokeDashoffset = targetOffset; }));
   }
   if (ringNum) animateNumber(ringNum, s.score.fitScore, 900, '%');
+
+  const confFill = el.querySelector('.conffill');
+  if (confFill) requestAnimationFrame(()=>requestAnimationFrame(()=>{ confFill.style.width = Math.round((s.score.confidence||0)*100) + '%'; }));
 }
 
 const SNAPSHOT_DATE = "Aug 2, 2026";
@@ -2561,7 +2610,7 @@ async function loadData(){
         competitive: competitiveFor(s.address),
         hasBrochure: !!ALL_BROCHURE_DATA[normAddr(s.address)],
         brochureImages: (ALL_BROCHURE_DATA[normAddr(s.address)] || {}).images || [],
-        score: scoreSite(s)
+        score: (function(){ var sc = scoreSite(s); return Object.assign(sc, computeFitConfidence(sc)); })()
       });
     });
   });
