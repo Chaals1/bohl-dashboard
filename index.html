@@ -196,6 +196,23 @@
   .brochure-thumb { width:150px; height:100px; object-fit:cover; border-radius:6px; border:1px solid rgba(0,0,0,.12); cursor:zoom-in; transition:transform .12s ease; display:block; }
   .brochure-thumb:hover { transform:scale(1.03); }
 
+  /* bohl-live-mobile-fix (Cecilia r2): at ~390px the cards + tabs didn't shrink to the viewport,
+     producing horizontal scroll that clipped the ranked-list score badges/address tails and the
+     "Broker & tenant notes" detail-tab label. Scoped to <=640px only — no effect on desktop. */
+  @media (max-width: 640px) {
+    html, body { overflow-x: hidden; }
+    .card, .map-card, .list-card, .detail-card { max-width: 100% !important; box-sizing: border-box; }
+    /* .map-card/.list-card are CSS Grid items (.layout); a grid item's default min-width:auto lets
+       its intrinsic content (a long site name, a wide badge row) force the single-column track
+       wider than the viewport even with max-width:100% set — min-width:0 is what actually lets it
+       shrink to the track instead of overflowing it. Verified: without this, .list-card measured
+       492px in a 350px track at 390px viewport; with it, 350px. */
+    .map-card, .list-card { min-width: 0; }
+    .owner-filter-tabs, #marketFilterTabs { flex-wrap: wrap !important; }
+    #leafletMap { width: 100% !important; min-width: 0 !important; }
+    .tabs { flex-wrap: wrap; }
+  }
+
   /* ---- Map layers dropdown (added by map_layers.py) ---- */
   #mapLayersControl { position:relative; }
   #mapLayersBtn { display:flex; align-items:center; gap:6px; font-size:11.5px; font-weight:700;
@@ -1817,12 +1834,24 @@ function renderMarketTabs(){
       selectedMarket = newMarket;
       selectedOwnerFilter = 'all';
       selectedStageFilter = 'all';
+      // Reset the site-detail panel to the NEWLY-selected market, mirroring the initial-load
+      // behavior in renderAll() (Cecilia r1 — switching markets left the previous market's site
+      // stranded in the detail panel, worst on an empty market like Idaho where there's no site to
+      // click to clear it). If the new market has sites, select its #1-ranked site (SITES is kept
+      // globally sorted by fit score, so the first market match is the top one — same rule
+      // renderAll() uses on first paint). If it's empty, clear the selection so renderDetail() falls
+      // back to its own empty state. Map re-centering (including the empty-market case) is handled
+      // inside fitMapToFilteredSites() below.
+      const marketSites = SITES.filter(s=>s.marketId===selectedMarket);
+      selectedId = marketSites.length ? marketSites[0].id : null;
       renderMarketTabs();
       updateHeroSubtitle();
+      renderStatusBanner();
       renderStats();
       renderFilterTabs();
       renderStageTabs();
       renderList();
+      renderDetail();
       updateChipotleToggleVisibility();
       renderMap();
       renderAllPlacesLayers();
@@ -1892,7 +1921,7 @@ function renderList(){
     if (selectedStageFilter === 'inprogress'){
       el.innerHTML = `<div class="empty-hint">No sites with LOI activity right now${ownerLabel ? ' for ' + escapeHtml(ownerLabel.name.split(' ')[0]) : ''} — check back once a deal moves forward.</div>`;
     } else {
-      el.innerHTML = `<div class="empty-hint">No sites shared yet — check back once ${ownerLabel ? escapeHtml(ownerLabel.name.split(' ')[0]) : 'their'}'s site list is in.</div>`;
+      el.innerHTML = `<div class="empty-hint">No sites shared yet — check back once ${ownerLabel ? escapeHtml(ownerLabel.name.split(' ')[0]) + "'s" : 'their'} site list is in.</div>`;
     }
     return;
   }
@@ -2076,9 +2105,18 @@ function showAllSites(){
 // container size/pixel origin before the jump, which is what actually fixes it.
 function fitMapToFilteredSites(immediate){
   const sites = sitesForFilter();
-  if (!sites.length) return;
   const map = ensureLeafletMap();
   map.invalidateSize();
+  if (!sites.length){
+    // Nothing matches the current market/owner/stage filter — most commonly an empty market (e.g.
+    // Idaho, before any franchisee is set up there). Reset to that MARKET's own default view
+    // instead of silently no-op'ing and leaving the map parked wherever the PREVIOUS market last
+    // showed (Cecilia r1 — switching into Idaho used to keep showing Cedar Park, TX because this
+    // function returned here with the map untouched).
+    const mkt = MARKETS.find(m=>m.id===selectedMarket);
+    if (mkt) map.setView([mkt.mapCenter.lat, mkt.mapCenter.lng], mkt.mapZoom);
+    return;
+  }
   const bounds = sites.map(s=>[s.coords.lat, s.coords.lng]);
   if (immediate){
     if (bounds.length === 1) map.setView(bounds[0], 14);
@@ -2622,9 +2660,70 @@ function renderDetail(){
 
 const SNAPSHOT_DATE = "Aug 2, 2026";
 
+// Captured once per loadData() call — which owners (by id) the live-fetch attempted, which came
+// back live, which failed, and whether the /config Worker itself fell back. renderStatusBanner()
+// re-derives a MARKET-AWARE banner from this on every render instead of writing one fixed string.
+let liveDataStatus = null;
+
+// Cecilia r2 — the "Live data, pulled directly from…" banner was hardcoded to the Phoenix broker
+// names (Charles/Sean/Levi) and Kyle's stub note, and was only ever written once by loadData().
+// It never updated on a market switch, so Austin (shared by Bass) and Idaho (no franchisees) both
+// showed a banner naming four Phoenix people who have nothing to do with either market. This
+// derives the banner from the SAME owner data that drives the owner stat tiles (renderStats) and
+// the hero subtitle (updateHeroSubtitle) for whichever market is currently selected.
+function renderStatusBanner(){
+  const errBox = document.getElementById('errBox');
+  if (!errBox) return;
+  if (!liveDataStatus){ errBox.innerHTML = ''; return; }
+
+  const marketOwners = OWNERS.filter(o=>o.market===selectedMarket);
+  if (!marketOwners.length){
+    // No franchisees in this market at all (e.g. Idaho) — nothing to name as a live source, and
+    // nothing to say is "live." renderStats()/renderFilterTabs() already carry the empty state.
+    errBox.innerHTML = '';
+    return;
+  }
+
+  const possessiveList = (names) => {
+    if (!names.length) return '';
+    if (names.length === 1) return `${names[0]}'s`;
+    if (names.length === 2) return `${names[0]}'s and ${names[1]}'s`;
+    return `${names.slice(0,-1).map(n=>`${n}'s`).join(', ')}, and ${names[names.length-1]}'s`;
+  };
+
+  // A franchisee configured in this market but with no live sheet AND no fallback snapshot yet
+  // (Kyle's stub today) — called out separately, independent of live/partial/snapshot state.
+  const pendingOwners = marketOwners.filter(o=>!liveDataStatus.attemptedIds.includes(o.id) && !o.csvB64);
+  const pendingNote = pendingOwners.length
+    ? ` ${possessiveList(pendingOwners.map(o=>escapeHtml(o.name.split(' ')[0])))} sites will appear here once their region is set up.`
+    : '';
+
+  const attemptedMarketOwners = marketOwners.filter(o=>liveDataStatus.attemptedIds.includes(o.id));
+  const liveMarketOwners = attemptedMarketOwners.filter(o=>liveDataStatus.liveIds.includes(o.id));
+  const failedMarketOwners = attemptedMarketOwners.filter(o=>liveDataStatus.failedIds.includes(o.id));
+
+  let html;
+  if (attemptedMarketOwners.length && liveMarketOwners.length === attemptedMarketOwners.length){
+    const names = possessiveList(liveMarketOwners.map(o=>escapeHtml(o.name.split(' ')[0])));
+    html = `<div class="snapshot-banner">Live data, pulled directly from ${names} broker spreadsheet${liveMarketOwners.length>1?'s':''}.${pendingNote}</div>`;
+  } else if (liveMarketOwners.length){
+    const failedNames = failedMarketOwners.map(o=>escapeHtml(o.name)).join(', ');
+    html = `<div class="snapshot-banner">Live for most franchisees, but ${failedNames} couldn't be reached just now — showing their last saved snapshot (${SNAPSHOT_DATE}) instead. <button type="button" class="banner-btn" onclick="loadData()">↻ Refresh</button>${pendingNote}</div>`;
+  } else if (attemptedMarketOwners.length){
+    html = `<div class="snapshot-banner">Live data wasn't reachable just now — showing the last saved snapshot (${SNAPSHOT_DATE}). <button type="button" class="banner-btn" onclick="loadData()">↻ Refresh now</button> <a class="banner-btn" href="sms:+16155743546?body=Bohl%20dashboard%3A%20live%20data%20isn%27t%20loading">Text Skip for tech support</a>${pendingNote}</div>`;
+  } else {
+    // No live-backed franchisee in THIS market (only a static snapshot owner and/or a pending
+    // stub) — nothing to claim is live or refreshed.
+    html = pendingNote ? `<div class="snapshot-banner">${pendingNote.trim()}</div>` : '';
+  }
+  if (liveDataStatus.configFallback){
+    html += `<div class="snapshot-banner" style="margin-top:8px;">Couldn't refresh the market/franchisee list just now — showing the last saved list instead.</div>`;
+  }
+  errBox.innerHTML = html;
+}
+
 async function loadData(){
   const statusEl = document.getElementById('statusText');
-  const errBox = document.getElementById('errBox');
   statusEl.textContent = 'Loading…';
 
   // B2: pull the current markets/owners/colors from KV before anything else — LIVE_OWNER_IDS
@@ -2675,19 +2774,19 @@ async function loadData(){
 
   if (liveCount === attemptedCount){
     statusEl.textContent = 'Live — updated just now';
-    errBox.innerHTML = `<div class="snapshot-banner">Live data, pulled directly from Charles's, Sean's, and Levi's broker spreadsheets. Kyle's sites will appear here once his region is set up.</div>`;
   } else if (liveCount > 0){
-    const failedNames = settled.filter(r=>r.err).map(r => (OWNERS.find(o=>o.id===r.id)||{}).name || r.id).join(', ');
     statusEl.textContent = 'Partially live — updated just now';
-    errBox.innerHTML = `<div class="snapshot-banner">Live for most franchisees, but ${escapeHtml(failedNames)} couldn't be reached just now — showing their last saved snapshot (${SNAPSHOT_DATE}) instead. <button type="button" class="banner-btn" onclick="loadData()">↻ Refresh</button></div>`;
   } else {
     statusEl.textContent = 'Snapshot — ' + SNAPSHOT_DATE;
-    errBox.innerHTML = `<div class="snapshot-banner">Live data wasn't reachable just now — showing the last saved snapshot (${SNAPSHOT_DATE}). <button type="button" class="banner-btn" onclick="loadData()">↻ Refresh now</button> <a class="banner-btn" href="sms:+16155743546?body=Bohl%20dashboard%3A%20live%20data%20isn%27t%20loading">Text Skip for tech support</a></div>`;
   }
 
-  if (configSource === 'fallback') {
-    errBox.innerHTML += `<div class="snapshot-banner" style="margin-top:8px;">Couldn't refresh the market/franchisee list just now — showing the last saved list instead.</div>`;
-  }
+  liveDataStatus = {
+    attemptedIds: LIVE_OWNER_IDS.slice(),
+    liveIds: settled.filter(r=>r.data).map(r=>r.id),
+    failedIds: settled.filter(r=>r.err).map(r=>r.id),
+    configFallback: configSource === 'fallback'
+  };
+  renderStatusBanner();
 
   renderAll();
 }
