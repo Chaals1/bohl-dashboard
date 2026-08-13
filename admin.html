@@ -61,28 +61,56 @@
     font-size:14px; font-family:inherit; color:var(--ink); background:var(--card);
   }
   input[type=text]:focus, select:focus { outline:none; border-color:var(--gold-dark); box-shadow:0 0 0 3px rgba(239,167,54,0.18); }
+  input[type=color] { width:100%; height:42px; padding:3px; border:1px solid var(--border); border-radius:9px; background:var(--card); cursor:pointer; }
+  select:disabled { opacity:.6; cursor:not-allowed; }
   .row2 { display:grid; grid-template-columns:1fr 1fr; gap:14px; }
   @media (max-width:600px){ .row2 { grid-template-columns:1fr; } }
 
   button.submit { padding:11px 20px; border:none; border-radius:9px; background:var(--gold); color:#2B1A10; font-weight:700; font-size:14px; font-family:inherit; cursor:pointer; }
   button.submit:hover { background:#FFC15C; }
+  button.submit:disabled { opacity:.45; cursor:not-allowed; background:var(--tan); }
+
+  .checkbtn { padding:9px 16px; border:1px solid var(--gold-dark); border-radius:9px; background:var(--surface-2); color:var(--gold-dark); font-weight:700; font-size:12.5px; font-family:inherit; cursor:pointer; margin-top:2px; }
+  .checkbtn:hover { background:#FBF0DA; }
+  .checkbtn:disabled { opacity:.5; cursor:not-allowed; }
+
+  .checkresult { display:none; font-size:12.5px; font-weight:600; padding:9px 12px; border-radius:9px; margin-top:8px; line-height:1.55; }
+  .checkresult.show { display:block; }
+  .checkresult.ok { background:#5B7A3D18; color:#3F5629; border:1px solid #5B7A3D40; }
+  .checkresult.fail { background:#fdecea; color:#8f3025; border:1px solid #f3c1bb; }
+  .checkresult.checking { background:var(--surface-2); color:var(--ink-soft); border:1px solid var(--border); }
 
   .formerr { display:none; background:#fdecea; border:1px solid #f3c1bb; color:#8f3025; padding:10px 14px; border-radius:10px; font-size:12.5px; margin-bottom:14px; }
   .formerr.show { display:block; }
 
-  .out { display:none; margin-top:20px; border-top:1px solid var(--hairline); padding-top:18px; }
+  .out { display:none; margin-top:16px; border-top:1px solid var(--hairline); padding-top:14px; }
   .out.show { display:block; }
-  .out h3 { font-size:13px; margin:0 0 4px; color:var(--ink); font-weight:800; }
-  .out .step { font-size:11.5px; text-transform:uppercase; letter-spacing:.4px; color:var(--gold-dark); font-weight:700; margin:18px 0 6px; }
-  .out .step:first-child { margin-top:0; }
-  .out p { font-size:12.5px; color:var(--note-ink); line-height:1.6; margin:0 0 8px; }
-  .cmdbox { position:relative; background:var(--brown-dark); color:#F3E6CE; border-radius:10px; padding:14px 16px; padding-right:96px; font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; font-size:12px; line-height:1.65; white-space:pre-wrap; word-break:break-word; }
+  .out p { font-size:13px; color:var(--note-ink); line-height:1.6; margin:0; }
+
+  .cmdbox { position:relative; background:var(--brown-dark); color:#F3E6CE; border-radius:10px; padding:14px 16px; padding-right:96px; font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; font-size:12.5px; line-height:1.6; white-space:pre-wrap; word-break:break-word; }
   .copybtn { position:absolute; top:10px; right:10px; background:var(--gold); color:#2B1A10; border:none; border-radius:7px; padding:6px 11px; font-size:11.5px; font-weight:700; font-family:inherit; cursor:pointer; }
   .copybtn:hover { background:#FFC15C; }
   .copybtn.done { background:var(--olive); color:#fff; }
-  .workernote { background:var(--surface-2); border:1px solid var(--border); border-left:3px solid var(--terracotta); border-radius:10px; padding:13px 15px; font-size:12.5px; line-height:1.65; color:var(--note-ink); }
-  .workernote b { color:var(--terracotta); }
-  .workernote code { background:#fff; border:1px solid var(--border); border-radius:5px; padding:1px 5px; font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; font-size:11.5px; }
+
+  a.template-link { color:var(--gold-dark); font-weight:700; text-decoration:none; }
+  a.template-link:hover { text-decoration:underline; }
+
+  .entity-market { margin-bottom:10px; }
+  .entity-market:last-child { margin-bottom:0; }
+  .entity-row { display:flex; align-items:center; justify-content:space-between; gap:10px; padding:9px 10px; border-radius:9px; }
+  .entity-market-head { background:var(--surface-2); font-size:13px; }
+  .entity-sub-row { font-size:12.5px; color:var(--ink-soft); padding-left:20px; }
+  .entity-swatch { width:9px; height:9px; border-radius:50%; display:inline-block; margin-right:7px; vertical-align:middle; flex:none; }
+  .del-btn { background:none; border:1px solid var(--border); border-radius:7px; padding:4px 10px; font-size:11px; font-weight:700; color:var(--terracotta); cursor:pointer; font-family:inherit; flex:none; }
+  .del-btn:hover { background:#fdecea; }
+  .del-btn:disabled { opacity:.5; cursor:not-allowed; }
+  .empty-note { font-size:12.5px; color:var(--ink-soft); padding:10px 4px; }
+
+  .undo-banner { display:none; align-items:center; gap:10px; background:#FBF0DA; border:1px solid #EAD3A0; color:#7A5A1E; padding:10px 14px; border-radius:10px; font-size:12.5px; margin-bottom:14px; }
+  .undo-banner.show { display:flex; }
+  .undo-btn { background:var(--gold-dark); color:#fff; border:none; border-radius:7px; padding:5px 12px; font-size:11.5px; font-weight:700; cursor:pointer; font-family:inherit; flex:none; }
+  .undo-btn:disabled { opacity:.5; cursor:not-allowed; }
+
   .foot { font-size:12px; color:var(--ink-soft); text-align:center; line-height:1.7; }
 </style>
 </head>
@@ -105,25 +133,26 @@
 
     <div class="explainer">
       <h2>How this works</h2>
-      <p style="margin:0;">The dashboard is a single web page with no server behind it, so this form
-      can't add the city or the person by itself. What it does do is write out the exact instruction
-      that makes the change — you copy it, and it gets run once to update the dashboard.</p>
+      <p style="margin:0;">This page talks straight to the dashboard now — no copying commands,
+      nothing to send to Skip. Add a city, or add a franchisee, and it shows up right away.</p>
       <ol>
-        <li>Fill in the form below.</li>
-        <li>Hit the button — a command appears.</li>
-        <li>Click <b>Copy</b> and send it to Skip (or run it, if you're set up to).</li>
-        <li>For a new franchisee whose sheet should update on its own, there's <b>one extra step</b>
-            on our side to connect their Google Sheet. The form will remind you.</li>
+        <li>Adding a person? Share their Google Sheet with us first (one email, below). We check
+        that we can actually read it — and that it's laid out right — before anything gets added,
+        so a bad link never blanks out their part of the map.</li>
+        <li>Fill in the form and hit the button.</li>
+        <li>Made a mistake? Anything you add can be removed, and anything removed can be undone
+        for a few minutes right after.</li>
       </ol>
-      <p style="margin:10px 0 0;"><b>Nothing on this page changes the live dashboard.</b> It only
-      writes out the instruction.</p>
     </div>
+
+    <div class="formerr" id="listErr"></div>
+    <div class="undo-banner" id="undoBanner"></div>
 
     <!-- ============================ ADD A CITY ============================ -->
     <div class="card">
       <h2>Add a new city</h2>
-      <p class="sub">Creates a new market tab on the dashboard, centered on the city, ready for
-      franchisees and their sites.</p>
+      <p class="sub">Creates a new market on the dashboard — a tab, ready for franchisees and
+      their sites. A sheet isn't needed here; that gets connected per person, below.</p>
 
       <div class="formerr" id="cityErr"></div>
 
@@ -133,28 +162,27 @@
           <input type="text" id="cityName" placeholder="Boise" autocomplete="off">
         </div>
         <div class="field">
-          <label for="cityState">State (helps us place it on the map)</label>
+          <label for="cityState">State (helps us tell cities apart)</label>
           <input type="text" id="cityState" placeholder="Idaho — or just ID" autocomplete="off">
         </div>
       </div>
 
       <div class="field">
-        <label for="citySheet">Google Sheet URL</label>
-        <input type="text" id="citySheet" placeholder="https://docs.google.com/spreadsheets/d/..." autocomplete="off">
-        <div class="hint">The broker sheet for this market. Same columns as the others: address,
-        pad/shop, sqft, price, notes.</div>
+        <label for="cityColor">Color (optional)</label>
+        <input type="color" id="cityColor" value="#8E4B3C">
+        <div class="hint">Used as a default accent for this market. You can leave it as-is.</div>
       </div>
 
-      <button class="submit" id="cityGo">Get the command</button>
+      <button class="submit" id="cityGo" type="button">Add city</button>
 
       <div class="out" id="cityOut"></div>
     </div>
 
     <!-- ========================== ADD A PERSON ============================ -->
     <div class="card">
-      <h2>Add a new person (franchisee)</h2>
-      <p class="sub">Adds a franchisee to a market — their own color on the map, their own filter tab,
-      and their sites pulled live from their sheet.</p>
+      <h2>Add a new franchisee</h2>
+      <p class="sub">Adds a franchisee to a market — their own color on the map, their own filter
+      tab, and their sites pulled live from their sheet.</p>
 
       <div class="formerr" id="ownErr"></div>
 
@@ -164,37 +192,45 @@
           <input type="text" id="ownName" placeholder="Kyle Garrett" autocomplete="off">
         </div>
         <div class="field">
-          <label for="ownRole">Role / sub-region</label>
-          <input type="text" id="ownRole" placeholder="Franchisee — Peoria" autocomplete="off">
-        </div>
-      </div>
-
-      <div class="row2">
-        <div class="field">
           <label for="ownMarket">Market</label>
-          <select id="ownMarket">
-            <option value="phoenix-az">Phoenix, AZ</option>
-            <option value="austin-tx">Austin, TX</option>
-            <option value="idaho">Idaho</option>
-          </select>
-          <div class="hint">New cities show up in this list after they've been added.</div>
-        </div>
-        <div class="field">
-          <label for="ownHome">Home area (city or ZIP)</label>
-          <input type="text" id="ownHome" placeholder="Peoria, AZ — or 85345" autocomplete="off">
-          <div class="hint">Where they're based. Used to center their view of the map.</div>
+          <select id="ownMarket"></select>
+          <div class="hint">New cities show up here right after you add them above.</div>
         </div>
       </div>
 
       <div class="field">
-        <label for="ownSheet">Google Sheet URL</label>
-        <input type="text" id="ownSheet" placeholder="https://docs.google.com/spreadsheets/d/..." autocomplete="off">
-        <div class="hint">Their broker sheet — the dashboard reads their sites from here.</div>
+        <label>Share their sheet with us</label>
+        <div class="hint" style="margin-bottom:8px;">In their Google Sheet: <b>Share</b> → paste
+        this email in → set it to <b>Viewer</b>:</div>
+        <div class="cmdbox" id="saEmailBox">workspace@waterloo-digital.iam.gserviceaccount.com<button class="copybtn" type="button" id="copySaBtn">Copy</button></div>
       </div>
 
-      <button class="submit" id="ownGo">Get the command</button>
+      <div class="field">
+        <label for="ownSheet">Their Google Sheet link</label>
+        <input type="text" id="ownSheet" placeholder="https://docs.google.com/spreadsheets/d/..." autocomplete="off">
+        <div class="hint">Paste the link once it's shared with the email above.</div>
+        <button class="checkbtn" type="button" id="checkAccessBtn">Check access</button>
+        <div class="checkresult" id="checkResult"></div>
+      </div>
+
+      <div class="field">
+        <label for="ownColor">Color on the map</label>
+        <input type="color" id="ownColor" value="#3A6EA5">
+        <div class="hint">Used for their pins and their tab on the dashboard. Any color works.</div>
+      </div>
+
+      <button class="submit" id="ownGo" type="button" disabled>Add franchisee</button>
+      <div class="hint" id="ownGoHint" style="margin-top:8px;">Run "Check access" above first — the
+      button unlocks once we've confirmed we can read the sheet.</div>
 
       <div class="out" id="ownOut"></div>
+    </div>
+
+    <!-- ==================== CURRENT MARKETS & FRANCHISEES =================== -->
+    <div class="card">
+      <h2>Current markets &amp; franchisees</h2>
+      <p class="sub">Everything live on the dashboard right now.</p>
+      <div id="entityList"></div>
     </div>
 
     <p class="foot">
@@ -208,10 +244,12 @@
 (function(){
   "use strict";
 
-  // Paths are written relative to the monorepo root, which is where the command gets run from.
-  var TOOL   = "clients/bohl/projects/active/phoenix-site-selection-dashboard/add_city.py";
-  var TARGET = "clients/bohl/projects/active/phoenix-site-selection-dashboard/dashboard-assets/index.dev.html";
-  var PY     = ".venv/bin/python";
+  // ---- config ----
+  // Same soft-deterrent password model as the dashboard itself (index.html) — visible in page
+  // source, not real security, just keeps this off search engines and out of casual hands.
+  var CONFIG_WORKER_BASE_URL = "https://bohl-dashboard-proxy.jr-383.workers.dev";
+  var GATE_PASSWORD = "BOHLBOYS";
+  var SA_EMAIL = "workspace@waterloo-digital.iam.gserviceaccount.com";
 
   var STATES = {
     "alabama":"AL","alaska":"AK","arizona":"AZ","arkansas":"AR","california":"CA","colorado":"CO",
@@ -252,15 +290,6 @@
     return first.toLowerCase().replace(/[^a-z0-9]/g, "");
   }
 
-  // Safe inside a double-quoted shell string.
-  function shq(s){
-    return '"' + String(s).replace(/([\\"$`])/g, "\\$1") + '"';
-  }
-
-  function looksLikeSheet(url){
-    return /docs\.google\.com\/spreadsheets\//i.test(clean(url));
-  }
-
   function esc(s){
     return String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;");
   }
@@ -273,31 +302,22 @@
     el.textContent = "";
     el.classList.remove("show");
   }
-
-  // Renders a command block with a working copy button.
-  function cmdBlock(cmd){
-    var box = document.createElement("div");
-    box.className = "cmdbox";
-    box.textContent = cmd;
-    var btn = document.createElement("button");
-    btn.className = "copybtn";
-    btn.type = "button";
-    btn.textContent = "Copy";
-    btn.addEventListener("click", function(){
-      var done = function(){
-        btn.textContent = "Copied";
-        btn.classList.add("done");
-        setTimeout(function(){ btn.textContent = "Copy"; btn.classList.remove("done"); }, 1800);
-      };
-      if (navigator.clipboard && navigator.clipboard.writeText) {
-        navigator.clipboard.writeText(cmd).then(done, function(){ selectFallback(box, btn); });
-      } else {
-        selectFallback(box, btn);
-      }
-    });
-    box.appendChild(btn);
-    return box;
+  function para(html){
+    var p = document.createElement("p");
+    p.innerHTML = html;
+    return p;
   }
+
+  // Pulls a Sheets id out of a full URL, or accepts a bare id typed/pasted directly.
+  function extractSheetId(raw){
+    var s = clean(raw);
+    if (!s) return null;
+    var m = s.match(/\/spreadsheets\/d\/([a-zA-Z0-9_-]+)/);
+    if (m) return m[1];
+    if (/^[a-zA-Z0-9_-]{20,60}$/.test(s)) return s;
+    return null;
+  }
+  function looksLikeSheet(raw){ return !!extractSheetId(raw); }
 
   // No clipboard permission (or file://) — select the text so Cmd-C works.
   function selectFallback(box, btn){
@@ -308,17 +328,202 @@
     sel.addRange(r);
     btn.textContent = "Press Cmd-C";
   }
-
-  function stepLabel(text){
-    var d = document.createElement("div");
-    d.className = "step";
-    d.textContent = text;
-    return d;
+  function wireCopyButton(btn, container, text){
+    btn.addEventListener("click", function(){
+      var done = function(){
+        btn.textContent = "Copied";
+        btn.classList.add("done");
+        setTimeout(function(){ btn.textContent = "Copy"; btn.classList.remove("done"); }, 1800);
+      };
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(text).then(done, function(){ selectFallback(container, btn); });
+      } else {
+        selectFallback(container, btn);
+      }
+    });
   }
-  function para(html){
-    var p = document.createElement("p");
-    p.innerHTML = html;
-    return p;
+  wireCopyButton(document.getElementById("copySaBtn"), document.getElementById("saEmailBox"), SA_EMAIL);
+
+  // ---- talking to the Worker (our KV-backed config + admin routes, B2 contract) ----
+  function apiUrl(path){
+    var sep = path.indexOf("?") === -1 ? "?" : "&";
+    return CONFIG_WORKER_BASE_URL + path + sep + "pw=" + encodeURIComponent(GATE_PASSWORD);
+  }
+  function getJson(path){
+    return fetch(apiUrl(path)).then(function(resp){
+      return resp.json().catch(function(){ return null; }).then(function(data){
+        return { ok: resp.ok, status: resp.status, data: data };
+      });
+    });
+  }
+  function postJson(path, body){
+    return fetch(apiUrl(path), {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(body || {})
+    }).then(function(resp){
+      return resp.json().catch(function(){ return null; }).then(function(data){
+        return { ok: resp.ok, status: resp.status, data: data };
+      });
+    });
+  }
+
+  // ---- current config state (drives the market dropdown + the list card) ----
+  var CURRENT_CONFIG = { markets: [], owners: [] };
+
+  function refreshConfigUI(config){
+    if (config && Array.isArray(config.markets) && Array.isArray(config.owners)) {
+      CURRENT_CONFIG = config;
+    }
+    populateMarketDropdown();
+    renderEntityList();
+  }
+
+  function loadConfig(){
+    return getJson("/config").then(function(res){
+      if (!res.ok || !res.data || !Array.isArray(res.data.markets) || !Array.isArray(res.data.owners)) {
+        throw new Error("bad /config response (status " + res.status + ")");
+      }
+      refreshConfigUI(res.data);
+    }).catch(function(err){
+      console.error("admin: /config load failed", err);
+      showErr(document.getElementById("listErr"), "Couldn't load the current list just now — try refreshing the page.");
+    });
+  }
+
+  function populateMarketDropdown(){
+    var sel = document.getElementById("ownMarket");
+    var prev = sel.value;
+    sel.innerHTML = "";
+    if (!CURRENT_CONFIG.markets.length){
+      var opt = document.createElement("option");
+      opt.value = ""; opt.textContent = "Add a city first";
+      opt.disabled = true; opt.selected = true;
+      sel.appendChild(opt);
+      sel.disabled = true;
+      updateOwnerSubmitState();
+      return;
+    }
+    sel.disabled = false;
+    CURRENT_CONFIG.markets.forEach(function(m){
+      var opt = document.createElement("option");
+      opt.value = m.id; opt.textContent = m.label || m.id;
+      sel.appendChild(opt);
+    });
+    if (CURRENT_CONFIG.markets.some(function(m){ return m.id === prev; })) sel.value = prev;
+    updateOwnerSubmitState();
+  }
+
+  function renderEntityList(){
+    var wrap = document.getElementById("entityList");
+    wrap.innerHTML = "";
+    var markets = CURRENT_CONFIG.markets || [];
+    var owners = (CURRENT_CONFIG.owners || []).filter(function(o){ return o.active !== false; });
+
+    if (!markets.length){
+      wrap.innerHTML = '<div class="empty-note">Nothing added yet — start with a city above.</div>';
+      return;
+    }
+
+    markets.forEach(function(m){
+      var section = document.createElement("div");
+      section.className = "entity-market";
+
+      var head = document.createElement("div");
+      head.className = "entity-row entity-market-head";
+      var headLabel = document.createElement("b");
+      headLabel.textContent = m.label || m.id;
+      var mDel = document.createElement("button");
+      mDel.type = "button"; mDel.className = "del-btn";
+      mDel.dataset.kind = "market"; mDel.dataset.id = m.id; mDel.dataset.name = m.label || m.id;
+      mDel.textContent = "Remove city";
+      head.appendChild(headLabel);
+      head.appendChild(mDel);
+      section.appendChild(head);
+
+      var theseOwners = owners.filter(function(o){ return o.market === m.id; });
+      if (!theseOwners.length){
+        var none = document.createElement("div");
+        none.className = "entity-sub-row";
+        none.textContent = "No franchisees yet.";
+        section.appendChild(none);
+      } else {
+        theseOwners.forEach(function(o){
+          var row = document.createElement("div");
+          row.className = "entity-row entity-sub-row";
+          var left = document.createElement("span");
+          var swatch = document.createElement("span");
+          swatch.className = "entity-swatch";
+          swatch.style.background = o.color || "#8A7A66";
+          left.appendChild(swatch);
+          left.appendChild(document.createTextNode(o.name));
+          var oDel = document.createElement("button");
+          oDel.type = "button"; oDel.className = "del-btn";
+          oDel.dataset.kind = "owner"; oDel.dataset.id = o.id; oDel.dataset.name = o.name;
+          oDel.textContent = "Remove";
+          row.appendChild(left);
+          row.appendChild(oDel);
+          section.appendChild(row);
+        });
+      }
+      wrap.appendChild(section);
+    });
+  }
+
+  // ---- delete + undo ----
+  document.getElementById("entityList").addEventListener("click", function(e){
+    var btn = e.target.closest ? e.target.closest(".del-btn") : null;
+    if (!btn) return;
+    var kind = btn.dataset.kind, id = btn.dataset.id, name = btn.dataset.name;
+    var msg = kind === "owner"
+      ? 'Remove ' + name + ' from the dashboard? Their sites will stop showing up. This can be undone for a few minutes right after.'
+      : 'Remove ' + name + '? Any franchisees still under it may need to be re-added. This can be undone for a few minutes right after.';
+    if (!window.confirm(msg)) return;
+
+    btn.disabled = true;
+    clearErr(document.getElementById("listErr"));
+    postJson("/admin/delete", { kind: kind, id: id }).then(function(res){
+      if (!res.ok || !res.data || !res.data.undoToken){
+        showErr(document.getElementById("listErr"), "Couldn't remove " + name + " just now — try again in a moment.");
+        btn.disabled = false;
+        return;
+      }
+      showUndoBanner(name, res.data.undoToken);
+      return loadConfig();
+    }).catch(function(){
+      showErr(document.getElementById("listErr"), "Couldn't reach the dashboard just now — try again in a moment.");
+      btn.disabled = false;
+    });
+  });
+
+  function showUndoBanner(name, token){
+    var box = document.getElementById("undoBanner");
+    box.innerHTML = "";
+    var span = document.createElement("span");
+    span.textContent = "Removed " + name + ". ";
+    var btn = document.createElement("button");
+    btn.type = "button";
+    btn.className = "undo-btn";
+    btn.textContent = "Undo";
+    btn.addEventListener("click", function(){
+      btn.disabled = true;
+      postJson("/admin/undo", { undoToken: token }).then(function(res){
+        if (!res.ok){
+          showErr(document.getElementById("listErr"), "That undo window's closed — you'll need to re-add it.");
+          btn.disabled = false;
+          return;
+        }
+        box.innerHTML = "";
+        box.classList.remove("show");
+        return loadConfig();
+      }).catch(function(){
+        showErr(document.getElementById("listErr"), "Couldn't reach the dashboard just now — try again in a moment.");
+        btn.disabled = false;
+      });
+    });
+    box.appendChild(span);
+    box.appendChild(btn);
+    box.classList.add("show");
   }
 
   // ---------------------------------------------------------------- add city
@@ -329,106 +534,179 @@
 
     var city  = clean(document.getElementById("cityName").value);
     var stRaw = clean(document.getElementById("cityState").value);
-    var sheet = clean(document.getElementById("citySheet").value);
+    var color = document.getElementById("cityColor").value;
 
     if (!city)  { showErr(errEl, "Add the city name."); return; }
-    if (!stRaw) { showErr(errEl, "Add the state — it's how we find the city on the map."); return; }
-    if (!sheet) { showErr(errEl, "Add the Google Sheet URL for this market."); return; }
-    if (!looksLikeSheet(sheet)) {
-      showErr(errEl, "That doesn't look like a Google Sheet link — it should start with https://docs.google.com/spreadsheets/");
+    if (!stRaw) { showErr(errEl, "Add the state — it's how we tell cities apart."); return; }
+
+    var st    = stateCode(stRaw);
+    var id    = slug(city + " " + st);
+    var label = city + ", " + st;
+
+    var btn = document.getElementById("cityGo");
+    btn.disabled = true;
+    btn.textContent = "Adding…";
+
+    postJson("/admin/market", { id: id, label: label, color: color }).then(function(res){
+      btn.disabled = false;
+      btn.textContent = "Add city";
+      if (res.ok && res.data){
+        out.innerHTML = "";
+        out.appendChild(para("&#10003; <b>" + esc(label) + "</b> was added. Add a franchisee below to start pulling their sites in."));
+        out.classList.add("show");
+        document.getElementById("cityName").value = "";
+        document.getElementById("cityState").value = "";
+        refreshConfigUI(res.data);
+      } else {
+        var reason = res.data && (res.data.error || res.data.reason);
+        var msg = reason === "duplicate"
+          ? "That city's already on the dashboard — pick it from the list below instead of adding it again."
+          : "Couldn't add that city just now — try again in a moment.";
+        showErr(errEl, msg);
+      }
+    }).catch(function(){
+      btn.disabled = false;
+      btn.textContent = "Add city";
+      showErr(errEl, "Couldn't reach the dashboard just now — try again in a moment.");
+    });
+  });
+
+  // -------------------------------------------------------- check access (owner)
+  var CHECK_ACCESS_MESSAGES = {
+    no_access:   "We can't see it yet — did you share it with " + SA_EMAIL + " as a Viewer?",
+    not_found:   "We can't find that sheet — double check the link.",
+    bad_columns: "We can see the sheet, but the columns don't match the template — compare with the template link above.",
+    bad_url:     "That doesn't look like a Google Sheet link — copy the full address from your browser."
+  };
+
+  // 'unchecked' | 'checking' | 'passed' | 'failed' — any edit to the sheet field after a pass
+  // invalidates it (checkedValue stops matching), so Submit re-locks until it's re-checked.
+  var sheetCheck = { state: "unchecked", checkedValue: "" };
+
+  function renderCheckResult(kind, msg){
+    var el = document.getElementById("checkResult");
+    el.className = "checkresult show " + kind;
+    el.textContent = (kind === "ok" ? "✓ " : (kind === "checking" ? "" : "✗ ")) + msg;
+  }
+
+  function updateOwnerSubmitState(){
+    var sheetVal = clean(document.getElementById("ownSheet").value);
+    var hasMarket = !!document.getElementById("ownMarket").value;
+    var passed = sheetCheck.state === "passed" && sheetCheck.checkedValue === sheetVal && hasMarket;
+    document.getElementById("ownGo").disabled = !passed;
+    document.getElementById("ownGoHint").style.display = passed ? "none" : "block";
+  }
+
+  document.getElementById("ownSheet").addEventListener("input", updateOwnerSubmitState);
+  document.getElementById("ownMarket").addEventListener("change", updateOwnerSubmitState);
+
+  document.getElementById("checkAccessBtn").addEventListener("click", function(){
+    var errEl = document.getElementById("ownErr");
+    clearErr(errEl);
+    var sheetRaw = clean(document.getElementById("ownSheet").value);
+
+    if (!sheetRaw) { showErr(errEl, "Paste the Google Sheet link first."); return; }
+    if (!looksLikeSheet(sheetRaw)) {
+      renderCheckResult("fail", CHECK_ACCESS_MESSAGES.bad_url);
+      sheetCheck = { state: "failed", checkedValue: sheetRaw };
+      updateOwnerSubmitState();
       return;
     }
 
-    var st   = stateCode(stRaw);
-    var id   = slug(city + " " + st);
-    var name = city + ", " + st;
+    renderCheckResult("checking", "Checking…");
+    var btn = document.getElementById("checkAccessBtn");
+    btn.disabled = true;
 
-    var base = PY + " " + TOOL + " --file " + TARGET +
-               " add-market --id " + shq(id) + " --name " + shq(name);
-
-    out.innerHTML = "";
-    out.appendChild(stepLabel("Step 1 — preview (changes nothing)"));
-    out.appendChild(para("Run this first. It shows what would change without touching anything."));
-    out.appendChild(cmdBlock(base));
-
-    out.appendChild(stepLabel("Step 2 — apply it"));
-    out.appendChild(para("Same thing with <b>--write</b> on the end. This is the one that actually adds " +
-                         esc(name) + " to the dashboard."));
-    out.appendChild(cmdBlock(base + " --write"));
-
-    out.appendChild(stepLabel("One more step on our side"));
-    var note = document.createElement("div");
-    note.className = "workernote";
-    note.innerHTML =
-      "<b>The sheet still needs connecting.</b> Adding the city puts " + esc(name) +
-      " on the dashboard, but this sheet —<br><code>" + esc(sheet) + "</code><br>" +
-      "gets hooked up per person, not per city. Add the franchisee below (using this same sheet link), " +
-      "then we wire the sheet into the live-data connector on Cloudflare. Send Skip both the command and " +
-      "the sheet link and he'll handle it.";
-    out.appendChild(note);
-    out.classList.add("show");
+    postJson("/admin/check-access", { sheetUrl: sheetRaw }).then(function(res){
+      btn.disabled = false;
+      if (res.ok && res.data && res.data.ok){
+        renderCheckResult("ok", res.data.note || "We can see your sheet and the columns look right.");
+        sheetCheck = { state: "passed", checkedValue: sheetRaw };
+      } else {
+        var reason = res.data && res.data.reason;
+        var note = res.data && res.data.note;
+        var msg = CHECK_ACCESS_MESSAGES[reason] || note || "We couldn't check that sheet just now — try again in a moment.";
+        renderCheckResult("fail", msg);
+        sheetCheck = { state: "failed", checkedValue: sheetRaw };
+      }
+      updateOwnerSubmitState();
+    }).catch(function(){
+      btn.disabled = false;
+      renderCheckResult("fail", "Couldn't reach the dashboard just now — try again in a moment.");
+      sheetCheck = { state: "failed", checkedValue: sheetRaw };
+      updateOwnerSubmitState();
+    });
   });
 
   // -------------------------------------------------------------- add person
+  var OWNER_SUBMIT_MESSAGES = {
+    sheet_unreadable: "We can't read that sheet anymore — try Check access again.",
+    bad_columns:       "The columns don't match the template anymore — try Check access again.",
+    duplicate:          "That short name is already used — try a different name."
+  };
+
+  function resetOwnerForm(){
+    document.getElementById("ownName").value = "";
+    document.getElementById("ownSheet").value = "";
+    document.getElementById("ownColor").value = "#3A6EA5";
+    sheetCheck = { state: "unchecked", checkedValue: "" };
+    var resultEl = document.getElementById("checkResult");
+    resultEl.classList.remove("show");
+    resultEl.textContent = "";
+    updateOwnerSubmitState();
+  }
+
   document.getElementById("ownGo").addEventListener("click", function(){
     var errEl = document.getElementById("ownErr");
     var out   = document.getElementById("ownOut");
     clearErr(errEl);
 
     var name   = clean(document.getElementById("ownName").value);
-    var role   = clean(document.getElementById("ownRole").value);
-    var marketSel = document.getElementById("ownMarket");
-    var market = marketSel.value;
-    var marketLabel = marketSel.options[marketSel.selectedIndex].text;
-    var home   = clean(document.getElementById("ownHome").value);
-    var sheet  = clean(document.getElementById("ownSheet").value);
+    var market = document.getElementById("ownMarket").value;
+    var sheetRaw = clean(document.getElementById("ownSheet").value);
+    var color  = document.getElementById("ownColor").value;
 
-    if (!name) { showErr(errEl, "Add their name."); return; }
-    if (!role) { showErr(errEl, "Add a role or sub-region — it's the label under their name."); return; }
-    if (!home) { showErr(errEl, "Add their home area (a city or a ZIP)."); return; }
-    if (!sheet){ showErr(errEl, "Add the Google Sheet URL for this person."); return; }
-    if (!looksLikeSheet(sheet)) {
-      showErr(errEl, "That doesn't look like a Google Sheet link — it should start with https://docs.google.com/spreadsheets/");
+    if (!name)   { showErr(errEl, "Add their name."); return; }
+    if (!market) { showErr(errEl, "Add a city first, then pick it here."); return; }
+    if (!sheetRaw) { showErr(errEl, "Add the Google Sheet link."); return; }
+    if (sheetCheck.state !== "passed" || sheetCheck.checkedValue !== sheetRaw) {
+      showErr(errEl, 'Run "Check access" first — we need to confirm we can read the sheet before adding them.');
       return;
     }
+    var sheetId = extractSheetId(sheetRaw);
+    if (!sheetId) { showErr(errEl, "Couldn't read that link — try Check access again."); return; }
 
     var oid = ownerId(name);
     if (!oid) { showErr(errEl, "Couldn't make a short name out of that — try their first name in plain letters."); return; }
 
-    var base = PY + " " + TOOL + " --file " + TARGET +
-               " add-owner --id " + shq(oid) +
-               " --name " + shq(name) +
-               " --role " + shq(role) +
-               " --market " + shq(market) +
-               " --home " + shq(home) +
-               " --live";
+    var btn = document.getElementById("ownGo");
+    btn.disabled = true;
+    btn.textContent = "Adding…";
 
-    out.innerHTML = "";
-    out.appendChild(para("Short name used inside the dashboard: <b>" + esc(oid) + "</b>. " +
-                         "If there's already a " + esc(oid) + " on the dashboard, tell Skip so we pick a different one."));
-
-    out.appendChild(stepLabel("Step 1 — preview (changes nothing)"));
-    out.appendChild(para("Run this first. It shows what would change without touching anything."));
-    out.appendChild(cmdBlock(base));
-
-    out.appendChild(stepLabel("Step 2 — apply it"));
-    out.appendChild(para("Same thing with <b>--write</b> on the end. This adds " + esc(name) +
-                         " to " + esc(marketLabel) + " on the dashboard."));
-    out.appendChild(cmdBlock(base + " --write"));
-
-    out.appendChild(stepLabel("One more step on our side"));
-    var note = document.createElement("div");
-    note.className = "workernote";
-    note.innerHTML =
-      "<b>Their sheet still needs connecting.</b> The command above puts " + esc(name) +
-      " on the dashboard, but their sites won't load until this sheet —<br><code>" + esc(sheet) + "</code><br>" +
-      "is pointed at <code>" + esc(oid) + "</code> in the live-data connector (the Cloudflare Worker) and that " +
-      "gets republished. That part isn't in this project and can't be done from this page — send Skip the " +
-      "command and the sheet link together and he'll finish it. Until then " + esc(name) +
-      " shows up with no sites.";
-    out.appendChild(note);
-    out.classList.add("show");
+    postJson("/admin/owner", { id: oid, name: name, market: market, sheetId: sheetId, color: color }).then(function(res){
+      btn.textContent = "Add franchisee";
+      if (res.ok && res.data){
+        out.innerHTML = "";
+        out.appendChild(para("&#10003; <b>" + esc(name) + "</b> was added. They now show up in the list below and on the dashboard."));
+        out.classList.add("show");
+        resetOwnerForm();
+        refreshConfigUI(res.data);
+      } else {
+        var reason = res.data && (res.data.error || res.data.reason);
+        var msg = OWNER_SUBMIT_MESSAGES[reason] || "Couldn't add them just now — try again in a moment.";
+        showErr(errEl, msg);
+        updateOwnerSubmitState();
+      }
+    }).catch(function(){
+      btn.textContent = "Add franchisee";
+      showErr(errEl, "Couldn't reach the dashboard just now — try again in a moment.");
+      updateOwnerSubmitState();
+    });
   });
+
+  // ---- go ----
+  updateOwnerSubmitState();
+  loadConfig();
 
 })();
 </script>
