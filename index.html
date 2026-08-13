@@ -276,6 +276,52 @@ body.hide-fit .mini-chip { display: none !important; }
 .conffill { height:100%; width:0%; border-radius:999px; transition: width 0.9s cubic-bezier(.22,.9,.3,1); }
 .conflbl { font-size:10px; font-weight:700; color:var(--ink-soft); text-align:center; margin-top:4px; white-space:nowrap; }
 .conf-chip { font-size:9.5px; font-weight:700; padding:2px 6px; border-radius:999px; white-space:nowrap; margin-left:5px; }
+
+/* bohl-sitesheet-print (PRD #11): one-page printable/save-as-PDF site sheet for the SELECTED
+   site's Overview tab. window.print() is the trigger (the button injected above); no JS PDF
+   library — the browser's native "Save as PDF" print destination is the delivery mechanism. */
+.sitesheet-print-header { display:none; }
+@media print {
+  /* Force light theme in print regardless of the on-screen dark-mode toggle. */
+  :root[data-theme="dark"] {
+    --cream:#FBF3E4; --card:#FFFFFF; --ink:#201A13; --ink-soft:#6B6152; --border:#EAE2D2;
+    --surface-2:#faf7f0; --row-hover:#f5f1e6; --hairline:#f2ede3; --note-ink:#5b5147;
+  }
+  @page { margin: 0.5in; }
+  html, body { background:#fff !important; -webkit-print-color-adjust:exact; print-color-adjust:exact; }
+  /* Hide the app chrome: gate, top nav, admin bar, criteria panel, banner, stat tiles, legend,
+     the map + sites list, and the detail card's own tab strip / Street-View-Aerial-Print row. */
+  #gate, .hero, .admin-bar, .profile-panel, #errBox, .stats, .legend, .layout,
+  .detail-card .tabs, .detail-card .sv-block { display:none !important; }
+  /* Only the Overview tabpane prints — it already carries every field the sheet needs (kv grid +
+     Traffic/Demographics reference rows + criteria-met-so-far summary + Highlights), regardless
+     of which tab happened to be open on screen when Print was clicked. The other three tabs (full
+     criteria list, competitive-proximity narrative, broker/tenant notes) are deliberately left off
+     a ONE-PAGE sheet. */
+  .detail-card [data-pane="criteria"], .detail-card [data-pane="competitive"],
+  .detail-card [data-pane="notes"] { display:none !important; }
+  .detail-card [data-pane="overview"] { display:block !important; }
+  /* Brochure photos: omitted from the print sheet by design (build task's own "your call" — a
+     clean one-pager beats a cramped two-pager). Hides the gallery AND its own heading. */
+  .brochure-gallery { display:none !important; }
+  h4:has(+ .brochure-gallery) { display:none !important; }
+  .wrap { max-width:100% !important; padding:0 !important; }
+  .content { padding:0 !important; }
+  .card.detail-card { box-shadow:none !important; border:none !important; margin:0 !important; padding:0 !important; }
+  .sitesheet-print-header { display:flex !important; align-items:center; gap:10px;
+    margin-bottom:12px; padding-bottom:8px; border-bottom:2px solid var(--gold-dark); }
+  .sitesheet-print-header .wordmark { position:static; font-size:26px; }
+  .sitesheet-print-header .tagline { font-size:10.5px; color:var(--ink-soft); }
+  /* Compact the kv grid + type scale so a typical site fits one page. */
+  .kv { grid-template-columns: 1fr 1fr !important; gap:6px 10px !important; font-size:11px !important; }
+  .kv div { padding:6px 8px !important; }
+  .det-header { margin-bottom:10px !important; }
+  .det-header h3 { font-size:15px !important; }
+  .fitring, .fitring svg { width:56px !important; height:56px !important; }
+  .fitring .num { font-size:13px !important; }
+  .confwrap { margin-left:8px !important; }
+  .notesbox { font-size:11px !important; }
+}
 </style>
 </head>
 <body class="locked">
@@ -392,6 +438,13 @@ body.hide-fit .mini-chip { display: none !important; }
       </div>
     </div>
 
+        <div class="sitesheet-print-header">
+      <div class="wordmark" data-text="bohl">bohl</div>
+      <div>
+        <div style="font-weight:800; font-size:13px;">Site Selection Dashboard — Site Sheet</div>
+        <div class="tagline">For broker / tenant reference — printed from the live dashboard</div>
+      </div>
+    </div>
     <div class="card detail-card" id="detailCard">
       <div class="empty-hint">Loading sites…</div>
     </div>
@@ -2522,6 +2575,7 @@ function renderStreetView(s){
         <div class="sv-links">
           <a class="sv-btn" data-sv="pano" href="${svPanoUrl(c)}" target="_blank" rel="noopener">Street View ↗</a>
           <a class="sv-btn ghost" data-sv="aerial" href="${svAerialUrl(c)}" target="_blank" rel="noopener">Aerial ↗</a>
+          <button type="button" class="sv-btn ghost" id="sitesheetPrintBtn" onclick="window.print()">Print / Save as PDF</button>
           ${approxNote}
         </div>${embed}
       </div>`;
