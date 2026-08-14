@@ -1361,6 +1361,343 @@ const LEVI_BROCHURE_DATA = {
 // Bass site as of 2026-08-11, so initial scoring runs entirely on the survey's own text via the
 // auto-scoring engine. Populated by the bohl-brochure-check scheduled task as brochures come in.
 const BASS_BROCHURE_DATA = {
+
+  "3021 - 3202 N IH-35": {
+    sourceUrl: "https://mreis.box.com/s/nj7igwrlwb64dzjcoi3utgpkbxtbkzd8",
+    source: "Weitzman brochure — Bass, read 2026-08-13",
+    criteria: {
+      sf: {status:"not_met", note:"Available suites are 1,635 SF, 3,179 SF, 1,506 SF, 4,000 SF (Play Street Museum, occupied-but-available), and 20,000/40,000 SF (Phase III) — none fall in Bohl's 1,800–2,800 SF band (closest are 1,635 SF, below min, and 3,179 SF, above max)."},
+      siteType: {status:"met", note:"Inline shop suites within a Target / Best Buy / Michaels / Five Below / Picklr-anchored power center at the SE corner of SH-45 & IH-35."},
+      patio: {status:"unknown", note:"No patio referenced in the brochure."},
+      visibility: {status:"met", note:"SE corner of SH-45 & IH-35; IH-35 at 180,146 VPD and SH-45 at 113,558 VPD."},
+      access: {status:"met", note:"Freeway-corner location at the SH-45 / IH-35 interchange."},
+      parking: {status:"unknown", note:"No parking ratio or count stated in the brochure."},
+      centerAge: {status:"likely", note:"Established power center with an active Phase III new-construction phase (20,000–40,000 SF, delivering Q2–Q3 2026) and a modern national tenant mix (Crumbl, Nothing Bundt Cakes, Five Below, Picklr); original build year not stated."},
+      population: {status:"met", note:"101,189 within 3 miles (261,093 within 5 miles) — clears the 100K+ (3–5mi) requirement."},
+      income: {status:"likely", note:"Brochure reports AVERAGE HH income only: $98,732 (1mi) / $106,643 (3mi) / $123,546 (5mi). Median (Bohl's metric) not stated and typically runs lower — could dip under $95K at the 3-mile radius; recommend confirming median."}
+    }
+  },
+  "13435 N HWY 183": {
+    sourceUrl: "https://mreis.box.com/s/y3gic8xivpitihh58bekjnmyej0eyzy9",
+    source: "Whitestone REIT brochure — Bass, read 2026-08-13",
+    criteria: {
+      sf: {status:"likely", note:"Offering summary lists available SF as 953–3,607 SF; the site plan highlights suites at ~1,201 / 1,405 / 3,006 SF. The available range spans Bohl's 1,800–2,800 band and a fit is achievable, but no single in-range suite is clearly marketed as-is."},
+      siteType: {status:"met", note:"Inline shop space in a multi-tenant strip center (Melting Pot, Salon Republic, Amish Furniture, Kerbey Lane) with pad tenants (Cheddar's, Regions, KFC)."},
+      patio: {status:"unknown", note:"Some existing tenants show patios in the photos, but no patio is indicated for the available space."},
+      visibility: {status:"met", note:"Frontage on Research Blvd / US-183 at 172,828 VPD plus Anderson Mill Rd at 29,865 VPD; brochure notes signage opportunities along both."},
+      access: {status:"met", note:"Multiple ingress-egress points and signalized access along both the Hwy 183 frontage road and Anderson Mill Rd."},
+      parking: {status:"likely", note:"Aerial and site plan show a large surface parking field; no ratio or count stated."},
+      centerAge: {status:"unknown", note:"Established, well-maintained center; no build/renovation year given."},
+      population: {status:"met", note:"208,358 within 5 miles clears the 100K+ requirement (3-mile figure is 94,753, just under 100K)."},
+      income: {status:"likely", note:"Brochure reports AVERAGE HH income: $86,345 (1mi) / $104,803 (3mi) / $112,038 (5mi). Median not stated and typically lower; confirm median before treating as met."}
+    }
+  },
+  "8300 N FM 620": {
+    sourceUrl: "https://mreis.box.com/s/wl6xds3eqff0qbbc18ycqxinqekr008p",
+    source: "Edge Realty Partners brochure — Bass, read 2026-08-13",
+    criteria: {
+      sf: {status:"met", note:"Site plan shows available suites within range — Bldg G 2,218 SF & 2,442 SF, Bldg D 1,800 SF — inside Bohl's 1,800–2,800 band (other availabilities run 1,032–5,300 SF)."},
+      siteType: {status:"met", note:"Inline shop space across the multi-building center (Buildings A–N); largest shopping center in Four Points, anchored by Moviehouse + a future YMCA."},
+      patio: {status:"unknown", note:"No patio referenced in the brochure."},
+      visibility: {status:"likely", note:"Retail fronts heavily trafficked RR 620 at 40,184 CPD; brochure emphasizes frontage but states no explicit high-visibility/pylon claim."},
+      access: {status:"met", note:"Spans 2 signalized intersections with 5 curb cuts; brochure cites \"great accessibility.\""},
+      parking: {status:"unknown", note:"No parking ratio or count stated."},
+      centerAge: {status:"unknown", note:"Described as Class A retail with a future YMCA and large medical office; no build year stated."},
+      population: {status:"met", note:"122,030 within 5 miles clears the 100K+ requirement (3-mile figure is 32,700)."},
+      income: {status:"likely", note:"Brochure reports AVERAGE HH income: $122,900 (1mi) / $213,600 (3mi) / $184,600 (5mi) — very affluent Four Points trade area. Median not stated but the high averages strongly imply it clears $95K; still average-only, so flagged."}
+    }
+  },
+  "1525 CYPRESS CREEK ROAD": {
+    sourceUrl: "https://mreis.box.com/s/1spmcqeegnov1drxc5zxm8ec4bjzu3al",
+    source: "Edge Realty Partners brochure — Bass, read 2026-08-13",
+    criteria: {
+      sf: {status:"likely", note:"Available space listed as 1,100–2,918 SF; the range spans Bohl's 1,800–2,800 band and a fit is achievable, but no discrete in-range suite is itemized in the flyer text."},
+      siteType: {status:"met", note:"Second-generation inline retail in a multi-tenant building at the SWC of Lakeline Blvd & Cypress Creek (co-tenants Randalls, Sprouts, Walgreens, Gold's Gym)."},
+      patio: {status:"unknown", note:"No patio referenced in the brochure."},
+      visibility: {status:"likely", note:"Hard-corner (SWC) position at Lakeline Blvd (29,695 CPD) & Cypress Creek Rd (18,362 CPD); no explicit high-visibility claim and traffic is moderate."},
+      access: {status:"likely", note:"SWC hard-corner of two arterials; no signalization/interchange detail given."},
+      parking: {status:"unknown", note:"No parking ratio or count stated."},
+      centerAge: {status:"unknown", note:"New ownership recently purchased the property; no build/renovation year stated."},
+      population: {status:"met", note:"199,936 within 5 miles clears the 100K+ requirement (3-mile figure is 82,507)."},
+      income: {status:"likely", note:"Brochure reports AVERAGE HH income: $122,393 (1mi) / $117,586 (3mi) / $118,181 (5mi). Median not stated and typically lower; flagged."}
+    }
+  },
+  "13776 US 183": {
+    sourceUrl: "https://mreis.box.com/s/3ca6pgjx8pqy5xyfr7prffq2i7gl73di",
+    source: "Weitzman brochure — Bass, read 2026-08-13",
+    criteria: {
+      sf: {status:"met", note:"Suite 108 (2,579 SF) fits Bohl's 1,800–2,800 range; other availabilities — 105A 3,795 SF, 113 1,760 SF, 145 4,685 SF — fall outside it."},
+      siteType: {status:"met", note:"Inline shop space in a family-oriented Northwest Austin center (Fitness Connection, Goodwill, Taco Bell, Thundercloud Subs)."},
+      patio: {status:"unknown", note:"No patio referenced in the brochure."},
+      visibility: {status:"met", note:"Brochure cites \"excellent US-183 visibility with prominent pylon signage available\"; 183A at 146,644 VPD."},
+      access: {status:"met", note:"Signalized intersection on Research Blvd / US-183 across from Westwood High School."},
+      parking: {status:"unknown", note:"No parking ratio or count stated."},
+      centerAge: {status:"unknown", note:"Established family-oriented center; no build year stated."},
+      population: {status:"met", note:"112,861 within 3 miles (224,428 within 5 miles) — clears the 100K+ requirement."},
+      income: {status:"likely", note:"Brochure reports AVERAGE HH income: $126,452 (1mi) / $162,087 (3mi) / $171,563 (5mi) — affluent. Median not stated but very likely clears $95K; average-only, so flagged."}
+    }
+  },
+  "11066 PECAN PARK BLVD": {
+    sourceUrl: "https://mreis.box.com/s/0dpx0j5dwmwgi87lxu0k6nl89gxiw7k5",
+    source: "Edge Realty Partners brochure (Lakeline Plaza) — Bass, read 2026-08-13",
+    criteria: {
+      sf: {status:"likely", note:"Available space listed as 1,251–15,007 SF; range spans Bohl's band and an in-range suite is achievable, but no discrete 1,800–2,800 SF suite is itemized in the flyer text. (Flyer titles the property 11200 Lakeline Mall Dr; sheet address is 11066 Pecan Park Blvd — same center.)"},
+      siteType: {status:"met", note:"Inline shop space in a top regional power center (HEB Plus, Target, Home Depot, Ross, TJ Maxx, Burlington, Lowe's)."},
+      patio: {status:"unknown", note:"No patio referenced in the brochure."},
+      visibility: {status:"met", note:"Intersection of SH 183 & SH 620 with 180,000+ VPD; SH 183 at 124,909 CPD and SH 620 at 66,434 CPD."},
+      access: {status:"met", note:"Positioned at the SH 183 / SH 620 intersection next to Lakeline Mall."},
+      parking: {status:"unknown", note:"215,000 SF center; no parking ratio or count stated."},
+      centerAge: {status:"unknown", note:"Established power center; no build year stated."},
+      population: {status:"met", note:"113,065 within 3 miles (217,115 within 5 miles) — clears the 100K+ requirement."},
+      income: {status:"likely", note:"Brochure reports AVERAGE HH income (AHHI): $92,342 (1mi) / $114,129 (3mi) / $118,511 (5mi). Median not stated and typically lower; flagged."}
+    }
+  },
+  "7900 RANCH RD 620": {
+    sourceUrl: "https://mreis.box.com/s/gj25wggpqni4626e5h85k7yp1qpr5lbl",
+    source: "Edge Realty Partners brochure (Grandview Hills) — Bass, read 2026-08-13",
+    criteria: {
+      sf: {status:"met", note:"Available sites are 2,200 SF and 3,490 SF; the 2,200 SF fits Bohl's 1,800–2,800 range."},
+      siteType: {status:"met", note:"Inline shop space in a Home Depot-anchored center with strong national/regional co-tenancy."},
+      patio: {status:"unknown", note:"No patio referenced in the brochure."},
+      visibility: {status:"met", note:"High-traffic RR 620 (40,184 CPD; FM 2222 34,241 CPD) with pylon + monument signage for increased visibility per the brochure."},
+      access: {status:"met", note:"Brochure cites strong access along RR 620 with an additional monument sign."},
+      parking: {status:"unknown", note:"No parking ratio or count stated."},
+      centerAge: {status:"unknown", note:"Established Home Depot-anchored center; no build year stated."},
+      population: {status:"met", note:"113,744 within 5 miles clears the 100K+ requirement (3-mile figure is 29,146)."},
+      income: {status:"likely", note:"Brochure reports AVERAGE HH income: $103,770 (1mi) / $122,321 (3mi) / $125,078 (5mi) — affluent Four Points area. Median not stated; flagged."}
+    }
+  },
+  "10900 LAKELINE MALL RD": {
+    sourceUrl: "https://mreis.box.com/s/wqhwhjzeabobqgjij88tm1k8hw0niqxq",
+    source: "Phillips Edison & Company brochure (Walden Park) — Bass, read 2026-08-13",
+    criteria: {
+      sf: {status:"unknown", note:"Flyer is a center overview with a color-coded availability legend; every suite in the tenant table (A100–B1200, 1,038–9,983 SF) is shown tenanted and no specific available suite SF is itemized in the readable text."},
+      siteType: {status:"met", note:"Inline shop space in a Super Target-anchored center (Ulta, HomeGoods, First Watch, Kirkland's) adjacent to Lakeline Mall."},
+      patio: {status:"unknown", note:"First Watch shows an awning/patio in photos, but no patio is indicated for an available suite."},
+      visibility: {status:"likely", note:"Fronts 183A Highway (36,751 VPD); also N Lake Creek Pkwy (10,277 VPD) and Lakeline Mall Dr (6,967 VPD). Main visibility is the highway frontage; interior shop position is more modest."},
+      access: {status:"likely", note:"Multiple access points off 183A Highway, Lakeline Mall Dr and N Lake Creek Pkwy."},
+      parking: {status:"likely", note:"Large surface parking field shown around Super Target; no ratio stated."},
+      centerAge: {status:"unknown", note:"Established Super Target-anchored center; no build year stated."},
+      population: {status:"met", note:"110,890 within 3 miles (229,011 within 5 miles) — clears the 100K+ requirement."},
+      income: {status:"met", note:"Brochure reports MEDIAN HHI directly: $117,712 within 3 miles and $128,725 within 5 miles — clears both the $95K minimum and the $110K preferred level."}
+    }
+  },
+  // ⛔ "1021 W UNIVERSITY AVE" (Wold Ranch Town Center) — NOT INCLUDED.
+  // The sheet's "View Material" link (https://mreis.box.com/s/c7oauwjnu5212roefukd8h7tkmnadk5o)
+  // resolves to a PDF that is BYTE-IDENTICAL to the Trails at 620 flyer (8300 N FM 620). The broker
+  // attached the wrong brochure. Cannot grade this Georgetown site from another property's data.
+  // ACTION: ask the broker (or Bass) for the correct Wold Ranch Town Center brochure, then grade.
+  "SH 183 & HERO WAY": {
+    sourceUrl: "https://mreis.box.com/s/ytbaraphgibxgyj3mwdh2fo2kuw62p03",
+    source: "Leasing site plan (Leander Hwy 183 Retail) — Bass, read 2026-08-13",
+    criteria: {
+      sf: {status:"met", note:"Inline suites available in Bohl's band — 2,100 SF (available), 1,925 SF (available), plus 2,200 SF & 2,400 SF — within 1,800–2,800 SF (other units run 1,300–3,868 SF)."},
+      siteType: {status:"met", note:"Inline shop suites in a Crunch Fitness-anchored strip center with pad tenants (PNC Bank), fronting Hwy 183 & Hero Way."},
+      patio: {status:"unknown", note:"Site plan shows no patio labels for the available suites."},
+      visibility: {status:"likely", note:"Direct frontage on Hwy 183; the site-plan-only flyer states no traffic count or explicit visibility claim."},
+      access: {status:"likely", note:"Access off Hero Way and the Hwy 183 frontage with multiple curb cuts shown; no signalization detail."},
+      parking: {status:"met", note:"Site plan states 277 parking spaces at a 6.9:1,000 SF ratio."},
+      centerAge: {status:"met", note:"Brand-new ground-up development (suites shown \"AVAILABLE\" / \"Working LOI\"; center still leasing up)."},
+      population: {status:"unknown", note:"Site-plan-only flyer — no demographic (population) data provided."},
+      income: {status:"unknown", note:"Site-plan-only flyer — no income data provided."}
+    }
+  },
+  "5900 ESCARPMENT BLVD": {
+    sourceUrl: "https://mreis.box.com/s/makg8u67gmdnmrp0bxv7x3h5c585lxsp",
+    source: "HEB-center site plan + photos (Escarpment Village) — Bass, read 2026-08-13",
+    criteria: {
+      sf: {status:"not_met", note:"The available suite (024, existing \"Satellite Bistro\") is 3,000 SF — 200 SF over Bohl's 2,800 SF max; no demising indicated."},
+      siteType: {status:"met", note:"Restaurant space (endcap/pad with patio) in an HEB-anchored neighborhood center at Escarpment Blvd & Slaughter Lane."},
+      patio: {status:"met", note:"Photos of suite 024 clearly show a large existing covered outdoor dining patio."},
+      visibility: {status:"likely", note:"Slaughter Lane up to 64,342 AADT and Escarpment Blvd 27,506 AADT at the center; the available suite sits interior to the lot rather than on the street frontage."},
+      access: {status:"met", note:"Signalized corner of Escarpment Blvd & Slaughter Lane with multiple center entrances shown."},
+      parking: {status:"likely", note:"Large surface parking field shown around the HEB center; no ratio stated."},
+      centerAge: {status:"unknown", note:"Established HEB-anchored center; no build year stated."},
+      population: {status:"unknown", note:"Image/site-plan brochure — no demographic (population) data provided."},
+      income: {status:"unknown", note:"Image/site-plan brochure — no income data provided."}
+    }
+  },
+  "9600 S I-35 FRONTAGE RD": {
+    sourceUrl: "https://mreis.box.com/s/i8n9by57tz7bidapr583wn9ire7mznfy",
+    source: "Big V Property Group brochure (Southpark Meadows) — Bass, read 2026-08-13",
+    criteria: {
+      sf: {status:"met", note:"Multiple available suites in range: 95L_800 2,691 SF, 93_1000 2,500 SF, 93C_600 2,100 SF, 95L_700 & 96I_650 2,000 SF (a 15,000 SF and a 1,288 SF are outside the band)."},
+      siteType: {status:"met", note:"Inline shop space in a major regional power center (Walmart, Super Target, JCPenney, Dave & Buster's, Best Buy)."},
+      patio: {status:"unknown", note:"No patio referenced for the available suites."},
+      visibility: {status:"likely", note:"On Austin's primary N–S thoroughfare with I-35 frontage; this brochure states \"unparalleled access\" but gives no VPD figure."},
+      access: {status:"met", note:"Direct I-35 frontage-road access on Austin's primary N–S corridor."},
+      parking: {status:"met", note:"Brochure describes \"ample parking.\""},
+      centerAge: {status:"unknown", note:"Large established power center (Burlington opening Spring 2026); no build year stated."},
+      population: {status:"met", note:"113,465 within 3 miles (223,433 within 5 miles) — clears the 100K+ requirement."},
+      income: {status:"not_met", note:"Brochure reports AVERAGE HH income of $86,055 (3mi) / $90,397 (5mi) — below Bohl's $95K minimum even as an AVERAGE (median would be lower). Only the 10-mile average ($105,381) exceeds $95K."}
+    }
+  },
+  "901 E. 5TH ST STE 140, AUSTIN": {
+    sourceUrl: "https://mreis.box.com/s/lgo64bgij7qe2pddmiqivaboaijis7u9",
+    source: "Endeavor Real Estate brochure (Saltillo) — Bass, read 2026-08-13",
+    criteria: {
+      sf: {status:"met", note:"An 1,800 SF suite is available (at the low end of Bohl's 1,800–2,800 range); other availabilities are 1,000 / 3,077 / 3,307 / 3,500 SF."},
+      siteType: {status:"likely", note:"Ground-floor retail in a transit-oriented mixed-use development; inline/endcap configuration for the available suite not specified."},
+      patio: {status:"unknown", note:"No patio referenced for the available suite."},
+      visibility: {status:"met", note:"Brochure cites \"high visibility from IH-35\" with 202,115 vehicles per day along IH-35 & 5th St."},
+      access: {status:"met", note:"IH-35 adjacency plus an on-site MetroRail station; Walk Score 91 / Bike Score 93."},
+      parking: {status:"likely", note:"Site plan shows dedicated retail-parking areas; no ratio stated (urban mixed-use)."},
+      centerAge: {status:"met", note:"Brand-new, \"NOW OPEN\" transit-oriented mixed-use development (120,000 SF retail)."},
+      population: {status:"met", note:"199,810 population estimate within 3 miles — clears the 100K+ requirement."},
+      income: {status:"likely", note:"Brochure reports AVERAGE household income of $127,149 within 1 mile only; median and 3–5mi figures not stated."}
+    }
+  },
+  "5629 N LAMAR BLVD": {
+    sourceUrl: "https://mreis.box.com/s/v93cuzr4ab7d0oqq6n6y0upsdvbeyelo",
+    source: "Sayers Real Estate Advisors brochure (Atlas N Lamar, Unit 100) — Bass, read 2026-08-13",
+    criteria: {
+      sf: {status:"met", note:"Unit 100 is 2,656 SF — within Bohl's 1,800–2,800 range."},
+      siteType: {status:"likely", note:"Ground-floor 2nd-gen retail (one of two spaces totaling 5,200 SF) beneath 279 luxury apartments; inline/endcap not specified."},
+      patio: {status:"met", note:"Brochure states the unit includes exterior patio space along N Lamar."},
+      visibility: {status:"likely", note:"Prominent N Lamar Blvd frontage at the N Lamar / W Koenig Ln intersection; no traffic count stated."},
+      access: {status:"likely", note:"Located at the N Lamar & W Koenig Ln intersection; no signalization/interchange detail."},
+      parking: {status:"likely", note:"9 reserved spaces plus open parking — modest, urban; noted but limited."},
+      centerAge: {status:"met", note:"Building (279 luxury apartments) built in 2021 — new."},
+      population: {status:"unknown", note:"Demographics reported only at 0.3/0.5/1 mile (18,744 within 1 mile); no 3–5mi figure, which is Bohl's measurement radius."},
+      income: {status:"likely", note:"AVERAGE HH income ~$119K–$124K within 1 mile ($123,686 at 1mi); median not stated and no 3–5mi figure."}
+    }
+  },
+  "3008 GUADALUPE ST": {
+    sourceUrl: "https://mreis.box.com/s/i6d9ycb81i06c2ww23rpxo7g2odfd9n3",
+    source: "Shop Companies brochure (Guad 31) — Bass, read 2026-08-13",
+    criteria: {
+      sf: {status:"met", note:"±2,400 SF available now (within range); a ±1,443 SF available Oct '26 is below the 1,800 SF minimum."},
+      siteType: {status:"likely", note:"Ground-floor inline retail below 60,000 SF of occupied residential condos on the UT-campus \"Guad\" corridor; endcap/inline not specified."},
+      patio: {status:"unknown", note:"No patio referenced in the brochure."},
+      visibility: {status:"met", note:"\"Highly visible\" UT-corridor storefront; Guadalupe St 30,000 VPD, N Lamar Blvd 33,952 VPD, E 38th St 27,841 VPD."},
+      access: {status:"likely", note:"Dense urban corridor served by multiple arterials (Guadalupe, N Lamar, E 38th); no dedicated-access detail."},
+      parking: {status:"met", note:"Brochure notes \"Designated Retail Parking.\""},
+      centerAge: {status:"unknown", note:"Ground floor of occupied residential condos; appears newer but no build year stated."},
+      population: {status:"met", note:"168,499 estimated within 3 miles (375,640 within 5 miles) — clears the 100K+ requirement."},
+      income: {status:"likely", note:"AVERAGE HH income $87,497 (1mi, student-dominated) / $156,583 (3mi) / $146,252 (5mi); median not stated."}
+    }
+  },
+  "2919 MENCHACA RD": {
+    sourceUrl: "https://mreis.box.com/s/jg4t9ezgug6q3z2ywi88utn15qm4cpma",
+    source: "Edge Realty Partners brochure (Corners II) — Bass, read 2026-08-13",
+    criteria: {
+      sf: {status:"not_met", note:"Available spaces are a 1,789 SF 2nd-gen restaurant (11 SF under the 1,800 SF minimum) and a 1,200 SF suite — both below range; marginal on the larger one."},
+      siteType: {status:"likely", note:"2nd-gen restaurant space in a corner retail center (Buildings 1 & 2) at a strong South Lamar / Menchaca intersection; inline/endcap not specified."},
+      patio: {status:"unknown", note:"No patio referenced in the brochure."},
+      visibility: {status:"likely", note:"Strong 78704 South Lamar retail intersection; S Lamar 40,635 CPD / Menchaca 23,401 CPD; no explicit high-visibility claim."},
+      access: {status:"likely", note:"Strong retail intersection of S Lamar Blvd & Menchaca Rd; no signalization detail."},
+      parking: {status:"unknown", note:"No parking ratio or count stated."},
+      centerAge: {status:"unknown", note:"Within the SoLa redevelopment hub; no build year stated."},
+      population: {status:"met", note:"125,947 within 3 miles (351,068 within 5 miles) — clears the 100K+ requirement."},
+      income: {status:"likely", note:"AVERAGE HH income $99,284 (1mi) / $110,289 (3mi) / $101,416 (5mi); median not stated and typically lower — could dip under $95K. Flagged."}
+    }
+  },
+  "5025 MUELLER BLVD": {
+    sourceUrl: "https://mreis.box.com/s/47ltkf3x9guhpj3xu8kpo43azf00lg4l",
+    source: "Sayers Real Estate Advisors brochure (Iris at Mueller) — Bass, read 2026-08-13",
+    criteria: {
+      sf: {status:"met", note:"Two commercial units — 2,475 SF (Unit 1) and 2,170 SF (Unit 2) — both within Bohl's 1,800–2,800 range."},
+      siteType: {status:"likely", note:"Street-front ground-floor retail (4,645 SF total) beneath 39 for-sale homes in a mixed-use building, on the hard corner of Mueller Blvd & 51st St."},
+      patio: {status:"met", note:"Brochure states \"Prime visibility and patio for a restaurant on the hard corner.\""},
+      visibility: {status:"met", note:"Highly-visible, signalized Mueller Blvd & 51st St intersection — a main neighborhood entrance — with street-front visibility."},
+      access: {status:"met", note:"Signalized intersection serving as one of the main entrances to the Mueller community."},
+      parking: {status:"met", note:"Connected to the AISD Performing Arts Center parking garage."},
+      centerAge: {status:"met", note:"New construction — mixed-use project under construction, delivery Q1 2026 (warm shell)."},
+      population: {status:"unknown", note:"Brochure has no demographic panel — no population figures provided."},
+      income: {status:"unknown", note:"Brochure has no demographic panel — no income figures provided."}
+    }
+  },
+  "9900 S I-35 FRONTAGE RD": {
+    sourceUrl: "https://mreis.box.com/s/pi3vvyf98uy68mor98g5cbel9w5jdwc6",
+    source: "Edge Realty Partners brochure (Southpark Meadows) — Bass, read 2026-08-13",
+    criteria: {
+      sf: {status:"likely", note:"Available sites listed as 1,650–8,901 SF; the range spans Bohl's band and an in-range suite is achievable, but no discrete 1,800–2,800 SF suite is itemized in the flyer text."},
+      siteType: {status:"met", note:"Inline shop space in Austin's largest regional power center (1.6M+ SF across three phases)."},
+      patio: {status:"unknown", note:"No patio referenced for the available suites."},
+      visibility: {status:"met", note:"Brochure cites strong visibility along IH-35 (139,836 CPD; Slaughter Ln 39,058 CPD)."},
+      access: {status:"met", note:"Direct IH-35 frontage access with cross-access through all three phases."},
+      parking: {status:"unknown", note:"No parking ratio or count stated."},
+      centerAge: {status:"unknown", note:"Established large regional power center; no build year stated."},
+      population: {status:"met", note:"126,885 within 3 miles (235,299 within 5 miles) — clears the 100K+ requirement."},
+      income: {status:"likely", note:"Brochure reports AVERAGE HH income of $94,683 (1mi) / $94,507 (3mi) / $99,754 (5mi) — sitting right at the $95K line as an AVERAGE, so the true median very likely falls below the minimum. Confirm median; treat with caution."}
+    }
+  },
+  "2323 S LAMAR": {
+    sourceUrl: "https://mreis.box.com/s/rl1r52sa8kykjq2m0yzo2asydjnczri2",
+    source: "Sayers Real Estate Advisors brochure (The Code) — Bass, read 2026-08-13",
+    criteria: {
+      sf: {status:"met", note:"Available Unit 135 is 1,839 SF of interior space (plus a 700 SF patio) — within Bohl's 1,800–2,800 range."},
+      siteType: {status:"likely", note:"Brand-new street-level retail suite (one of three commercial units) in a 179-key boutique-hotel mixed-use building; inline/endcap not specified."},
+      patio: {status:"met", note:"Unit 135 includes a dedicated 700 SF patio at the signalized S Lamar & Bluebonnet Ln intersection."},
+      visibility: {status:"met", note:"Prominent streetfront visibility and signage on S Lamar Blvd (47,000+ VPD)."},
+      access: {status:"met", note:"Signalized intersection of S Lamar Blvd & Bluebonnet Ln."},
+      parking: {status:"met", note:"5:1,000 SF parking ratio; brochure notes above-market on-site parking."},
+      centerAge: {status:"met", note:"Brand-new development; the hotel opened March 2026 (delivery Q1 2026)."},
+      population: {status:"unknown", note:"Demographics reported only at 0.3/0.5/1 mile (19,987 within 1 mile); no 3–5mi figure."},
+      income: {status:"likely", note:"AVERAGE HH income ~$147K–$166K within 1 mile ($147,558 at 1mi); median not stated and no 3–5mi figure."}
+    }
+  },
+  "4211 S LAMAR BLVD": {
+    sourceUrl: "https://mreis.box.com/s/9pvj6ininaf3lwlcoc2sghlnd8wjjnas",
+    source: "Edge Realty Partners brochure (Lakehills Plaza) — Bass, read 2026-08-13",
+    criteria: {
+      sf: {status:"met", note:"Available suites 2,100 SF and 2,435 SF fall within Bohl's 1,800–2,800 range (a 3,029 SF is above)."},
+      siteType: {status:"met", note:"Endcap/inline shop space in a Target-anchored center; the brochure includes an \"End Cap Site Plan\" among the availabilities."},
+      patio: {status:"unknown", note:"No patio referenced in the brochure text."},
+      visibility: {status:"met", note:"Brochure cites \"great visibility and access from Lamar Boulevard and Highway 290\"; Hwy 290 at 166,334 CPD, S Lamar at 33,579 CPD."},
+      access: {status:"met", note:"Great access from Lamar Blvd & Highway 290 at a regional intersection."},
+      parking: {status:"met", note:"Brochure states \"Ample parking available.\""},
+      centerAge: {status:"unknown", note:"Established Target-anchored center; no build year stated."},
+      population: {status:"met", note:"113,268 within 3 miles (349,963 within 5 miles) — clears the 100K+ requirement."},
+      income: {status:"likely", note:"Brochure reports AVERAGE HH income of $87,601 (1mi) / $100,273 (3mi) / $98,205 (5mi) — right at the $95K line as an AVERAGE, so median likely falls below. Confirm median."}
+    }
+  },
+  "10 W 26TH STREET": {
+    sourceUrl: "https://mreis.box.com/s/eqpgcj1r2obvdg0f76d3k8vdkba8ke6n",
+    source: "StreetFront Commercial brochure (GrandMarc) — Bass, read 2026-08-13",
+    criteria: {
+      sf: {status:"not_met", note:"The available 2nd-gen restaurant is 2,975 SF — 175 SF over Bohl's 2,800 SF max. (Flyer titles it 510 W. 26th St; sheet address is 10 W 26th St — same West Campus property.)"},
+      siteType: {status:"likely", note:"Rare ground-floor 2nd-gen restaurant streetfront in the GrandMarc student-housing building in West Campus; inline/endcap not specified."},
+      patio: {status:"met", note:"Brochure highlights a large, shaded patio running along W 26th Street."},
+      visibility: {status:"likely", note:"High-foot-traffic West Campus streetfront, walking distance to UT (55,000+ students) and 30,000+ West Campus residents; no vehicle count stated."},
+      access: {status:"unknown", note:"Pedestrian-oriented West Campus location; no vehicular access detail provided."},
+      parking: {status:"unknown", note:"No parking information provided (urban West Campus)."},
+      centerAge: {status:"unknown", note:"Existing GrandMarc building; no build/renovation year stated."},
+      population: {status:"met", note:"173,051 within 3 miles (378,142 within 5 miles) — clears the 100K+ requirement."},
+      income: {status:"likely", note:"AVERAGE HH income $80,496 (1mi, student-dominated) / $156,792 (3mi) / $144,132 (5mi); median not stated."}
+    }
+  },
+  "5000 N. QUINLAN PARK RD": {
+    sourceUrl: "https://mreis.box.com/s/uj8x20hoerlau0xhssjph9outg2lp3j7",
+    source: "Whitestone REIT brochure (Quinlan Crossing) — Bass, read 2026-08-13",
+    criteria: {
+      sf: {status:"not_met", note:"Available suites are 1,370 SF and 1,432 SF (site plan also shows a 1,138 SF) — all below Bohl's 1,800 SF minimum."},
+      siteType: {status:"met", note:"Inline shop space in a Randall's grocery-anchored neighborhood center (co-tenants Starbucks, RBFCU, Leslie's Pool, Baylor Scott & White)."},
+      patio: {status:"unknown", note:"A patio is visible at the Starbucks/RBFCU building in photos, but no patio is indicated for the available suites."},
+      visibility: {status:"unknown", note:"Wooded Steiner Ranch neighborhood center; fronting-road traffic is modest (N Quinlan Park Rd 19,712 VPD; N FM 620 29,429 VPD) and the flyer makes no visibility claim."},
+      access: {status:"likely", note:"Fronts N Quinlan Park Rd & N FM 620 with multiple entrances; brochure cites \"easy access for commuting Steiner professionals.\""},
+      parking: {status:"likely", note:"Large surface parking field shown in the site plan/aerial; no ratio stated."},
+      centerAge: {status:"unknown", note:"Established, well-maintained grocery-anchored center; no build year stated."},
+      population: {status:"not_met", note:"Only 28,896 within 3 miles and 62,038 within 5 miles — below the 100K+ requirement (low-density Lake Travis / Steiner Ranch community)."},
+      income: {status:"likely", note:"Very high AVERAGE HH income: $193,784 (1mi) / $234,052 (3mi) / $218,555 (5mi). Median not stated but the affluence strongly implies it clears $95K; average-only, so flagged."}
+    }
+  },
+  "12700 HILL COUNTRY BLVD, BEE CAVE TX": {
+    sourceUrl: "https://mreis.box.com/s/qgghfrr0yg8nbbv3ogfvo7wjtyourlia",
+    source: "Landlord site plan (Hill Country Galleria) — Bass, read 2026-08-13",
+    criteria: {
+      sf: {status:"met", note:"Multiple available suites within range on the site plan — e.g. A-126 2,350 SF, U-105 2,446 SF, T-110 2,247 SF, R-140 2,808 SF, and two 2,435 SF spaces (many larger/smaller suites also listed)."},
+      siteType: {status:"met", note:"Inline shop space in a major open-air regional lifestyle center (Dillard's, Whole Foods, Barnes & Noble, H&M, Sephora, Total Wine)."},
+      patio: {status:"unknown", note:"No patio is indicated for the available suites (a tenant named \"Anthony's Patio\" appears but is unrelated)."},
+      visibility: {status:"likely", note:"Major regional lifestyle-center location on Hill Country Blvd near Hwy 71 / RR 620; the site-plan-only doc states no traffic count."},
+      access: {status:"likely", note:"Multiple access points off Hill Country Blvd / Galleria Circle near Hwy 71; no explicit easy-access/interchange statement."},
+      parking: {status:"met", note:"Structured parking garages shown on the site plan — 1,096 cars (Garage A) + 419 + 265 cars, plus surface lots."},
+      centerAge: {status:"unknown", note:"Established open-air lifestyle center; no build year stated."},
+      population: {status:"unknown", note:"Site-plan-only doc — no demographic (population) data provided."},
+      income: {status:"unknown", note:"Site-plan-only doc — no income data provided (Bee Cave is affluent, but no figure is stated — not inferred)."}
+    }
+  },
+
   "1335 E. WHITESTONE BLVD., CEDAR PARK, TX 78613": {
     sourceUrl: "https://mreis.box.com/s/eif239qxktz3nd939cxmi6hg6nh20ct4",
     source: "MREIS marketing photos — 1890 Ranch, Cedar Park TX (2 marketing images, no demographic sheet; read 2026-08-12)",
@@ -2019,6 +2356,7 @@ function renderMarketTabs(){
       const newMarket = tab.dataset.market;
       if (newMarket === selectedMarket) return;
       selectedMarket = newMarket;
+      compareIds = []; closeCompareOverlay(); renderCompareFloatBtn();
       selectedOwnerFilter = 'all';
       selectedStageFilter = 'all';
       // Reset the site-detail panel to the NEWLY-selected market, mirroring the initial-load
