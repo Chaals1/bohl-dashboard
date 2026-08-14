@@ -339,6 +339,9 @@ body.hide-fit .mini-chip { display: none !important; }
      clean one-pager beats a cramped two-pager). Hides the gallery AND its own heading. */
   .brochure-gallery { display:none !important; }
   h4:has(+ .brochure-gallery) { display:none !important; }
+  /* On paper "View brochure" is a dead reference, so print the actual URL after it. */
+  .marketing-link::after { content:" — " attr(href); font-size:8.5px; color:var(--ink-soft);
+    word-break:break-all; }
   .wrap { max-width:100% !important; padding:0 !important; }
   .content { padding:0 !important; }
   .card.detail-card { box-shadow:none !important; border:none !important; margin:0 !important; padding:0 !important; }
@@ -2753,7 +2756,7 @@ function nearestCompetitorInfo(s){
       }
     }
     if (nc) return { text: nc.name + ' — ' + nc.mi + ' mi', mi: nc.mi };
-    if (p) return { text: 'No direct competitor within 1.5 mi', mi: null };
+    if (p) return { text: 'No direct competitor within 1.5 mi', mi: null, clear: true };
   }
   const comp = s.competitive;
   if (comp) return { text: comp.competitor + ' — ' + comp.distanceMi + ' mi', mi: comp.distanceMi };
@@ -2786,9 +2789,9 @@ function comparePopCell(s){
   const order = ['5mi', '10mi', '3mi'];
   let radius = null, pick = null;
   for (let i = 0; i < order.length; i++){ if (entryMap && entryMap[order[i]]){ radius = order[i]; pick = entryMap[order[i]]; break; } }
-  if (!pick) return { text: 'No Census data available' };
+  if (!pick) return { text: 'No Census data available', raw: null };
   const note = demoPopNote(pick);
-  return { text: (note || 'Data unavailable for this radius') + ' (' + radius + ')' };
+  return { text: (note || 'Data unavailable for this radius') + ' (' + radius + ')', raw: (pick.value != null ? pick.value : null) };
 }
 
 // label: row label text. refTag: true adds the "reference, not scored" tag next to the label
@@ -2844,7 +2847,7 @@ function renderCompareOverlay(){
 
   rows += compareRow('Available SF', false, sites,
     compareBestIds(sites, s => { const d = sfRangeDistance(s); return d == null ? null : -d; }, 'max'),
-    s => s.availableSF ? escapeHtml(s.availableSF) + ' SF' : '<span class="compare-blank">—</span>',
+    s => s.availableSF ? escapeHtml(s.availableSF) + (/sf/i.test(s.availableSF) ? '' : ' SF') : '<span class="compare-blank">—</span>',
     'closest to the 1,800–2,800 SF requirement');
 
   rows += compareRow('Price PSF', false, sites, [], s =>
@@ -2855,10 +2858,13 @@ function renderCompareOverlay(){
 
   const compInfo = {};
   sites.forEach(s => { compInfo[s.id] = nearestCompetitorInfo(s); });
+  // "No competitor within 1.5 mi" (clear) beats any numeric distance — highlight those; else farthest wins.
+  const compClearIds = sites.filter(s => compInfo[s.id].clear).map(s => s.id);
+  const compBestIds = compClearIds.length ? compClearIds : compareBestIds(sites, s => compInfo[s.id].mi, 'max');
   rows += compareRow('Nearest competitor', false, sites,
-    compareBestIds(sites, s => compInfo[s.id].mi, 'max'),
+    compBestIds,
     s => escapeHtml(compInfo[s.id].text),
-    'farthest');
+    compClearIds.length ? 'no competitor within 1.5 mi' : 'farthest');
 
   const trafficInfo = {};
   sites.forEach(s => { trafficInfo[s.id] = compareTrafficCell(s); });
@@ -2874,7 +2880,12 @@ function renderCompareOverlay(){
     s => escapeHtml(incomeInfo[s.id].text),
     'highest');
 
-  rows += compareRow('Residential population', true, sites, [], s => escapeHtml(comparePopCell(s).text));
+  const popInfo = {};
+  sites.forEach(s => { popInfo[s.id] = comparePopCell(s); });
+  rows += compareRow('Residential population', true, sites,
+    compareBestIds(sites, s => popInfo[s.id].raw, 'max'),
+    s => escapeHtml(popInfo[s.id].text),
+    'highest');
 
   rows += compareRow('Criteria met so far', false, sites, [], s =>
     s.score.met + ' met &middot; ' + s.score.likely + ' likely &middot; ' + s.score.notMet + ' not met &middot; ' + s.score.unknown + ' need data');
