@@ -1,0 +1,123 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>How to use this — Bohl Dashboard</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --brown-dark:#241A13; --gold:#EFA736; --gold-dark:#C6821E; --cream:#FBF3E4;
+    --card:#FFFFFF; --ink:#201A13; --ink-soft:#6B6152; --border:#EAE2D2; --olive:#5B7A3D;
+    --terracotta:#C1503A;
+  }
+  * { box-sizing: border-box; }
+  body { margin:0; background:var(--cream); color:var(--ink);
+    font-family:'Inter',system-ui,-apple-system,sans-serif; line-height:1.55; }
+  .wrap { max-width:700px; margin:0 auto; padding:22px 18px 60px; }
+  header { background:var(--brown-dark); border-radius:18px; padding:26px 24px; text-align:center; margin-bottom:16px; }
+  .wordmark { font-size:44px; font-weight:800; color:var(--cream); letter-spacing:-1px; line-height:1; }
+  .subtitle { color:#F3E6CE; font-size:14px; margin-top:8px; }
+  .textme { display:block; background:var(--gold); color:var(--brown-dark); border-radius:14px;
+    padding:14px 18px; text-align:center; font-weight:700; font-size:15px; text-decoration:none; margin-bottom:22px; }
+  .textme span { display:block; font-weight:800; font-size:17px; margin-top:2px; }
+  h1 { font-size:26px; margin:0 0 6px; }
+  .lead { color:var(--ink-soft); font-size:15.5px; margin:0 0 22px; }
+  .item { background:var(--card); border:1px solid var(--border); border-radius:14px;
+    padding:16px 18px 14px; margin-bottom:14px; box-shadow:0 2px 10px rgba(31,61,43,0.05); }
+  .item.hero { border:2px solid var(--gold); box-shadow:0 4px 18px rgba(198,130,30,0.14); }
+  .kicker { font-size:11.5px; font-weight:800; letter-spacing:.6px; text-transform:uppercase;
+    color:var(--gold-dark); margin-bottom:4px; }
+  .item h2 { font-size:17px; margin:0 0 10px; color:var(--brown-dark); }
+  .item ul, .item ol { margin:0; padding-left:20px; color:#40382D; font-size:14.5px; }
+  .item li { margin:8px 0; }
+  .item li b { color:var(--brown-dark); }
+  .item ol { counter-reset:step; list-style:none; padding-left:0; }
+  .item ol li { position:relative; padding-left:34px; margin:10px 0; }
+  .item ol li::before { counter-increment:step; content:counter(step); position:absolute; left:0; top:-1px;
+    width:23px; height:23px; border-radius:50%; background:var(--gold); color:var(--brown-dark);
+    font-weight:800; font-size:13px; display:flex; align-items:center; justify-content:center; }
+  .term { margin:0; padding:0; list-style:none; }
+  .term li { margin:11px 0; padding-left:0; }
+  .term b { color:var(--brown-dark); }
+  .straight { background:rgba(193,80,58,0.07); border:2px solid rgba(193,80,58,0.28); }
+  .straight .kicker { color:var(--terracotta); }
+  .straight h2 { color:var(--terracotta); }
+  .foot { margin-top:22px; text-align:center; font-size:14px; }
+  .foot a { color:var(--gold-dark); font-weight:700; text-decoration:none; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <div class="wordmark">bohl</div>
+    <div class="subtitle">Site Selection Dashboard</div>
+  </header>
+
+  <a class="textme" href="sms:+16155743546">Text me with any questions you have!
+    <span>615-574-3546 (Skip Matheny)</span></a>
+
+  <h1>How to use this</h1>
+  <p class="lead">Two minutes: what to do, what the numbers mean, where they come from — and, just as
+    honestly, what this tool <em>can't</em> know yet.</p>
+
+  <!-- USING IT -->
+  <div class="item hero">
+    <div class="kicker">Start here</div>
+    <h2>Using it in 30 seconds</h2>
+    <ol>
+      <li><b>Pick a market</b> up top — Phoenix, Austin, or Idaho.</li>
+      <li><b>Sites are ranked best-fit first.</b> The top of the list is where to look.</li>
+      <li><b>Tap a site</b> to open it — you'll see its fit %, the competition around it, traffic, who lives nearby, the broker's notes, and the brochure.</li>
+      <li><b>Tick the compare box on 2–3 sites and hit "Compare"</b> to line them up side by side; the best in each row is flagged.</li>
+      <li><b>"Print / Save as PDF"</b> on any site gives you a clean one-page sheet to email a broker.</li>
+      <li><b>"Refresh"</b> anytime pulls the newest rows straight from your brokers' sheets — no reload.</li>
+    </ol>
+  </div>
+
+  <!-- WHAT THE NUMBERS MEAN -->
+  <div class="item">
+    <div class="kicker">What everything means</div>
+    <h2>The numbers, in plain English</h2>
+    <ul class="term">
+      <li><b>Fit %</b> — how well a site matches what Bohl looks for, read from the brochure and the broker's details. Think of it as a smart first read, not a verdict.</li>
+      <li><b>Confidence</b> — how much of that fit % is backed by real info (a brochure, hard numbers) versus a thin listing. <b>Low confidence = get a brochure before you lean on the score.</b></li>
+      <li><b>Nearest competitor + the map pins</b> — the closest bowl/fast-casual spots (Cava, Chipotle, Qdoba, Sweetgreen), the traffic-magnet neighbors you want (In-N-Out, Chick-fil-A), and nearby gyms — each with the distance.</li>
+      <li><b>Traffic count</b> — cars per day on that road, and whether the corner is quieter or busier than your other sites. It's context, not a score.</li>
+      <li><b>Income &amp; population</b> — the median household income and how many people live nearby, at 3, 5, and 10 miles.</li>
+      <li><b>Stage</b> — where the deal sits, from Interested through Signed.</li>
+    </ul>
+  </div>
+
+  <!-- WHERE IT COMES FROM -->
+  <div class="item">
+    <div class="kicker">Where the numbers come from</div>
+    <h2>Real sources, not guesses</h2>
+    <ul>
+      <li><b>Sites, prices, addresses, stage, notes</b> → straight from each broker's own Google Sheet, live. Update the sheet, hit Refresh, it's here.</li>
+      <li><b>Competition</b> → Google's live map data.</li>
+      <li><b>Traffic counts</b> → public state traffic data.</li>
+      <li><b>Income &amp; population</b> → the U.S. Census — the real number, not a broker's "high-income area" line.</li>
+      <li><b>Fit %</b> → an AI read of the site's brochure PDF plus the broker's details.</li>
+    </ul>
+  </div>
+
+  <!-- WHAT IT CAN'T KNOW -->
+  <div class="item straight">
+    <div class="kicker">Straight talk</div>
+    <h2>What this can't tell you (yet)</h2>
+    <ul>
+      <li><b>The fit % is a starting read, not a promise.</b> It can't see what isn't in the brochure — the real HVAC or grease-trap situation, how flexible the landlord is, or how the space actually feels. Trust it less when confidence is low.</li>
+      <li><b>Traffic count is cars on the road, not customers in the door.</b> Real foot-traffic (who actually walks in) is a pricey paid data source we've deliberately left out for now.</li>
+      <li><b>Income &amp; population is the area around the pin</b>, not yet your exact drive-time trade area. Close, but it's a circle on a map, not a 10-minute drive.</li>
+      <li><b>Competition is what Google lists.</b> A brand-new spot that just opened might not show up yet.</li>
+      <li><b>Whether the rent is a <em>good deal</em> for the sales it'll do isn't calculated yet.</b> That one needs your target numbers — give us your target sales and rent ceiling and we'll turn it on.</li>
+      <li><b>Prices and terms are whatever the broker typed.</b> We show them; we don't independently verify them.</li>
+      <li><b>It's your brokers' data.</b> If a sheet has a wrong or stray row, the dashboard will show it too — spot one, text me, and we'll get it flagged.</li>
+    </ul>
+  </div>
+
+  <div class="foot"><a href="index.html">← Back to the dashboard</a></div>
+</div>
+</body>
+</html>
