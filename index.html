@@ -3162,7 +3162,7 @@ function renderStatusBanner(){
   let html;
   if (attemptedMarketOwners.length && liveMarketOwners.length === attemptedMarketOwners.length){
     const names = possessiveList(liveMarketOwners.map(o=>escapeHtml(o.name.split(' ')[0])));
-    html = `<div class="snapshot-banner">Live data, pulled directly from ${names} broker spreadsheet${liveMarketOwners.length>1?'s':''}.${pendingNote}</div>`;
+    html = `<div class="snapshot-banner">Live data, pulled directly from ${names} broker spreadsheet${liveMarketOwners.length>1?'s':''}.${pendingNote} <button type="button" class="banner-btn" onclick="loadData()">↻ Refresh now</button></div>`;
   } else if (liveMarketOwners.length){
     const failedNames = failedMarketOwners.map(o=>escapeHtml(o.name)).join(', ');
     html = `<div class="snapshot-banner">Live for most franchisees, but ${failedNames} couldn't be reached just now — showing their last saved snapshot (${SNAPSHOT_DATE}) instead. <button type="button" class="banner-btn" onclick="loadData()">↻ Refresh</button>${pendingNote}</div>`;
