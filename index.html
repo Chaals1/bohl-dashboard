@@ -356,6 +356,90 @@ body.hide-fit .mini-chip { display: none !important; }
   .confwrap { margin-left:8px !important; }
   .notesbox { font-size:11px !important; }
 }
+
+/* bohl-compare-view (PRD #10): site comparison — list-row checkbox, floating "Compare (N)" button,
+   full-screen overlay with selected sites as columns and decision fields as rows. Uses ONLY CSS
+   custom properties for surfaces/text (no hardcoded light-mode colors) so it needs no separate
+   dark-theme override block, except the one highlight tint below (--gold/--gold-dark/--brown-dark
+   are theme-invariant already — unchanged by :root[data-theme="dark"] — so the alpha tint reads
+   correctly in both themes; only its opacity is bumped for dark, matching how .mini-chip.strong
+   etc. already double their alpha in dark mode). */
+.compare-cb-wrap { width:18px; flex:none; display:flex; align-items:center; justify-content:center; cursor:pointer; }
+.compare-cb { width:15px; height:15px; margin:0; accent-color:var(--gold-dark); cursor:pointer; }
+.compare-cb:disabled { cursor:not-allowed; opacity:0.4; }
+
+.compare-float-btn {
+  position:fixed; right:22px; bottom:22px; z-index:500; display:none; align-items:center; gap:8px;
+  background:var(--brown-dark); color:#F3E6CE; padding:12px 18px; border-radius:999px; cursor:pointer;
+  user-select:none; font-size:13px; font-weight:700; box-shadow:0 6px 20px rgba(0,0,0,0.28);
+  border:1px solid var(--gold-dark);
+}
+.compare-float-btn:hover { background:#3A2A1D; }
+.compare-float-btn .n {
+  background:var(--gold); color:#2B1A10; border-radius:999px; min-width:20px; height:20px;
+  display:inline-flex; align-items:center; justify-content:center; font-size:11.5px; padding:0 6px;
+}
+
+.compare-overlay {
+  position:fixed; inset:0; z-index:900; display:none; align-items:center; justify-content:center;
+  background:rgba(20,14,8,0.55); padding:24px;
+}
+.compare-overlay-inner {
+  background:var(--card); border:1px solid var(--border); border-radius:16px; max-width:1100px;
+  width:100%; max-height:88vh; overflow:auto; box-shadow:0 20px 60px rgba(0,0,0,0.4);
+  padding:20px 22px 26px;
+}
+.compare-overlay-head { display:flex; align-items:center; justify-content:space-between; margin-bottom:14px; }
+.compare-overlay-title { font-size:16px; font-weight:800; color:var(--ink); }
+.compare-close {
+  background:var(--surface-2); border:1px solid var(--border); color:var(--ink-soft); border-radius:999px;
+  width:30px; height:30px; cursor:pointer; font-size:13px; line-height:1;
+}
+.compare-close:hover { background:var(--row-hover); }
+
+.compare-grid { display:grid; gap:0; }
+.compare-row { display:contents; }
+.compare-row-label {
+  padding:10px 12px 10px 0; font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:.3px;
+  color:var(--ink-soft); border-bottom:1px solid var(--hairline); display:flex; align-items:center;
+  position:sticky; left:0; background:var(--card);
+}
+.compare-cell {
+  padding:10px 12px; font-size:12.5px; color:var(--ink); border-bottom:1px solid var(--hairline);
+  border-left:1px solid var(--hairline); vertical-align:top;
+}
+.compare-cell-long { white-space:pre-wrap; max-height:120px; overflow-y:auto; line-height:1.5; }
+.compare-best { background:rgba(239,167,54,0.14); border-left:2px solid var(--gold-dark); }
+:root[data-theme="dark"] .compare-best { background:rgba(239,167,54,0.22); }
+.compare-best-tag {
+  display:block; font-size:9.5px; font-weight:700; text-transform:uppercase; letter-spacing:.3px;
+  color:var(--gold-dark); margin-top:3px;
+}
+.compare-reftag { font-size:8.5px; font-weight:700; text-transform:uppercase; letter-spacing:.3px; color:var(--ink-soft); }
+.compare-blank { color:var(--tan); }
+.compare-sub { color:var(--ink-soft); font-size:11px; }
+
+.compare-headrow .compare-th { border-left:1px solid var(--hairline); padding:0 12px 12px; position:relative; }
+.compare-th-name { font-size:13.5px; font-weight:800; color:var(--ink); margin:4px 0 4px; }
+.compare-th-addr { font-size:11px; color:var(--ink-soft); margin-top:4px; }
+.compare-market { font-size:10px; color:var(--ink-soft); }
+.compare-remove {
+  position:absolute; top:0; right:8px; background:var(--surface-2); border:1px solid var(--border);
+  color:var(--ink-soft); width:22px; height:22px; border-radius:50%; cursor:pointer; font-size:11px; line-height:1;
+}
+.compare-remove:hover { background:var(--row-hover); color:var(--terracotta); }
+
+@media (max-width:640px) {
+  .compare-float-btn { right:14px; bottom:14px; padding:10px 14px; font-size:12px; }
+  .compare-overlay { padding:10px; }
+  .compare-overlay-inner { padding:14px 14px 18px; max-height:92vh; }
+}
+
+/* Never appears on the printed Site Sheet — a NEW top-level body sibling that sitesheet_print.py's
+   own @media print block (written before this existed) has no knowledge of. */
+@media print {
+  .compare-float-btn, .compare-overlay { display:none !important; }
+}
 </style>
 </head>
 <body class="locked">
@@ -477,6 +561,18 @@ body.hide-fit .mini-chip { display: none !important; }
       <div>
         <div style="font-weight:800; font-size:13px;">Site Selection Dashboard — Site Sheet</div>
         <div class="tagline">For broker / tenant reference — printed from the live dashboard</div>
+      </div>
+    </div>
+        <div class="compare-float-btn" id="compareFloatBtn" style="display:none;">
+      <span>Compare</span><span class="n">0</span>
+    </div>
+    <div class="compare-overlay" id="compareOverlay" style="display:none;">
+      <div class="compare-overlay-inner">
+        <div class="compare-overlay-head">
+          <div class="compare-overlay-title">Site comparison</div>
+          <button type="button" class="compare-close" id="compareCloseBtn" aria-label="Close comparison">&#10005;</button>
+        </div>
+        <div class="compare-table-wrap" id="compareTableWrap"></div>
       </div>
     </div>
     <div class="card detail-card" id="detailCard">
@@ -1729,6 +1825,7 @@ function renderAll(){
   updatePlacesLayerCounts();
   renderTrafficLayer();
   renderDetail();
+  renderCompareFloatBtn();
 }
 
 // Animates a number from 0 up to `target` over `duration` ms (ease-out), writing into el.textContent.
@@ -2021,6 +2118,9 @@ function renderList(){
     return `
     <div class="site-row ${s.id===selectedId?'selected':''}" data-id="${s.id}">
       <div class="rank">${i+1}</div>
+      <label class="compare-cb-wrap" onclick="event.stopPropagation();" title="${compareIds.includes(s.id) ? 'Remove from comparison' : (compareIds.length>=3 ? 'Remove one to compare a different site (max 3)' : 'Add to comparison')}">
+        <input type="checkbox" class="compare-cb" data-id="${s.id}" ${compareIds.includes(s.id)?'checked':''} ${(!compareIds.includes(s.id) && compareIds.length>=3)?'disabled':''}>
+      </label>
       ${badge}
       <div class="site-meta">
         <div class="nm">${escapeHtml(s.name)} <span class="owner-badge" style="background:${OWNER_COLORS[s.ownerId]}">${escapeHtml(s.ownerName.split(' ')[0])}</span>${s.hasBrochure ? '' : ' <span class="need-info" title="More info needed — no brochure reviewed yet, scored from broker notes only">*</span>'}${(function(){ var pct = Math.round((s.score.confidence||0)*100); var col = confColor(s.score.confidence); return ' <span class="conf-chip" style="background:'+col+'22; color:'+col+';" title="Confidence: '+pct+'% of criteria verified by a brochure or hard figure">'+pct+'% conf</span>'; })()}</div>
@@ -2030,6 +2130,10 @@ function renderList(){
   }).join('');
   el.querySelectorAll('.site-row').forEach(row=>{
     row.addEventListener('click', ()=>selectSite(row.dataset.id));
+  });
+
+  el.querySelectorAll('.compare-cb').forEach(cb=>{
+    cb.addEventListener('change', ()=>toggleCompare(cb.dataset.id, cb.checked));
   });
 }
 
@@ -2548,6 +2652,260 @@ function renderDemographicsField(s){
   return `<div><b>Demographics</b>${ref}<br>${lines.join('<br>')}`
     + `<div class="note" style="margin-top:3px;color:var(--ink-soft);font-size:11px;">Estimated from Census ACS income-bracket data across the covered tracts using the Census Bureau's own interpolation method — a statistical estimate, not a precise count. Small-radius (3mi) figures carry wider margins of error.</div></div>`;
 }
+
+
+// id="compareFloatBtn" (marker for idempotency + QA grep)
+// ---- Site comparison state (additive; never touches SITES/scoreSite/renderList's own sort) ----
+let compareIds = [];
+let compareOpen = false;
+
+function getCompareSites(){
+  return compareIds.map(id => SITES.find(x => x.id === id)).filter(Boolean);
+}
+
+function toggleCompare(id, checked){
+  if (checked){
+    if (compareIds.indexOf(id) !== -1) return;
+    if (compareIds.length >= 3) return;   // backstop — the checkbox is also disabled at 3
+    compareIds.push(id);
+  } else {
+    compareIds = compareIds.filter(x => x !== id);
+  }
+  renderList();               // re-render so every row's checked/disabled state stays in sync
+  renderCompareFloatBtn();
+  if (compareOpen){
+    if (getCompareSites().length < 2) closeCompareOverlay();
+    else renderCompareOverlay();
+  }
+}
+
+function renderCompareFloatBtn(){
+  const el = document.getElementById('compareFloatBtn');
+  if (!el) return;
+  const n = getCompareSites().length;
+  if (n >= 2){
+    el.style.display = 'flex';
+    const numEl = el.querySelector('.n');
+    if (numEl) numEl.textContent = n;
+  } else {
+    el.style.display = 'none';
+  }
+}
+
+function openCompareOverlay(){
+  if (getCompareSites().length < 2) return;
+  compareOpen = true;
+  renderCompareOverlay();
+  const el = document.getElementById('compareOverlay');
+  if (el) el.style.display = 'flex';
+}
+
+function closeCompareOverlay(){
+  compareOpen = false;
+  const el = document.getElementById('compareOverlay');
+  if (el) el.style.display = 'none';
+}
+
+// Picks the id(s) achieving the best value in `dir` ('max'/'min') among sites that HAVE a value —
+// sites with a null value (no data) are excluded, never treated as 0/worst. Needs >=2 comparable
+// values or there's nothing to compare against (no highlight on a field only one site has data for).
+function compareBestIds(sites, valueFn, dir){
+  const entries = sites.map(s => ({ id: s.id, val: valueFn(s) })).filter(e => e.val != null);
+  if (entries.length < 2) return [];
+  let best = entries[0].val;
+  entries.forEach(e => { if (dir === 'max' ? e.val > best : e.val < best) best = e.val; });
+  return entries.filter(e => e.val === best).map(e => e.id);
+}
+
+// Available SF: "best" = closest to Bohl's own posted 1,800-2,800 SF requirement (0 if inside the
+// range), NOT "biggest wins" — a range string like "2,900 - 3,200" averages to a single comparable
+// number first.
+function parseSFNumber(str){
+  if (!str) return null;
+  const nums = String(str).replace(/,/g, '').match(/\d+(\.\d+)?/g);
+  if (!nums || !nums.length) return null;
+  const vals = nums.map(Number);
+  return vals.length >= 2 ? (vals[0] + vals[1]) / 2 : vals[0];
+}
+function sfRangeDistance(s){
+  const v = parseSFNumber(s.availableSF);
+  if (v == null) return null;
+  if (v >= 1800 && v <= 2800) return 0;
+  return v < 1800 ? (1800 - v) : (v - 2800);
+}
+
+// Mirrors (does not call — the original lives as an inline IIFE inside renderDetail()'s Overview
+// template, not a standalone function) the SAME nearest-competitor identification already shown on
+// each site's own Overview tab, so this table never disagrees with what a partner sees per-site.
+function nearestCompetitorInfo(s){
+  let nc = null;
+  if (typeof placesProxFor === 'function'){
+    const p = placesProxFor(s.address);
+    if (p && p.competitors){
+      for (const b in p.competitors){
+        const n = p.competitors[b] && p.competitors[b].nearest;
+        if (n && n.distanceMi != null && (!nc || n.distanceMi < nc.mi)){
+          const rawName = String(n.name || '');
+          const brandToken = String(b).toLowerCase().replace(/[^a-z0-9]/g, '');
+          const rawToken = rawName.toLowerCase().replace(/[^a-z0-9]/g, '');
+          nc = { name: rawName && rawToken.indexOf(brandToken) !== -1 ? rawName : b, mi: n.distanceMi };
+        }
+      }
+    }
+    if (nc) return { text: nc.name + ' — ' + nc.mi + ' mi', mi: nc.mi };
+    if (p) return { text: 'No direct competitor within 1.5 mi', mi: null };
+  }
+  const comp = s.competitive;
+  if (comp) return { text: comp.competitor + ' — ' + comp.distanceMi + ' mi', mi: comp.distanceMi };
+  return { text: 'Not researched yet', mi: null };
+}
+
+// Traffic/demographics cells reuse the SAME data + rounding/fallback rules as their own Overview-tab
+// fields (trafficFor()/trafficBand() from traffic.py; demographicsFor()/demoIncomeNote()/
+// demoPopNote() from demographics.py) — this table never re-derives or second-guesses those figures.
+function compareTrafficCell(s){
+  const t = (typeof trafficFor === 'function') ? trafficFor(s.address) : null;
+  if (!t || t.quality === 'no-count') return { text: 'No count available', raw: null };
+  if (t.quality === 'directional-only') return { text: 'No reliable count nearby', raw: null };
+  const modeled = t.sourceType === 'modeled';
+  const roundTo = modeled ? 5000 : 500;
+  const rounded = Math.round(t.aadt / roundTo) * roundTo;
+  return { text: '~' + rounded.toLocaleString('en-US') + ' vehicles/day (' + t.year + ')' + (modeled ? ' (modeled)' : ''), raw: t.aadt };
+}
+function compareIncomeCell(s){
+  const d = (typeof demographicsFor === 'function') ? demographicsFor(s.address) : null;
+  const pick = d && d.income ? (d.income['5mi'] || d.income['3mi']) : null;
+  const radius = (d && d.income && d.income['5mi']) ? '5mi' : '3mi';
+  if (!pick) return { text: 'No Census data available', raw: null };
+  const note = demoIncomeNote(pick);
+  return { text: (note || 'Data unavailable for this radius') + ' (' + radius + ')', raw: (pick.value != null ? pick.value : null) };
+}
+function comparePopCell(s){
+  const d = (typeof demographicsFor === 'function') ? demographicsFor(s.address) : null;
+  const entryMap = d && d.population;
+  const order = ['5mi', '10mi', '3mi'];
+  let radius = null, pick = null;
+  for (let i = 0; i < order.length; i++){ if (entryMap && entryMap[order[i]]){ radius = order[i]; pick = entryMap[order[i]]; break; } }
+  if (!pick) return { text: 'No Census data available' };
+  const note = demoPopNote(pick);
+  return { text: (note || 'Data unavailable for this radius') + ' (' + radius + ')' };
+}
+
+// label: row label text. refTag: true adds the "reference, not scored" tag next to the label
+// (traffic/demographics rows only — matches the tag those fields already carry on the Overview tab).
+// bestIds: site ids to highlight in this row (empty = no highlight). cellFn(s): cell HTML per site.
+// bestNote: small caption shown on a highlighted cell explaining WHY (e.g. "closest to range"),
+// never "best"/"winner" wording on reference-not-scored rows. longText: scrollable cell (Highlights).
+function compareRow(label, refTag, sites, bestIds, cellFn, bestNote, longText){
+  const labelHtml = '<div class="compare-row-label">' + escapeHtml(label)
+    + (refTag ? ' <span class="compare-reftag">reference, not scored</span>' : '') + '</div>';
+  const cells = sites.map(s => {
+    const isBest = bestIds.indexOf(s.id) !== -1;
+    const note = (isBest && bestNote) ? '<span class="compare-best-tag">' + escapeHtml(bestNote) + '</span>' : '';
+    return '<div class="compare-cell' + (isBest ? ' compare-best' : '') + (longText ? ' compare-cell-long' : '') + '">'
+      + cellFn(s) + note + '</div>';
+  }).join('');
+  return '<div class="compare-row">' + labelHtml + cells + '</div>';
+}
+
+function renderCompareOverlay(){
+  const wrap = document.getElementById('compareTableWrap');
+  if (!wrap) return;
+  const sites = getCompareSites();
+  if (sites.length < 2){ closeCompareOverlay(); return; }
+  const n = sites.length;
+  const cols = '160px repeat(' + n + ', minmax(180px, 1fr))';
+
+  const headCells = sites.map(s => {
+    const mk = (typeof MARKETS !== 'undefined' && MARKETS.find) ? MARKETS.find(m => m.id === s.marketId) : null;
+    return '<div class="compare-th">'
+      + '<button type="button" class="compare-remove" data-id="' + s.id + '" title="Remove from comparison">&#10005;</button>'
+      + '<div class="compare-th-name">' + escapeHtml(s.name) + '</div>'
+      + '<span class="owner-badge" style="background:' + (OWNER_COLORS[s.ownerId] || '#8A7A66') + '">' + escapeHtml((s.ownerName || '').split(' ')[0]) + '</span>'
+      + (mk ? ' <span class="compare-market">' + escapeHtml(mk.name) + '</span>' : '')
+      + '<div class="compare-th-addr">' + escapeHtml(s.address || '') + '</div>'
+      + '</div>';
+  }).join('');
+
+  let rows = '';
+
+  rows += compareRow('Fit / confidence', false, sites,
+    compareBestIds(sites, s => (s.score ? s.score.fitScore : null), 'max'),
+    s => '<b>' + s.score.fitScore + '%</b> fit <span class="compare-sub">(' + Math.round((s.score.confidence || 0) * 100) + '% conf.)</span>',
+    'best fit');
+
+  rows += compareRow('Deal stage', false, sites, [], s => {
+    const st = getStage(s);
+    return st ? escapeHtml(st.stage) : '<span class="compare-blank">No updates logged</span>';
+  });
+
+  rows += compareRow('Space type', false, sites, [], s =>
+    s.spaceType ? escapeHtml(s.spaceType) : '<span class="compare-blank">—</span>');
+
+  rows += compareRow('Available SF', false, sites,
+    compareBestIds(sites, s => { const d = sfRangeDistance(s); return d == null ? null : -d; }, 'max'),
+    s => s.availableSF ? escapeHtml(s.availableSF) + ' SF' : '<span class="compare-blank">—</span>',
+    'closest to the 1,800–2,800 SF requirement');
+
+  rows += compareRow('Price PSF', false, sites, [], s =>
+    s.pricePSF ? escapeHtml(s.pricePSF) : '<span class="compare-blank">—</span>');
+
+  rows += compareRow('NNN', false, sites, [], s =>
+    s.nnn ? escapeHtml(s.nnn) : '<span class="compare-blank">—</span>');
+
+  const compInfo = {};
+  sites.forEach(s => { compInfo[s.id] = nearestCompetitorInfo(s); });
+  rows += compareRow('Nearest competitor', false, sites,
+    compareBestIds(sites, s => compInfo[s.id].mi, 'max'),
+    s => escapeHtml(compInfo[s.id].text),
+    'farthest');
+
+  const trafficInfo = {};
+  sites.forEach(s => { trafficInfo[s.id] = compareTrafficCell(s); });
+  rows += compareRow('Traffic (AADT)', true, sites,
+    compareBestIds(sites, s => trafficInfo[s.id].raw, 'max'),
+    s => escapeHtml(trafficInfo[s.id].text),
+    'highest');
+
+  const incomeInfo = {};
+  sites.forEach(s => { incomeInfo[s.id] = compareIncomeCell(s); });
+  rows += compareRow('Median household income', true, sites,
+    compareBestIds(sites, s => incomeInfo[s.id].raw, 'max'),
+    s => escapeHtml(incomeInfo[s.id].text),
+    'highest');
+
+  rows += compareRow('Residential population', true, sites, [], s => escapeHtml(comparePopCell(s).text));
+
+  rows += compareRow('Criteria met so far', false, sites, [], s =>
+    s.score.met + ' met &middot; ' + s.score.likely + ' likely &middot; ' + s.score.notMet + ' not met &middot; ' + s.score.unknown + ' need data');
+
+  rows += compareRow('Highlights', false, sites, [], s =>
+    s.highlights ? escapeHtml(s.highlights) : '<span class="compare-blank">No highlights on file yet.</span>', null, true);
+
+  wrap.innerHTML = '<div class="compare-grid" style="grid-template-columns:' + cols + ';">'
+    + '<div class="compare-row compare-headrow"><div class="compare-row-label"></div>' + headCells + '</div>'
+    + rows + '</div>';
+
+  wrap.querySelectorAll('.compare-remove').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const id = btn.dataset.id;
+      compareIds = compareIds.filter(x => x !== id);
+      renderList();
+      renderCompareFloatBtn();
+      if (getCompareSites().length < 2) closeCompareOverlay();
+      else renderCompareOverlay();
+    });
+  });
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+  const floatBtn = document.getElementById('compareFloatBtn');
+  if (floatBtn) floatBtn.addEventListener('click', openCompareOverlay);
+  const overlay = document.getElementById('compareOverlay');
+  if (overlay) overlay.addEventListener('click', (e) => { if (e.target === overlay) closeCompareOverlay(); });
+  const closeBtn = document.getElementById('compareCloseBtn');
+  if (closeBtn) closeBtn.addEventListener('click', closeCompareOverlay);
+});
 
 function truncate(s,n){ return s.length>n ? s.slice(0,n-1)+'…' : s; }
 function escapeHtml(s){ return (s||'').replace(/[&<>"']/g, c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c])); }
