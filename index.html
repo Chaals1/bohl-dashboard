@@ -698,12 +698,15 @@ function applyConfig(config){
   const nextColors = {};
   activeOwners.forEach(o => { nextColors[o.id] = o.color || OWNER_COLORS_FALLBACK[o.id] || '#8A7A66'; });
 
-  // LIVE_OWNER_IDS: which owners the SHEET-DATA Worker (WORKER_BASE_URL, Charles's original
-  // Worker — live cutover held per the B2 contract) can actually serve today. A brand-new owner
-  // added through the admin UI exists in OUR Worker's KV but Charles's Worker has never heard of
-  // them, so don't claim they're live — they correctly fall through to "no data yet" (like Kyle)
-  // until the cutover happens.
-  const nextLiveIds = nextOwners.map(o => o.id).filter(id => LIVE_OWNER_IDS_FALLBACK.includes(id));
+  // LIVE_OWNER_IDS: which owners the SHEET-DATA Worker (WORKER_BASE_URL) serves live. The cutover
+  // is DONE — WORKER_BASE_URL is our jr-383 Worker, which serves every owner registered in its KV.
+  // Registration only happens through /admin/owner AFTER check-access confirmed our service account
+  // can read that owner's sheet, so every active config owner is genuinely live-fetchable. Deriving
+  // the list from the live config (not the pre-cutover hardcoded fallback) is what lets a franchisee
+  // added through the admin UI actually refresh — otherwise they show as a tab but never fetch.
+  // A momentarily-unreadable sheet still degrades gracefully (fetchLiveOwnerData surfaces it as
+  // "couldn't reach this owner"), so including all active owners is safe.
+  const nextLiveIds = nextOwners.map(o => o.id);
 
   MARKETS = nextMarkets;
   OWNERS = nextOwners;
