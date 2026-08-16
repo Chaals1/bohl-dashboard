@@ -682,6 +682,22 @@ const BROCHURE_DATA = {
       population: {status:"likely", note:"97,162 population within 5 miles — just under the 100K+ (3–5mi) threshold; 272,141 within 10 miles clears the 150K+ (10mi/urban) threshold comfortably. Buckeye is also among the fastest-growing cities in the U.S. (5 years running, GrowBuckeye.com)."},
       income: {status:"met", note:"Median HH income by drive time: $128,334 (5min) / $111,662 (7min) / $106,590 (10min) — all above the $95K minimum, and the 5–7 minute drive-times clear the $110K preferred level."}
     }
+  },
+  "13864 W BELL RD, SURPRISE, AZ 85374": {
+    sourceUrl: "https://www.dropbox.com/scl/fi/r7pnlhyck7r87xmwy8up9/Litchfield-and-Bell-NEC-1-600-SF.pdf?rlkey=c3z3xke328jy0as72sbeo8dgp&st=1a958vqz&dl=0",
+    source: "Phoenix Commercial Advisors brochure — Litchfield Rd & Bell Rd, NEC (brochure reviewed 2026-08-15)",
+    criteria: {
+      sf: {status:"not_met", note:"±1,600 SF QSR restaurant space — 200 SF below Bohl's 1,800 SF minimum."},
+      siteType: {status:"not_met", note:"Freestanding PAD-zoned site (City of Surprise), not inline/end-cap shop space; live survey notes it's the former Hummus Republic (failing franchisee), fully fixturized."},
+      patio: {status:"unknown", note:"No patio mentioned in the brochure."},
+      visibility: {status:"met", note:"\"Visible location along Surprise's major arterial, Bell Road\"; Bell Rd carries ±48,087 VPD (EB) / ±43,424 VPD (WB) and Litchfield Rd ±22,019 VPD (ADOT 2025, Intrix 2024)."},
+      access: {status:"met", note:"\"Easy access off Litchfield Road and Bell Road\" per the brochure; NEC corner location."},
+      parking: {status:"unknown", note:"No parking ratio or count given in the brochure."},
+      centerAge: {status:"unknown", note:"No build/renovation year stated; live survey notes this is a fully fixturized 2nd-generation restaurant space (former Hummus Republic), not new construction."},
+      population: {status:"met", note:"102,289 population within 3 miles (2025 ESRI) clears the 100K+ (3–5mi) requirement; 227,662 within 5 miles."},
+      income: {status:"not_met", note:"Median HH income $65,467 (1mi) / $80,440 (3mi) / $81,090 (5mi) (2025 ESRI) — below Bohl's $95K minimum at every ring."}
+    },
+    dealNote: "Live survey broker notes flag this space directly: \"1,600 SF is below the survey's 1,800 SF minimum\" and it's a former Hummus Republic (failing franchisee) — a weak fit on size, site type, and income."
   }
 };
 
@@ -1009,6 +1025,102 @@ const LEVI_BROCHURE_DATA = {
       population: {status:"met", note:"221,987 population within 5 miles (2023) clears the 100K+ threshold (3-mile figure is 76,711, just under on its own; growing to 89,078 by 2028)."},
       income: {status:"met", note:"Median HH income $131,484 (1mi) / $115,055 (3mi) / $103,959 (5mi) — explicitly median; the 1-mile and 3-mile rings clear the $110K preferred level, and all three rings clear the $95K minimum."}
     }
+  },
+  "NWC VAL VISTA RD & GERMANN RD": {
+    sourceUrl: "https://www.dropbox.com/scl/fi/o5gnuy2tsa7r2urg0z089/The-Gilmore.pdf?rlkey=nbs51qzrzyywdapy157hjqwzs&st=bk4z78y6&dl=0",
+    source: "The Gilmore marketing brochure — NWC Val Vista Rd & Germann Rd (brochure reviewed 2026-08-16; site is on Levi's Non-Active tab)",
+    criteria: {
+      sf: {status:"likely", note:"Site plan shows restaurant opportunities at ±2,500 SF and ±2,591 SF — both within Bohl's 1,800–2,800 SF range; other shown spaces (±4,200 / ±6,423 / ±8,409 SF) are oversized."},
+      siteType: {status:"unknown", note:"Restaurant opportunities and ground-floor/2nd-story shop space shown on the site plan; not explicitly labeled inline or end-cap."},
+      patio: {status:"met", note:"\"Restaurant Opportunities With Large Patios\" explicitly listed under Retail Offerings."},
+      visibility: {status:"likely", note:"±54,390 VPD reported at the busiest nearby intersection frontage — strong traffic count, not explicitly described as \"high visibility.\""},
+      access: {status:"met", note:"Near the 202 Santan Freeway (0–10 min drive to Gilbert's employment center) plus signalized arterial frontage."},
+      parking: {status:"unknown", note:"No parking ratio or space count stated in the brochure."},
+      centerAge: {status:"met", note:"Explicitly \"Now Under Construction\" — brand-new mixed-use development."},
+      population: {status:"met", note:"299,286 total population within a 5-mile radius — clears the 100K+ (3–5mi) requirement comfortably."},
+      income: {status:"unknown", note:"No household income figure stated; brochure gives median home value ($557,668) instead."}
+    },
+    dealNote: "Levi's team passed on this site — broker notes say \"Too many bowl exclusives; not a fit\" — which is why it's on the Non-Active tab despite strong demographics."
+  },
+  "SEC BASELINE RD & GILBERT RD, GILBERT, AZ": {
+    sourceUrl: "https://www.dropbox.com/scl/fi/b6tslnh4248er24dmngdi/Baseline_Gilbert_SEC_-Joe-Hoye.pdf?rlkey=0j14yboo87efmhblftvsq6104&st=9fh4iybm&dl=0",
+    source: "Velocity Retail Group brochure — Encore Plaza (brochure reviewed 2026-08-16; site is on Levi's Non-Active tab)",
+    criteria: {
+      sf: {status:"met", note:"Live survey lists 2,147 SF — within Bohl's 1,800–2,800 SF range."},
+      siteType: {status:"unknown", note:"Marketed simply as \"Shop Space Available\"; not labeled inline or end-cap."},
+      patio: {status:"unknown", note:"No mention of a patio in the brochure."},
+      visibility: {status:"likely", note:"62,703 CPD combined at the Baseline/Gilbert corner and one block south of US-60 (±212,000 VPD) — strong traffic exposure, not explicitly confirmed as \"high visibility.\""},
+      access: {status:"met", note:"\"Just one block south of US-60 (Superstition Fwy) for quick freeway access.\""},
+      parking: {status:"unknown", note:"No parking ratio or stall count given in the brochure."},
+      centerAge: {status:"not_met", note:"No renovation or build date given; Levi's own broker notes describe the plaza as \"slowly degrading, not a very clean plaza.\""},
+      population: {status:"met", note:"409,687 population within 5 miles — comfortably clears the 100K+ (3–5mi) requirement."},
+      income: {status:"met", note:"Median HH income $115,647 (1mi) / $113,489 (3mi) / $113,487 (5mi) — explicitly median, and clears the $110K preferred level at every ring."}
+    },
+    dealNote: "Levi's team passed — broker notes call the plaza \"slowly degrading, not a very clean plaza\"; currently occupied by Autism Journey per the survey."
+  },
+  "S/SWC RAY RD & LOOP 202": {
+    sourceUrl: "https://www.dropbox.com/scl/fi/3n75ewueeva1rp4is1x3i/Northside-Bryan-Babbits.pdf?rlkey=eu56vv4z6j9an3kxglxbrf68p&st=44jsavji&dl=0",
+    source: "Western Retail Advisors brochure — Northside at San Tan Village (brochure reviewed 2026-08-16; site is on Levi's Non-Active tab)",
+    criteria: {
+      sf: {status:"likely", note:"Live survey ask spans 2,500–2,990 SF; the retail lease plan shows Suite 123 (Building R6) at 2,500 SF fitting Bohl's 1,800–2,800 SF range, while Suite 118 (Building R4) at 2,990 SF runs 190 SF over the max."},
+      siteType: {status:"unknown", note:"Freestanding retail buildings (R1–R6) rather than a single inline/end-cap shop building; not explicitly labeled either way."},
+      patio: {status:"met", note:"\"Large patio and shared plaza\" explicitly listed under Retail Overview."},
+      visibility: {status:"met", note:"\"Premiere street visibility\" explicitly stated; Loop 202 carries 60,426 ADT adjacent to the site."},
+      access: {status:"met", note:"\"Located just off AZ-202\" — direct freeway proximity."},
+      parking: {status:"met", note:"5/1,000 SF surface parking ratio explicitly stated."},
+      centerAge: {status:"met", note:"Brand-new mixed-use development, described as \"Sophisticated • Modern • Northside.\""},
+      population: {status:"met", note:"297,472 population within 5 miles (2022 estimate; growing to 309,512 by 2027) — clears the 100K+ (3–5mi) requirement comfortably; also clears 150K+ within the wider 10-mile radius (1M+ residents cited)."},
+      income: {status:"met", note:"Average HH income $127,741 (1mi) / $136,913 (3mi) / $132,792 (5mi) — exceeds the $110K preferred level at every ring, though these are averages rather than median figures."}
+    },
+    dealNote: "Broker notes confirm Roka Akor has taken the 4,336 SF pad (Building R2, Suite 101), which is now off the market. Tenant note describes the development as \"a little tucked away\" despite the strong demographics."
+  },
+  "SWC RIGGS ROAD & GARY ROAD, QUEEN CREEK, ARIZONA": {
+    sourceUrl: "https://www.dropbox.com/scl/fi/n0ipiaosgstyvrkyz1gaw/View-Harvest-Station-s-Queen-Creek-Safeway-Marketing-22983-E-Riggs-Rd.pdf?rlkey=p3bdj1am5niwzuq4nm0w128el&st=4bvsd2at&dl=0",
+    source: "The Eisenberg Company brochure — Harvest Station (brochure reviewed 2026-08-16; site is on Levi's Non-Active tab)",
+    criteria: {
+      sf: {status:"not_met", note:"Listing broker has confirmed the center is now fully leased — no space currently available. Brochure originally marketed 1,200–8,000 SF leasing opportunities across Shops A/B when pre-leasing."},
+      siteType: {status:"unknown", note:"Shops A/B retail buildings within a Safeway-anchored center; not labeled inline/end-cap, and moot given the fully-leased status."},
+      patio: {status:"met", note:"\"Restaurants with Outdoor Patio\" explicitly listed among available opportunity types (brochure was pre-leasing; no longer applicable now that the center is full)."},
+      visibility: {status:"unknown", note:"No explicit visibility language; site sits at a newly constructed intersection (Riggs Rd & Gary Rd)."},
+      access: {status:"unknown", note:"No freeway/interchange proximity stated in the brochure."},
+      parking: {status:"met", note:"471 parking spaces explicitly stated."},
+      centerAge: {status:"met", note:"Brand-new construction at the time of marketing — \"the newest development coming to Queen Creek,\" originally targeting Q3 2025 delivery."},
+      population: {status:"likely", note:"157,937 total population reported \"within trade area\" — radius not specified, so it can't be confirmed against Bohl's 3–5mi/10mi thresholds."},
+      income: {status:"not_met", note:"$79,814 average household income \"within trade area\" — below the $95K minimum (radius not specified)."}
+    },
+    dealNote: "Site is fully leased per the listing broker — no current opportunity. Levi asked about the property over the weekend before that was confirmed."
+  },
+  "NEC ALMA SCHOOL RD & QUEEN CREEK RD, CHANDLER, AZ 85286": {
+    sourceUrl: "https://www.dropbox.com/scl/fi/xkzmbay0eizzqrl1zcnk2/Las-Tiendas-Village-Nuveen.pdf?rlkey=jealzwx278f5ridwijvmdtqmc&st=spr3ksqo&dl=0",
+    source: "Western Retail Advisors brochure — Las Tiendas Village (Nuveen-owned; brochure reviewed 2026-08-16; site is on Levi's Non-Active tab)",
+    criteria: {
+      sf: {status:"likely", note:"Live survey lists 1,680 / 2,000 / 6,327 SF (divisible) as available. Site plan confirms Suite A-8 at 2,000 SF (within Bohl's 1,800–2,800 SF range) and Suite A-9 at 1,680 SF (120 SF under the 1,800 SF minimum); the 6,327 SF A-1 suite is divisible and could be demised into range."},
+      siteType: {status:"unknown", note:"Inline shop suites within Building A per the site plan; not explicitly labeled inline or end-cap in the brochure text."},
+      patio: {status:"unknown", note:"No mention of a patio for the available suites in the brochure."},
+      visibility: {status:"met", note:"\"Strong demographics and excellent visibility\" explicitly stated; ±62,000 VPD at the Alma School/Queen Creek intersection."},
+      access: {status:"met", note:"\"Convenient access from both Alma School and Queen Creek Roads with signalized entry.\""},
+      parking: {status:"met", note:"\"Ample surface parking\" explicitly stated."},
+      centerAge: {status:"unknown", note:"No construction or renovation date stated; established center with a long-tenured tenant roster (Sprouts, Marshalls, HomeGoods, Five Below, Chipotle)."},
+      population: {status:"met", note:"237K residents within 5 miles — clears the 100K+ (3–5mi) requirement comfortably."},
+      income: {status:"met", note:"$165K average household income within 3 miles — well above the $110K preferred level."}
+    },
+    dealNote: "Tenant asked about Chipotle exclusivity in the parking lot (\"a D+ site that does $2.6M\"); per the 07/24/2026 status log the listing broker confirmed Chipotle's exclusion language doesn't create an issue. Broker notes: the 1,680 and 2,000 SF suites are grey-shell delivery; the larger 6,327 SF space is built out with a virtual tour available."
+  },
+  "2580 W CHANDLER BLVD, CHANDLER, AZ 85224": {
+    sourceUrl: "https://www.dropbox.com/scl/fi/vd1evtg88noq3rf0ln40o/Chandler-Festival-Brochure-6.2026.pdf?rlkey=tyy8202bkgx8s4barhyiidkck&st=ep7lbfc1&dl=0",
+    source: "RED Development brochure — Chandler Festival (brochure reviewed 2026-08-16; site is on Levi's Non-Active tab)",
+    criteria: {
+      sf: {status:"not_met", note:"Live survey lists 1,422 SF — below Bohl's 1,800 SF minimum by 378 SF. Brochure itself doesn't state suite-level SF for the available shops space."},
+      siteType: {status:"likely", note:"Broker notes describe it as \"2nd gen. Former Edo Japan\" — a 2nd-generation restaurant space, typically inline."},
+      patio: {status:"unknown", note:"No mention of a patio in the brochure or survey."},
+      visibility: {status:"met", note:"NEC of Loop 101 & Chandler Blvd — the #1 most-visited comparative center within a 15-mile radius (4.4M annual visits, 95th percentile nationwide)."},
+      access: {status:"met", note:"Direct frontage at the NEC of Loop 101, a freeway interchange."},
+      parking: {status:"met", note:"±2,652 parking spaces explicitly stated."},
+      centerAge: {status:"unknown", note:"Established power center (Nordstrom Rack, TJ Maxx, Ross, Lowe's) with no renovation or build date stated."},
+      population: {status:"met", note:"278,458 population within 5 miles — clears the 100K+ (3–5mi) requirement; 969,652 within 10 miles also clears the 150K+ urban threshold."},
+      income: {status:"met", note:"$135,547 average household income within 5 miles (3mi: $138,937) — comfortably exceeds the $110K preferred level."}
+    },
+    dealNote: "At 1,422 SF this is the smallest of Levi's sites and falls short of Bohl's size minimum. Tenant note: the Chipotle next door reportedly does $2.2M in sales at this site."
   }
 };
 
